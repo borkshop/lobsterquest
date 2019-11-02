@@ -92,29 +92,52 @@ enum_flags entype:
     ent_input = 1
     ent_visible
 
+class ent_ids:
+    mask:entype
+    ids:[int] = []
+
+    def clear():
+        ids.remove(0, ids.length())
+
+    def update(id:int, old:entype, new:entype):
+        let diff = old ^ new
+        if diff & mask:
+            if new & mask:
+                ids.push(id)
+            else: if old & mask:
+                ids.remove_obj(id)
+
 var type = []::entype
 var pos = []::spatial
 var ren = []::render
 
-def space_bounds():
+// visible entities get drawn
+let scene = ent_ids { mask: ent_visible } // TODO some assist for back-to-front drawing
+
+// type based entity observation
+let watchers = []
+watchers.push(scene)
+
+def scene_bounds():
+    // TODO assist this with pre-computation by observing position changes
     var minp = xyz_0i
     var maxp = xyz_0i
     var first = true
-    for(type) t, id:
-        if t & ent_visible: // TODO collection
-            let p = pos[id]
-            if first:
-                first = false
-                minp = maxp = p.cell
-            else:
-                minp = min(minp, p.cell)
-                maxp = max(maxp, p.cell)
+    for(scene.ids) id:
+        let p = pos[id]
+        if first:
+            first = false
+            minp = maxp = p.cell
+        else:
+            minp = min(minp, p.cell)
+            maxp = max(maxp, p.cell)
     return minp, maxp
 
 def clear_ents():
     type = []
     pos = []
     ren = []
+    for(watchers): _.clear()
 
 def create_ent(t, p, r):
     // TODO re-use from freelist
@@ -122,8 +145,14 @@ def create_ent(t, p, r):
     type.push(t)
     pos.push(p)
     ren.push(r)
-    // TODO add to collection(s)
+    for(watchers): _.update(id, ent_none, t)
     return id
+
+def ent_set_type(id:int, t:entype):
+    let old = type[id]
+    type[id] = t
+    for(watchers): _.update(id, old, t)
+    // TODO if t == 0: add to freelist
 
 def create_char(et:entype, loc:xy_i, c:color, g:glyph):
     let t = ent_visible | et
@@ -287,17 +316,16 @@ do():
 
         // if not paused: TODO read_input
 
-        let minp, maxp = space_bounds()
+        let minp, maxp = scene_bounds()
         let space_size = maxp.xy - minp.xy + 1
         let cell_size = min(gl_window_size() / space_size)
         let view_rem = gl_window_size() - space_size * cell_size
         gl_translate(float(-minp.xy) * cell_size + float(view_rem) / 2):
             // TODO do our own viewport culling here; TODO using a spatial index range query?
             // TODO must we draw back-to-front, or does the graphics module abstract that from us?
-            for(type) t, id:
-                if t & ent_visible: // TODO collection
-                    pos[id].transform(cell_size):
-                        ren[id].draw(cell_size)
+            for(scene.ids) id:
+                pos[id].transform(cell_size):
+                    ren[id].draw(cell_size)
 
         if show_ui: do():
             im_frame():
