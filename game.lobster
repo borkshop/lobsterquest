@@ -115,6 +115,7 @@ enum_flags entype:
     ent_none = 0
     ent_input = 1
     ent_visible
+    ent_body
     ent_mind
 
 class ent_ids:
@@ -161,9 +162,13 @@ let scene = ent_ids { mask: ent_visible } // TODO some assist for back-to-front 
 // minds make moves
 let minds = ent_typed_ids { mask: ent_mind } // TODO state for AI
 
+// solid bodies for collision
+let bodys = ent_ids { mask: ent_body } // TODO spatial index
+
 // type based entity observation
 let watchers = []
 watchers.push(scene)
+watchers.push(bodys)
 watchers.push(minds)
 
 def scene_bounds():
@@ -203,13 +208,13 @@ def ent_set_type(id:int, t:entype):
     // TODO if t == 0: add to freelist
 
 def create_char(et:entype, loc:xy_i, c:color, g:glyph):
-    let t = ent_mind | ent_visible | et
+    let t = ent_body | ent_mind | ent_visible | et
     let r = render { color_zero, c, g }
     let p = spatial { cell: xyz_i { loc.x, loc.y, 1 } }
     return create_ent(t, p, r)
 
 def create_obj(et:entype, loc:xy_i, c:color, g:glyph):
-    let t = ent_visible | et
+    let t = ent_body | ent_visible | et
     let r = render { color_zero, c, g }
     let p = spatial { cell: xyz_i { loc.x, loc.y, 1 } }
     return create_ent(t, p, r)
@@ -339,13 +344,15 @@ def step_world(input:move):
     let targets = map(minds.ids) id, mind_id:
         moves[mind_id].target(pos[id].cell)
 
-    // group moves by shared interest
+    // compute hit bodies, grouping moves by shared interest
     let group_ids = map(moves): -1
     let groups = vector_reserve(typeof [[int]], moves.length())
+    let hits = vector_reserve(typeof [[int]], moves.length())
     for(targets) t, mind_id:
         if moves[mind_id].isactive() and group_ids[mind_id] < 0:
             let group_id = groups.length()
             let actors = [mind_id]
+            let at = filter(bodys.ids) id: pos[id].cell == t // TODO spatial query
             var other_mind_id = mind_id + 1
             while other_mind_id < targets.length():
                 if moves[mind_id].isactive() and group_ids[other_mind_id] < 0:
@@ -353,19 +360,24 @@ def step_world(input:move):
                         group_ids[other_mind_id] = group_id
                         actors.push(other_mind_id)
                     other_mind_id++
+            hits.push(at)
             groups.push(actors)
             group_ids[mind_id] = group_id
 
     // resolve movement groups
     for(groups) actors, group_id:
+        let at = hits[group_id]
+
         // no conflict
         if actors.length() == 1:
             let mind_id = actors[0]
             let id = minds.ids[mind_id]
-            // TODO collision
-            let p = pos[id]
-            let t = targets[mind_id]
-            pos[id] = p.move_to(t)
+
+            // nothing hit
+            if at.length() == 0:
+                let p = pos[id]
+                let t = targets[mind_id]
+                pos[id] = p.move_to(t)
 
         // TODO other resolutions
 
