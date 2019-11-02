@@ -101,6 +101,30 @@ struct move:
     def isactive():
         return act != action_none
 
+    def limit(n:int):
+        return move {
+            act: act,
+            dir: limit_dir(n),
+        }
+
+    def limit_dir(n:int):
+        if !act & action_move:
+            return xy_0i
+        let s = sign(dir)
+        let d = abs(dir)
+        let t = d.x + d.y
+        if t <= n:
+            return dir, n - t
+        var o = t - n
+        var x, y = d.x, d.y
+        while o > 0:
+            if x > 0:
+                x--
+            else: if y > 0:
+                y--
+            o--
+        return s * xy_i { x, y }, 0
+
     def target(cur:xyz_i):
         var p = cur.xy
         if act & action_move:
@@ -155,6 +179,7 @@ class ent_typed_ids : ent_ids
 var type = []::entype
 var pos = []::spatial
 var ren = []::render
+var enrg = []::int
 
 // visible entities get drawn
 let scene = ent_ids { mask: ent_visible } // TODO some assist for back-to-front drawing
@@ -190,14 +215,16 @@ def clear_ents():
     type = []
     pos = []
     ren = []
+    enrg = []
     for(watchers): _.clear()
 
-def create_ent(t, p, r):
+def create_ent(t, p, r, e):
     // TODO re-use from freelist
     let id = type.length()
     type.push(t)
     pos.push(p)
     ren.push(r)
+    enrg.push(e)
     for(watchers): _.update(id, ent_none, t)
     return id
 
@@ -211,19 +238,19 @@ def create_char(et:entype, loc:xy_i, c:color, g:glyph):
     let t = ent_body | ent_mind | ent_visible | et
     let r = render { color_zero, c, g }
     let p = spatial { cell: xyz_i { loc.x, loc.y, 1 } }
-    return create_ent(t, p, r)
+    return create_ent(t, p, r, 0)
 
 def create_obj(et:entype, loc:xy_i, c:color, g:glyph):
     let t = ent_body | ent_visible | et
     let r = render { color_zero, c, g }
     let p = spatial { cell: xyz_i { loc.x, loc.y, 1 } }
-    return create_ent(t, p, r)
+    return create_ent(t, p, r, 0)
 
 def create_floor(loc:xy_i, b:color, f:color, g:glyph):
     let t = ent_visible
     let r = render { b, f, g }
     let p = spatial { cell: xyz_i { loc.x, loc.y, 0 } }
-    return create_ent(t, p, r)
+    return create_ent(t, p, r, 0)
 
 var build_loc = xy_0i
 
@@ -331,6 +358,9 @@ def read_input():
     return input, true
 
 def step_world(input:move):
+    // energize all minds
+    for(minds.ids) id: enrg[id]++
+
     // choose moves
     let moves = map(minds.ids) id, mind_id:
         let t = minds.types[mind_id]
@@ -338,6 +368,10 @@ def step_world(input:move):
             input
         else:
             move_0 // TODO AI movement
+
+    // enforce movement energy limits
+    for(minds.ids) id, mind_id:
+        moves[mind_id] = moves[mind_id].limit(enrg[id])
 
     // compute movement targets
     // TODO probably needs to be extended to targeting lines when not acting on an adjacent neighbor cell
@@ -377,7 +411,9 @@ def step_world(input:move):
             if at.length() == 0:
                 let p = pos[id]
                 let t = targets[mind_id]
+                let d = abs(t - p.cell)
                 pos[id] = p.move_to(t)
+                enrg[id] -= d.x + d.y
 
         // TODO other resolutions
 
