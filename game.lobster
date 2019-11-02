@@ -339,12 +339,35 @@ def step_world(input:move):
     let targets = map(minds.ids) id, mind_id:
         moves[mind_id].target(pos[id].cell)
 
-    // TODO collision detection
+    // group moves by shared interest
+    let group_ids = map(moves): -1
+    let groups = vector_reserve(typeof [[int]], moves.length())
     for(targets) t, mind_id:
-        let id = minds.ids[mind_id]
-        let p = pos[id]
-        let t = targets[i]
-        pos[id] = p.move_to(t)
+        if moves[mind_id].isactive() and group_ids[mind_id] < 0:
+            let group_id = groups.length()
+            let actors = [mind_id]
+            var other_mind_id = mind_id + 1
+            while other_mind_id < targets.length():
+                if moves[mind_id].isactive() and group_ids[other_mind_id] < 0:
+                    if targets[other_mind_id] == t:
+                        group_ids[other_mind_id] = group_id
+                        actors.push(other_mind_id)
+                    other_mind_id++
+            groups.push(actors)
+            group_ids[mind_id] = group_id
+
+    // resolve movement groups
+    for(groups) actors, group_id:
+        // no conflict
+        if actors.length() == 1:
+            let mind_id = actors[0]
+            let id = minds.ids[mind_id]
+            // TODO collision
+            let p = pos[id]
+            let t = targets[mind_id]
+            pos[id] = p.move_to(t)
+
+        // TODO other resolutions
 
 do():
     build_twemoji(9)
