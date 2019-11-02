@@ -87,10 +87,35 @@ struct spatial:
         gl_translate(xyz { loc.x, loc.y, float(cell.z) }):
             body()
 
+    def move_to(p:xyz_i):
+        return spatial { cell: p }
+
+enum_flags action:
+    action_none = 0
+    action_move = 1
+
+struct move:
+    act:action
+    dir:xy_i
+
+    def isactive():
+        return act != action_none
+
+    def target(cur:xyz_i):
+        var p = cur.xy
+        if act & action_move:
+            p += dir
+        return xyz_i { p.x, p.y, cur.z }
+
+let move_0 = move { action_none, xy_0i }
+
+def move_dir(d:xy_i): return move { action_move, d }
+
 enum_flags entype:
     ent_none = 0
     ent_input = 1
     ent_visible
+    ent_mind
 
 class ent_ids:
     mask:entype
@@ -107,6 +132,25 @@ class ent_ids:
             else: if old & mask:
                 ids.remove_obj(id)
 
+class ent_typed_ids : ent_ids
+    types:[entype] = []
+
+    def clear():
+        ids.remove(0, ids.length())
+        types.remove(0, types.length())
+
+    def update(id:int, old:entype, new:entype):
+        let diff = old ^ new
+        if diff & mask:
+            if new & mask:
+                ids.push(id)
+                types.push(new)
+            else: if old & mask:
+                for(ids) _, i:
+                    if _ == id:
+                        ids.remove(i, 1)
+                        types.remove(i, 1)
+
 var type = []::entype
 var pos = []::spatial
 var ren = []::render
@@ -114,9 +158,13 @@ var ren = []::render
 // visible entities get drawn
 let scene = ent_ids { mask: ent_visible } // TODO some assist for back-to-front drawing
 
+// minds make moves
+let minds = ent_typed_ids { mask: ent_mind } // TODO state for AI
+
 // type based entity observation
 let watchers = []
 watchers.push(scene)
+watchers.push(minds)
 
 def scene_bounds():
     // TODO assist this with pre-computation by observing position changes
@@ -155,7 +203,7 @@ def ent_set_type(id:int, t:entype):
     // TODO if t == 0: add to freelist
 
 def create_char(et:entype, loc:xy_i, c:color, g:glyph):
-    let t = ent_visible | et
+    let t = ent_mind | ent_visible | et
     let r = render { color_zero, c, g }
     let p = spatial { cell: xyz_i { loc.x, loc.y, 1 } }
     return create_ent(t, p, r)
@@ -241,6 +289,63 @@ def build_twemoji(size):
         place_elementals()
         build_at(xy_0i) loc: create_char(ent_input, loc, color_blue_violet, emoji(0x1f9d9)) // 🧙 mage
 
+// arrow keys with "." to stay idiom
+// TODO other bindings, like WASD or vi-style?
+let buttons = [
+    "up",
+    "down",
+    "left",
+    "right",
+    ".",
+]
+
+let button_moves = [
+    move_dir(xy {  0, -1 }),
+    move_dir(xy {  0,  1 }),
+    move_dir(xy { -1,  0 }),
+    move_dir(xy {  1,  0 }),
+    move_dir(xy_0i),
+]
+
+var last_input = 0.0
+
+def read_input():
+    let since_input = gl_time() - last_input
+    let until_next_input = 1.0 / 6
+    var input, have = move_0, false
+    for(buttons) button, i:
+        var state = gl_button(button)
+        if state > 1 and since_input < until_next_input:
+            state = 0
+        if state > 0:
+            input, have = button_moves[i], true
+    // TODO click-cell to move; touchscreen? on-screen D-pad?
+    if !have:
+        return move_0, false
+    last_input = gl_time()
+    return input, true
+
+def step_world(input:move):
+    // choose moves
+    let moves = map(minds.ids) id, mind_id:
+        let t = minds.types[mind_id]
+        if t & ent_input:
+            input
+        else:
+            move_0 // TODO AI movement
+
+    // compute movement targets
+    // TODO probably needs to be extended to targeting lines when not acting on an adjacent neighbor cell
+    let targets = map(minds.ids) id, mind_id:
+        moves[mind_id].target(pos[id].cell)
+
+    // TODO collision detection
+    for(targets) t, mind_id:
+        let id = minds.ids[mind_id]
+        let p = pos[id]
+        let t = targets[i]
+        pos[id] = p.move_to(t)
+
 do():
     build_twemoji(9)
 
@@ -314,7 +419,10 @@ do():
 
         // TODO zoom & pan more like utilui
 
-        // if not paused: TODO read_input
+        if not paused:
+            let input, have_move = read_input()
+            if have_move:
+                step_world(input)
 
         let minp, maxp = scene_bounds()
         let space_size = maxp.xy - minp.xy + 1
