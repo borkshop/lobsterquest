@@ -5,21 +5,43 @@ import vec
 
 /* TODO
 
-- discrete movement; maybe animated
-- energy based action system
-- intent based movement system
-  - using body information to bound what's possible
-- collision system works by joint conflict resolution
-  - damages resolved out of collisions
-- player control system
-- ai control system
-  - threat table based on past damage
-  - modal goal system, informed by things like health / capability
-  - later on, derive relations, reputation, etc from past data
-- graph-oriented body system
-  - with equipment attachment
-- maybe expand to 2-glyphs
-- maybe blending with pixel/grid art
+- rendering
+  - ensured back-to-front rendering
+  - optimize glyph draw: group by mode; cache strings, meshes, or use textures
+  - animated movement and other actions
+  - viewport control (zoom and pan)
+  - more moji coverage, like skin and gender
+  - maybe expand to 2-glyphs
+  - maybe blending with pixel/grid art
+  - maybe tiled sprite sheet
+- spatial
+  - shift to floating point to support sub-cell positioning...
+  - ...likely useful for animating movement
+  - ...and super-cell constructs
+  - support sub-cell size; maybe super-cell
+  - shape control
+  - better collision processing, either using a spatial index, or circle collision
+- input
+  - alternate key bindings
+  - help overlay
+  - maybe naturalize the menu overlay ( rather than use imgui )
+  - click to move; touchscreen?  on-screen D-pad?
+  - inspection system for users?
+- movement
+  - support resolving "far moves" ( affecting other than adjacent cell )
+  - actions other than movement
+- interaction
+  - what to do on hit?
+  - solutions for multiple actors
+- log hud?
+- imgui
+  - closable windows would be nice
+  - use imgui more like the overlay demo example
+- entities
+  - freelist and re-use
+- ai system based on behavior trees
+- relations to other entities (threats, assists, respects, etc)
+- graph-oriented body system item holding and with equipment
 
 */
 
@@ -40,11 +62,10 @@ struct glyph:
     font:int
     code:int
     stretch:bool
-    // TODO support moar codes for combining characters (e.g. emoji skin tone and gender)
 
     def draw(size):
-        gl_set_font_name(gl_font_names[font]) // TODO worth it to cur-check?
-        gl_set_font_size(size.y)              // TODO or just leave that up to font.cpp?
+        gl_set_font_name(gl_font_names[font])
+        gl_set_font_size(size.y)
         let txt = unicode_to_string([code])
         let tsz = clamp(gl_text_size(txt), xy_0i, size )
         if stretch:
@@ -77,10 +98,6 @@ struct render:
 
 struct spatial:
     cell:xyz_i  // 2d cell + stacking order
-    // TODO shift to xyz_f to support intra-cell positioning
-
-    // TODO support size, maybe shape
-    // size:float  // unit scale
 
     def transform(cell_size, body):
         let loc = float(cell.xy) * cell_size
@@ -108,8 +125,6 @@ struct move:
         }
 
     def limit_dir(n:int):
-        if !act & action_move:
-            return xy_0i
         let s = sign(dir)
         let d = abs(dir)
         let t = d.x + d.y
@@ -182,13 +197,13 @@ var ren = []::render
 var enrg = []::int
 
 // visible entities get drawn
-let scene = ent_ids { mask: ent_visible } // TODO some assist for back-to-front drawing
+let scene = ent_ids { mask: ent_visible }
 
 // minds make moves
-let minds = ent_typed_ids { mask: ent_mind } // TODO state for AI
+let minds = ent_typed_ids { mask: ent_mind }
 
 // solid bodies for collision
-let bodys = ent_ids { mask: ent_body } // TODO spatial index
+let bodys = ent_ids { mask: ent_body }
 
 // type based entity observation
 let watchers = []
@@ -197,7 +212,6 @@ watchers.push(bodys)
 watchers.push(minds)
 
 def scene_bounds():
-    // TODO assist this with pre-computation by observing position changes
     var minp = xyz_0i
     var maxp = xyz_0i
     var first = true
@@ -219,7 +233,6 @@ def clear_ents():
     for(watchers): _.clear()
 
 def create_ent(t, p, r, e):
-    // TODO re-use from freelist
     let id = type.length()
     type.push(t)
     pos.push(p)
@@ -232,7 +245,6 @@ def ent_set_type(id:int, t:entype):
     let old = type[id]
     type[id] = t
     for(watchers): _.update(id, old, t)
-    // TODO if t == 0: add to freelist
 
 def create_char(et:entype, loc:xy_i, c:color, g:glyph):
     let t = ent_body | ent_mind | ent_visible | et
@@ -322,7 +334,6 @@ def build_twemoji(size):
         build_at(xy_0i) loc: create_char(ent_input, loc, color_blue_violet, emoji(0x1f9d9)) // 🧙 mage
 
 // arrow keys with "." to stay idiom
-// TODO other bindings, like WASD or vi-style?
 let buttons = [
     "up",
     "down",
@@ -351,7 +362,6 @@ def read_input():
             state = 0
         if state > 0:
             input, have = button_moves[i], true
-    // TODO click-cell to move; touchscreen? on-screen D-pad?
     if !have:
         return move_0, false
     last_input = gl_time()
@@ -367,14 +377,13 @@ def step_world(input:move):
         if t & ent_input:
             input
         else:
-            move_0 // TODO AI movement
+            move_0
 
     // enforce movement energy limits
     for(minds.ids) id, mind_id:
         moves[mind_id] = moves[mind_id].limit(enrg[id])
 
     // compute movement targets
-    // TODO probably needs to be extended to targeting lines when not acting on an adjacent neighbor cell
     let targets = map(minds.ids) id, mind_id:
         moves[mind_id].target(pos[id].cell)
 
@@ -386,7 +395,7 @@ def step_world(input:move):
         if moves[mind_id].isactive() and group_ids[mind_id] < 0:
             let group_id = groups.length()
             let actors = [mind_id]
-            let at = filter(bodys.ids) id: pos[id].cell == t // TODO spatial query
+            let at = filter(bodys.ids) id: pos[id].cell == t
             var other_mind_id = mind_id + 1
             while other_mind_id < targets.length():
                 if moves[mind_id].isactive() and group_ids[other_mind_id] < 0:
@@ -415,8 +424,6 @@ def step_world(input:move):
                 pos[id] = p.move_to(t)
                 enrg[id] -= d.x + d.y
 
-        // TODO other resolutions
-
 do():
     build_twemoji(9)
 
@@ -442,9 +449,6 @@ do():
                 show_imgui_demo = im_window_demo()
                 return
 
-            // TODO would prefer to do these more like the imgui overlay example
-
-            // TODO wish that we could make the menu window closable
             im_window("Menu", im_window_always_autoresize):
                 paused = im_checkbox("World Paused", paused)
                 show_engine = im_checkbox("Engine Info", show_engine)
@@ -468,7 +472,6 @@ do():
             if show_engine: im_window("engine", im_window_always_autoresize):
                 im_show_engine_stats()
                 im_separator()
-                // TODO prefer to do this as a collapsible header (rather than a checkbox)
                 show_editor = im_checkbox("Edit Everything", show_editor)
                 if show_editor:
                     im_show_vars()
@@ -488,8 +491,6 @@ do():
             show_ui = !show_ui
             paused = show_ui
 
-        // TODO zoom & pan more like utilui
-
         if not paused:
             let input, have_move = read_input()
             if have_move:
@@ -500,8 +501,6 @@ do():
         let cell_size = min(gl_window_size() / space_size)
         let view_rem = gl_window_size() - space_size * cell_size
         gl_translate(float(-minp.xy) * cell_size + float(view_rem) / 2):
-            // TODO do our own viewport culling here; TODO using a spatial index range query?
-            // TODO must we draw back-to-front, or does the graphics module abstract that from us?
             for(scene.ids) id:
                 pos[id].transform(cell_size):
                     ren[id].draw(cell_size)
