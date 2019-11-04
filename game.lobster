@@ -45,6 +45,11 @@ import vec
 
 */
 
+def first_index(xs, x):
+    for(xs) _, i: if _ == x:
+        return i
+    return -1
+
 // font for imgui
 let im_font = "data/fonts/Inconsolata/Inconsolata-Bold.ttf"
 let im_fontsize = 32
@@ -186,10 +191,10 @@ class ent_typed_ids : ent_ids
                 ids.push(id)
                 types.push(new)
             else: if old & mask:
-                for(ids) _, i:
-                    if _ == id:
-                        ids.remove(i, 1)
-                        types.remove(i, 1)
+                let i = ids.first_index(id)
+                if i >= 0:
+                    ids.remove(i, 1)
+                    types.remove(i, 1)
 
 var type = []::entype
 var pos = []::spatial
