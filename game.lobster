@@ -6,7 +6,6 @@ import vec
 /* TODO
 
 - rendering
-  - ensured back-to-front rendering
   - optimize glyph draw: group by mode; cache strings, meshes, or use textures
   - animated movement and other actions
   - viewport control (zoom and pan)
@@ -201,8 +200,31 @@ var pos = []::spatial
 var ren = []::render
 var enrg = []::int
 
+class scene_ids:
+    mask:entype
+    ids:[int] = []
+    zs:[int] = []
+
+    def clear():
+        ids.remove(0, ids.length())
+        zs.remove(0, zs.length())
+
+    // TODO update_z
+
+    def update(id:int, old:entype, new:entype):
+        if new & ent_visible:
+            let z = pos[id].cell.z
+            let n, i = binary_search(zs, z)
+            ids.insert(i, id)
+            zs.insert(i, z)
+        else: if old & ent_visible:
+            let i = ids.first_index(id)
+            if i >= 0:
+                ids.remove(i, 1)
+                zs.remove(i, 1)
+
 // visible entities get drawn
-let scene = ent_ids { mask: ent_visible }
+let scene = scene_ids { mask: ent_visible }
 
 // minds make moves
 let minds = ent_typed_ids { mask: ent_mind }
