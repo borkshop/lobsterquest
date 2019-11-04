@@ -210,12 +210,6 @@ let minds = ent_typed_ids { mask: ent_mind }
 // solid bodies for collision
 let bodys = ent_ids { mask: ent_body }
 
-// type based entity observation
-let watchers = []
-watchers.push(scene)
-watchers.push(bodys)
-watchers.push(minds)
-
 def scene_bounds():
     var minp = xyz_0i
     var maxp = xyz_0i
@@ -235,7 +229,14 @@ def clear_ents():
     pos = []
     ren = []
     enrg = []
-    for(watchers): _.clear()
+    scene.clear()
+    minds.clear()
+    bodys.clear()
+
+def watch_ent(id:int, old:entype, new:entype):
+    scene.update(id, old, new)
+    minds.update(id, old, new)
+    bodys.update(id, old, new)
 
 def create_ent(t, p, r, e):
     let id = type.length()
@@ -243,13 +244,13 @@ def create_ent(t, p, r, e):
     pos.push(p)
     ren.push(r)
     enrg.push(e)
-    for(watchers): _.update(id, ent_none, t)
+    watch_ent(id, ent_none, t)
     return id
 
 def ent_set_type(id:int, t:entype):
     let old = type[id]
     type[id] = t
-    for(watchers): _.update(id, old, t)
+    watch_ent(id, old, t)
 
 def create_char(et:entype, loc:xy_i, c:color, g:glyph):
     let t = ent_body | ent_mind | ent_visible | et
