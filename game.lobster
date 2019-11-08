@@ -533,15 +533,16 @@ do():
                 step_world(input)
 
         let minp, maxp = scene_bounds()
-        let space_size = maxp.xy - minp.xy + 1
-        let cell_size = min(gl_window_size() / space_size)
-        let view_rem = gl_window_size() - space_size * cell_size
-        gl_translate(float(-minp.xy) * cell_size + float(view_rem) / 2):
+        let space_size = float(maxp.xy - minp.xy + 1)
+        let win_size   = float(gl_window_size())
+        let side_size  = float(max(1, min(floor(win_size / space_size))))
+        let view_rem   = win_size - space_size * side_size
+        gl_translate(float(-minp.xy) * side_size + view_rem / 2):
             for(scene.ids) id:
                 let p = pos[id]
                 let c = float(p.cell.xy)
-                gl_translate(c * cell_size):
-                    ren[id].draw(cell_size)
+                gl_translate(c * side_size):
+                    ren[id].draw(int(side_size))
 
         if show_ui: do():
             im_frame():
