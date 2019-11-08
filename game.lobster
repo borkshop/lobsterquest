@@ -168,6 +168,7 @@ enum_flags entype:
     ent_none = 0  // free entity slot (if no other bits)
     ent_input = 1 // receives player input
     ent_visible   // scene draw-ables
+    ent_cell      // defines "A space"; e.g. floor entities have this
     ent_body      // has a collide-able body
     ent_mind      // participates in the action system
 
@@ -297,7 +298,7 @@ def create_obj(et:entype, loc:xy_i, c:color, g:glyph):
     return create_ent(t, p, r, 0)
 
 def create_floor(loc:xy_i, b:color, f:color, g:glyph):
-    let t = ent_visible
+    let t = ent_visible | ent_cell
     let r = render { b, f, g }
     let p = spatial { cell: xyz_i { loc.x, loc.y, 0 } }
     return create_ent(t, p, r, 0)
