@@ -121,19 +121,19 @@ struct spatial:
     def move_to(p:xyz_i):
         return spatial { cell: p }
 
-enum_flags action:
+enum_flags actiontype:
     action_none = 0
     action_move = 1
 
-struct move:
-    act:action
+struct action:
+    act:actiontype
     dir:xy_i
 
     def isactive():
         return act != action_none
 
     def limit(n:int):
-        return move {
+        return action {
             act: act,
             dir: limit_dir(n),
         }
@@ -160,9 +160,9 @@ struct move:
             p += dir
         return xyz_i { p.x, p.y, cur.z }
 
-let move_0 = move { action_none, xy_0i }
+let action_0 = action { action_none, xy_0i }
 
-def move_dir(d:xy_i): return move { action_move, d }
+def move_dir(d:xy_i): return action { action_move, d }
 
 enum_flags entype:
     ent_none = 0  // free entity slot (if no other bits)
@@ -394,7 +394,7 @@ var last_input = 0.0
 def read_input():
     let since_input = gl_time() - last_input
     let until_next_input = 1.0 / 6
-    var input, have = move_0, false
+    var input, have = action_0, false
     for(buttons) button, i:
         var state = gl_button(button)
         if state > 1 and since_input < until_next_input:
@@ -402,11 +402,11 @@ def read_input():
         if state > 0:
             input, have = button_moves[i], true
     if !have:
-        return move_0, false
+        return action_0, false
     last_input = gl_time()
     return input, true
 
-def step_world(input:move):
+def step_world(input:action):
     // energize all minds
     for(minds.ids) id: enrg[id]++
 
@@ -416,7 +416,7 @@ def step_world(input:move):
         if t & ent_input:
             input
         else:
-            move_0
+            action_0
 
     // enforce movement energy limits
     for(minds.ids) id, mind_id:
