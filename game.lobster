@@ -283,19 +283,19 @@ def ent_set_type(id:int, t:entype):
 def create_char(et:entype, loc:xy_f, c:color, g:glyph):
     let t = ent_body | ent_mind | ent_visible | et
     let r = render { color_zero, c, g }
-    let p = spatial { loc.x, loc.y, 1.0, 1.0 }
+    let p = spatial { loc.x + 0.5, loc.y + 0.5, 1.0, 1.0 }
     return create_ent(t, p, r, 0)
 
 def create_obj(et:entype, loc:xy_f, c:color, g:glyph):
     let t = ent_body | ent_visible | et
     let r = render { color_zero, c, g }
-    let p = spatial { loc.x, loc.y, 0.5, 1.0 }
+    let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.5, 1.0 }
     return create_ent(t, p, r, 0)
 
 def create_floor(loc:xy_f, b:color, f:color, g:glyph):
     let t = ent_visible | ent_cell
     let r = render { b, f, g }
-    let p = spatial { loc.x, loc.y, 0.0, 1.0 }
+    let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.0, 1.0 }
     return create_ent(t, p, r, 0)
 
 var build_loc = xy_0
@@ -550,7 +550,7 @@ do():
                 // TODO scene precomputed translation
                 // TODO scene precomputed render and glyph drawing data
                 let p = pos[id]
-                let c = p.xy
+                let c = p.xy - p.w / 2
                 gl_translate(c * cell_size):
                     ren[id].draw(cell_size, cell_size * p.w)
 
