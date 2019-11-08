@@ -113,11 +113,6 @@ struct render:
 struct spatial:
     cell:xyz_i  // 2d cell + stacking order
 
-    def transform(cell_size, body):
-        let loc = float(cell.xy) * cell_size
-        gl_translate(xyz { loc.x, loc.y, float(cell.z) }):
-            body()
-
     def move_to(p:xyz_i):
         return spatial { cell: p }
 
@@ -543,7 +538,9 @@ do():
         let view_rem = gl_window_size() - space_size * cell_size
         gl_translate(float(-minp.xy) * cell_size + float(view_rem) / 2):
             for(scene.ids) id:
-                pos[id].transform(cell_size):
+                let p = pos[id]
+                let loc = float(p.cell.xy) * cell_size
+                gl_translate(xyz { loc.x, loc.y, float(p.cell.z) }):
                     ren[id].draw(cell_size)
 
         if show_ui: do():
