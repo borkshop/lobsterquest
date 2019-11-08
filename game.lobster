@@ -539,8 +539,8 @@ do():
         gl_translate(float(-minp.xy) * cell_size + float(view_rem) / 2):
             for(scene.ids) id:
                 let p = pos[id]
-                let loc = float(p.cell.xy) * cell_size
-                gl_translate(xyz { loc.x, loc.y, float(p.cell.z) }):
+                let c = float(p.cell.xy)
+                gl_translate(c * cell_size):
                     ren[id].draw(cell_size)
 
         if show_ui: do():
