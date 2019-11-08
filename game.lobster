@@ -113,9 +113,6 @@ struct render:
 struct spatial:
     cell:xyz_i  // 2d cell + stacking order
 
-    def move_to(p:xyz_i):
-        return spatial { cell: p }
-
 enum_flags actiontype:
     action_none = 0
     action_move = 1
@@ -454,9 +451,13 @@ def step_world(input:action):
             if at.length() == 0:
                 let p = pos[id]
                 let t = targets[mind_id]
-                let d = abs(t - p.cell)
-                pos[id] = p.move_to(t)
-                enrg[id] -= d.x + d.y
+                let d = t - p.cell
+                pos[id] = spatial { cell: xyz_i {
+                    x: p.x + d.x,
+                    y: p.y + d.y,
+                    z: p.z,
+                } }
+                enrg[id] -= abs(d.x) + abs(d.y)
 
 do():
     build_twemoji(9)
