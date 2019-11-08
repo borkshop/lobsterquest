@@ -110,8 +110,12 @@ struct render:
         if ch.code != 0:
             ch.draw(xy_i { size, size }, fg)
 
-struct spatial:
-    cell:xyz_i  // 2d cell + stacking order
+struct spatial : xyz_i
+    // x, y are location   : integer part is the cell, fraction part is sub-cell offset
+    // z is stacking order : drawn back-to-front, lowest z first
+
+    def cell():
+        return xy_i { x, y }
 
 enum_flags actiontype:
     action_none = 0
@@ -146,11 +150,11 @@ struct action:
             o--
         return s * xy_i { x, y }, 0
 
-    def target(cur:xyz_i):
-        var p = cur.xy
+    def target(p:spatial):
+        var l = p.xy
         if act & action_move:
-            p += dir
-        return xyz_i { p.x, p.y, cur.z }
+            l += dir
+        return l
 
 let action_0 = action { action_none, xy_0i }
 
@@ -216,7 +220,7 @@ class scene_ids:
 
     def update(id:int, old:entype, new:entype):
         if new & ent_visible:
-            let z = pos[id].cell.z
+            let z = pos[id].z
             let n, i = binary_search(zs, z)
             ids.insert(i, id)
             zs.insert(i, z)
@@ -236,18 +240,18 @@ let minds = ent_typed_ids { mask: ent_mind }
 let bodys = ent_ids { mask: ent_body }
 
 def scene_bounds():
-    var minp = xyz_0i
-    var maxp = xyz_0i
+    var minc = xy_0i
+    var maxc = xy_0i
     var first = true
     for(scene.ids) id:
-        let p = pos[id]
+        let c = pos[id].cell()
         if first:
             first = false
-            minp = maxp = p.cell
+            minc = maxc = c
         else:
-            minp = min(minp, p.cell)
-            maxp = max(maxp, p.cell)
-    return minp, maxp
+            minc = min(minc, c)
+            maxc = max(maxc, c)
+    return minc, maxc
 
 def clear_ents():
     type = []
@@ -280,19 +284,19 @@ def ent_set_type(id:int, t:entype):
 def create_char(et:entype, loc:xy_i, c:color, g:glyph):
     let t = ent_body | ent_mind | ent_visible | et
     let r = render { color_zero, c, g }
-    let p = spatial { cell: xyz_i { loc.x, loc.y, 1 } }
+    let p = spatial { loc.x, loc.y, 1 }
     return create_ent(t, p, r, 0)
 
 def create_obj(et:entype, loc:xy_i, c:color, g:glyph):
     let t = ent_body | ent_visible | et
     let r = render { color_zero, c, g }
-    let p = spatial { cell: xyz_i { loc.x, loc.y, 1 } }
+    let p = spatial { loc.x, loc.y, 1 }
     return create_ent(t, p, r, 0)
 
 def create_floor(loc:xy_i, b:color, f:color, g:glyph):
     let t = ent_visible | ent_cell
     let r = render { b, f, g }
-    let p = spatial { cell: xyz_i { loc.x, loc.y, 0 } }
+    let p = spatial { loc.x, loc.y, 0 }
     return create_ent(t, p, r, 0)
 
 var build_loc = xy_0i
@@ -416,7 +420,7 @@ def step_world(input:action):
 
     // compute movement targets
     let targets = map(minds.ids) id, mind_id:
-        moves[mind_id].target(pos[id].cell)
+        moves[mind_id].target(pos[id])
 
     // compute hit bodies, grouping moves by shared interest
     let group_ids = map(moves): -1
@@ -426,7 +430,7 @@ def step_world(input:action):
         if moves[mind_id].isactive() and group_ids[mind_id] < 0:
             let group_id = groups.length()
             let actors = [mind_id]
-            let at = filter(bodys.ids) id: pos[id].cell == t
+            let at = filter(bodys.ids) id: pos[id].cell() == t
             var other_mind_id = mind_id + 1
             while other_mind_id < targets.length():
                 if moves[mind_id].isactive() and group_ids[other_mind_id] < 0:
@@ -451,12 +455,12 @@ def step_world(input:action):
             if at.length() == 0:
                 let p = pos[id]
                 let t = targets[mind_id]
-                let d = t - p.cell
-                pos[id] = spatial { cell: xyz_i {
+                let d = t - p.cell()
+                pos[id] = spatial {
                     x: p.x + d.x,
                     y: p.y + d.y,
                     z: p.z,
-                } }
+                }
                 enrg[id] -= abs(d.x) + abs(d.y)
 
 do():
@@ -533,16 +537,16 @@ do():
             if have_move:
                 step_world(input)
 
-        let minp, maxp = scene_bounds()
-        let space_size = float(maxp.xy - minp.xy + 1)
+        let minc, maxc = scene_bounds()
+        let space_size = float(maxc - minc + 1)
         let win_size   = float(gl_window_size())
         let side_size  = float(max(1, min(floor(win_size / space_size))))
         let view_rem   = win_size - space_size * side_size
-        gl_translate(float(-minp.xy) * side_size + view_rem / 2):
+        gl_translate(float(-minc.xy) * side_size + view_rem / 2):
             for(scene.ids) id:
                 let p = pos[id]
-                let c = float(p.cell.xy)
-                gl_translate(c * side_size):
+                let c = p.xy
+                gl_translate(float(c) * side_size):
                     ren[id].draw(int(side_size))
 
         if show_ui: do():
