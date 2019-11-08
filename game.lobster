@@ -14,9 +14,6 @@ import vec
   - maybe blending with pixel/grid art
   - maybe tiled sprite sheet
 - spatial
-  - shift to floating point to support sub-cell positioning...
-  - ...likely useful for animating movement
-  - ...and super-cell constructs
   - support sub-cell size; maybe super-cell
   - shape control
   - better collision processing, either using a spatial index, or circle collision
@@ -63,12 +60,12 @@ struct glyph:
     code:int
     stretch:bool
 
-    def draw(size, c:color):
+    def draw(size:xy_f, c:color):
         // TODO support textured sprites
         let txt = unicode_to_string([code])
         gl_set_font_name(gl_font_names[font])
-        gl_set_font_size(size.y)
-        let bounds = clamp(gl_text_size(txt), xy_0i, size )
+        gl_set_font_size(int(size.y))
+        let bounds = clamp(float(gl_text_size(txt)), xy_0, size)
         with_mode(c):
             with_transform(size, bounds):
                 gl_text(txt)
@@ -81,7 +78,8 @@ struct glyph:
         else:
             body()
 
-    def with_transform(size, bounds, body):
+    def with_transform(size:xy_f, bounds:xy_f, body):
+        // TODO work with scene to pre-compute these
         if stretch:
             gl_scale(xyz_f {
                 if bounds.x < size.x: size.x / bounds.x else: 1,
@@ -90,7 +88,7 @@ struct glyph:
             }):
                 body()
         else:
-            gl_translate(float(size - bounds) / 2):
+            gl_translate((size - bounds) / 2):
                 body()
 
 def ascii(code:int):    return glyph { 0, code, false }
@@ -104,18 +102,18 @@ struct render:
     fg:color
     ch:glyph
 
-    def draw(cell_size:xy_i):
+    def draw(cell_size:xy_f):
         if bg != color_zero:
             gl_color(bg): gl_scale(cell_size): gl_unit_square()
         if ch.code != 0:
             ch.draw(cell_size, fg)
 
-struct spatial : xyz_i
+struct spatial : xyz_f
     // x, y are location   : integer part is the cell, fraction part is sub-cell offset
     // z is stacking order : drawn back-to-front, lowest z first
 
     def cell():
-        return xy_i { x, y }
+        return xy_i { int(x), int(y) }
 
 enum_flags actiontype:
     action_none = 0
@@ -123,19 +121,19 @@ enum_flags actiontype:
 
 struct action:
     act:actiontype
-    dir:xy_i
+    dir:xy_f
 
     def isactive():
         return act != action_none
 
-    def limit(n:int):
+    def limit(n:float):
         return action {
             act: act,
             dir: limit_dir(n),
         }
 
-    def limit_dir(n:int):
-        let s = sign(dir)
+    def limit_dir(n:float):
+        let s = float(sign(dir))
         let d = abs(dir)
         let t = d.x + d.y
         if t <= n:
@@ -148,7 +146,7 @@ struct action:
             else: if y > 0:
                 y--
             o--
-        return s * xy_i { x, y }, 0
+        return s * xy_f { x, y }, 0
 
     def target(p:spatial):
         var l = p.xy
@@ -156,9 +154,9 @@ struct action:
             l += dir
         return l
 
-let action_0 = action { action_none, xy_0i }
+let action_0 = action { action_none, xy_0 }
 
-def move_dir(d:xy_i): return action { action_move, d }
+def move_dir(d:xy_f): return action { action_move, d }
 
 enum_flags entype:
     ent_none = 0  // free entity slot (if no other bits)
@@ -205,12 +203,12 @@ class ent_typed_ids : ent_ids
 var type = []::entype
 var pos = []::spatial
 var ren = []::render
-var enrg = []::int
+var enrg = []::float
 
 class scene_ids:
     mask:entype
     ids:[int] = []
-    zs:[int] = []
+    zs:[float] = []
 
     def clear():
         ids.remove(0, ids.length())
@@ -281,40 +279,40 @@ def ent_set_type(id:int, t:entype):
     type[id] = t
     watch_ent(id, old, t)
 
-def create_char(et:entype, loc:xy_i, c:color, g:glyph):
+def create_char(et:entype, loc:xy_f, c:color, g:glyph):
     let t = ent_body | ent_mind | ent_visible | et
     let r = render { color_zero, c, g }
-    let p = spatial { loc.x, loc.y, 1 }
+    let p = spatial { loc.x, loc.y, 1.0 }
     return create_ent(t, p, r, 0)
 
-def create_obj(et:entype, loc:xy_i, c:color, g:glyph):
+def create_obj(et:entype, loc:xy_f, c:color, g:glyph):
     let t = ent_body | ent_visible | et
     let r = render { color_zero, c, g }
-    let p = spatial { loc.x, loc.y, 1 }
+    let p = spatial { loc.x, loc.y, 0.5 }
     return create_ent(t, p, r, 0)
 
-def create_floor(loc:xy_i, b:color, f:color, g:glyph):
+def create_floor(loc:xy_f, b:color, f:color, g:glyph):
     let t = ent_visible | ent_cell
     let r = render { b, f, g }
-    let p = spatial { loc.x, loc.y, 0 }
+    let p = spatial { loc.x, loc.y, 0.0 }
     return create_ent(t, p, r, 0)
 
-var build_loc = xy_0i
+var build_loc = xy_0
 
-def build_translate(by:xy_i, body):
+def build_translate(by:xy_f, body):
     let old_loc = build_loc
     build_loc += by
     body()
     build_loc = old_loc
 
 def build_rect(sz, body): for(sz) x: for(sz) y:
-    let loc = build_loc + xy_i { x, y }
+    let loc = build_loc + xy_f { x, y }
     body(loc, x, y)
 
 def build_each(locs, body): for(locs) loc, i:
     body(loc + build_loc, i)
 
-def build_at(loc, body): body(loc + build_loc)
+def build_at(loc:xy_f, body): body(loc + build_loc)
 
 def build_grove(sz, body):
     let tree_evergreen = emoji(0x1f322) // 🌲
@@ -338,7 +336,8 @@ def build_grove(sz, body):
         if x == 0 || y == 0 || x == sz-1 || y == sz-1:
             let tree_fg = tree_fg_base + tree_fg_variance * rnd_float()
             create_obj(ent_none, loc, tree_fg, tree_deciduous)
-    build_translate(xy_i { sz/2, sz/2 }):
+    let mid = float(floor(sz / 2))
+    build_translate(xy_f { mid, mid }):
         body()
 
 def place_elementals():
@@ -356,17 +355,18 @@ def place_elementals():
         color_cyan,
     ]
     build_each([
-        xy_i { -2, 2 },
-        xy_i { 2, 2 },
-        xy_i { 2, -2 },
-        xy_i { -2, -2 },
+        xy_f { -2.0,  2.0 },
+        xy_f {  2.0,  2.0 },
+        xy_f {  2.0, -2.0 },
+        xy_f { -2.0, -2.0 },
     ]) loc, i:
         create_char(ent_none, loc, colors[i], emoji(elements[i]))
 
 def build_twemoji(size):
     build_grove(size):
         place_elementals()
-        build_at(xy_0i) loc: create_char(ent_input, loc, color_blue_violet, emoji(0x1f9d9)) // 🧙 mage
+        build_at(xy_0) loc:
+            create_char(ent_input, loc, color_blue_violet, emoji(0x1f9d9)) // 🧙 mage
 
 // arrow keys with "." to stay idiom
 let buttons = [
@@ -378,11 +378,11 @@ let buttons = [
 ]
 
 let button_moves = [
-    move_dir(xy {  0, -1 }),
-    move_dir(xy {  0,  1 }),
-    move_dir(xy { -1,  0 }),
-    move_dir(xy {  1,  0 }),
-    move_dir(xy_0i),
+    move_dir(xy {  0.0, -1.0 }),
+    move_dir(xy {  0.0,  1.0 }),
+    move_dir(xy { -1.0,  0.0 }),
+    move_dir(xy {  1.0,  0.0 }),
+    move_dir(xy_0),
 ]
 
 var last_input = 0.0
@@ -457,8 +457,8 @@ def step_world(input:action):
                 let t = targets[mind_id]
                 let d = t - p.cell()
                 pos[id] = spatial {
-                    x: p.x + d.x,
-                    y: p.y + d.y,
+                    x: p.x + float(d.x),
+                    y: p.y + float(d.y),
                     z: p.z,
                 }
                 enrg[id] -= abs(d.x) + abs(d.y)
@@ -541,10 +541,12 @@ do():
         let space_size = float(maxc - minc + 1)
         let win_size   = float(gl_window_size())
         let side_size  = float(max(1, min(floor(win_size / space_size))))
-        let cell_size  = xy_i { side_size, side_size }
+        let cell_size  = xy_f { side_size, side_size }
         let view_rem   = win_size - space_size * side_size
         gl_translate(float(-minc.xy) * side_size + view_rem / 2):
             for(scene.ids) id:
+                // TODO scene precomputed translation
+                // TODO scene precomputed render and glyph drawing data
                 let p = pos[id]
                 let c = p.xy
                 gl_translate(float(c) * cell_size):
