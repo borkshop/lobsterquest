@@ -512,7 +512,6 @@ do():
 
     while gl_frame():
         gl_clear(color_black)
-        gl_color(color_white)
 
         if gl_button("escape") == 1:
             show_ui = !show_ui
