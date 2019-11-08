@@ -49,10 +49,6 @@ def first_index(xs, x):
         return i
     return -1
 
-// font for imgui
-let im_font = "data/fonts/Inconsolata/Inconsolata-Bold.ttf"
-let im_fontsize = 32
-
 let color_zero = color { 0, 0, 0, 0 }
 
 let gl_font_names = [
@@ -459,6 +455,9 @@ do():
     for(gl_font_names) name, i:
         check(gl_set_font_name(name), "cannot load gl font " + i)
 
+    // setup imgui for menu and debug overlay
+    let im_font = "data/fonts/Inconsolata/Inconsolata-Bold.ttf"
+    let im_fontsize = 32
     im_init(true)
     check(im_add_font(im_font, im_fontsize), "cannot load imgui font")
 
