@@ -14,7 +14,7 @@ import vec
   - maybe blending with pixel/grid art
   - maybe tiled sprite sheet
 - spatial
-  - support sub-cell size; maybe super-cell
+  - super-cell entities
   - shape control
   - better collision processing, either using a spatial index, or circle collision
 - input
@@ -102,15 +102,16 @@ struct render:
     fg:color
     ch:glyph
 
-    def draw(cell_size:xy_f):
+    def draw(cell_size:xy_f, size:xy_f):
         if bg != color_zero:
             gl_color(bg): gl_scale(cell_size): gl_unit_square()
         if ch.code != 0:
-            ch.draw(cell_size, fg)
+            ch.draw(size, fg)
 
-struct spatial : xyz_f
+struct spatial : xyzw_f
     // x, y are location   : integer part is the cell, fraction part is sub-cell offset
     // z is stacking order : drawn back-to-front, lowest z first
+    // w is the size       : in terms of a cell-sized unit, so 1.0 is usual, 0.5 is half-cell
 
     def cell():
         return xy_i { int(x), int(y) }
@@ -282,19 +283,19 @@ def ent_set_type(id:int, t:entype):
 def create_char(et:entype, loc:xy_f, c:color, g:glyph):
     let t = ent_body | ent_mind | ent_visible | et
     let r = render { color_zero, c, g }
-    let p = spatial { loc.x, loc.y, 1.0 }
+    let p = spatial { loc.x, loc.y, 1.0, 1.0 }
     return create_ent(t, p, r, 0)
 
 def create_obj(et:entype, loc:xy_f, c:color, g:glyph):
     let t = ent_body | ent_visible | et
     let r = render { color_zero, c, g }
-    let p = spatial { loc.x, loc.y, 0.5 }
+    let p = spatial { loc.x, loc.y, 0.5, 1.0 }
     return create_ent(t, p, r, 0)
 
 def create_floor(loc:xy_f, b:color, f:color, g:glyph):
     let t = ent_visible | ent_cell
     let r = render { b, f, g }
-    let p = spatial { loc.x, loc.y, 0.0 }
+    let p = spatial { loc.x, loc.y, 0.0, 1.0 }
     return create_ent(t, p, r, 0)
 
 var build_loc = xy_0
@@ -460,6 +461,7 @@ def step_world(input:action):
                     x: p.x + float(d.x),
                     y: p.y + float(d.y),
                     z: p.z,
+                    w: p.w,
                 }
                 enrg[id] -= abs(d.x) + abs(d.y)
 
@@ -550,7 +552,7 @@ do():
                 let p = pos[id]
                 let c = p.xy
                 gl_translate(c * cell_size):
-                    ren[id].draw(cell_size)
+                    ren[id].draw(cell_size, cell_size * p.w)
 
         if show_ui: do():
             im_frame():
