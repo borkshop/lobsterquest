@@ -165,11 +165,11 @@ let move_0 = move { action_none, xy_0i }
 def move_dir(d:xy_i): return move { action_move, d }
 
 enum_flags entype:
-    ent_none = 0
-    ent_input = 1
-    ent_visible
-    ent_body
-    ent_mind
+    ent_none = 0  // free entity slot (if no other bits)
+    ent_input = 1 // receives player input
+    ent_visible   // scene draw-ables
+    ent_body      // has a collide-able body
+    ent_mind      // participates in the action system
 
 class ent_ids:
     mask:entype
