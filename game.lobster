@@ -64,23 +64,27 @@ struct glyph:
     stretch:bool
 
     def draw(size):
+        let txt = unicode_to_string([code])
         gl_set_font_name(gl_font_names[font])
         gl_set_font_size(size.y)
-        let txt = unicode_to_string([code])
-        let tsz = clamp(gl_text_size(txt), xy_0i, size )
+        let bounds = clamp(gl_text_size(txt), xy_0i, size )
+        with_transform(size, bounds):
+            gl_text(txt)
+
+    def with_transform(size, bounds, body):
         if stretch:
             gl_scale(xyz_f {
-                if tsz.x < size.x: size.x / tsz.x else: 1,
-                if tsz.y < size.y: size.y / tsz.y else: 1,
+                if bounds.x < size.x: size.x / bounds.x else: 1,
+                if bounds.y < size.y: size.y / bounds.y else: 1,
                 1,
             }):
-                gl_text(txt)
+                body()
         else:
-            gl_translate(float(size - tsz) / 2):
-                gl_text(txt)
+            gl_translate(float(size - bounds) / 2):
+                body()
 
 def ascii(code:int):    return glyph { 0, code, false }
-def sqascii(code:int):  return glyph { 1, code, false }
+def sqascii(code:int):  return glyph { 1, code, true  }
 def unicode(code:int):  return glyph { 2, code, false }
 def uniblock(code:int): return glyph { 2, code, true  }
 def emoji(code:int):    return glyph { 3, code, false }
