@@ -152,7 +152,7 @@ struct action:
         var l = p.xy
         if act & action_move:
             l += dir
-        return l
+        return int(l)
 
 let action_0 = action { action_none, xy_0 }
 
@@ -228,14 +228,14 @@ class scene_ids:
                 ids.remove(i, 1)
                 zs.remove(i, 1)
 
-// visible entities get drawn
-let scene = scene_ids { mask: ent_visible }
+// ent_visible gets drawn in back-to-front (by spatial Z) order
+var scene = scene_ids { mask: ent_visible }
 
-// minds make moves
-let minds = ent_typed_ids { mask: ent_mind }
+// ent_mind participates in the action system
+var minds = ent_typed_ids { mask: ent_mind }
 
-// solid bodies for collision
-let bodys = ent_ids { mask: ent_body }
+// ent_body is "solid" and participates in collision
+var bodys = ent_ids { mask: ent_body }
 
 def scene_bounds():
     var minc = xy_0i
@@ -549,7 +549,7 @@ do():
                 // TODO scene precomputed render and glyph drawing data
                 let p = pos[id]
                 let c = p.xy
-                gl_translate(float(c) * cell_size):
+                gl_translate(c * cell_size):
                     ren[id].draw(cell_size)
 
         if show_ui: do():
