@@ -104,11 +104,11 @@ struct render:
     fg:color
     ch:glyph
 
-    def draw(size):
+    def draw(cell_size:xy_i):
         if bg != color_zero:
-            gl_color(bg): gl_scale(size): gl_unit_square()
+            gl_color(bg): gl_scale(cell_size): gl_unit_square()
         if ch.code != 0:
-            ch.draw(xy_i { size, size }, fg)
+            ch.draw(cell_size, fg)
 
 struct spatial : xyz_i
     // x, y are location   : integer part is the cell, fraction part is sub-cell offset
@@ -541,13 +541,14 @@ do():
         let space_size = float(maxc - minc + 1)
         let win_size   = float(gl_window_size())
         let side_size  = float(max(1, min(floor(win_size / space_size))))
+        let cell_size  = xy_i { side_size, side_size }
         let view_rem   = win_size - space_size * side_size
         gl_translate(float(-minc.xy) * side_size + view_rem / 2):
             for(scene.ids) id:
                 let p = pos[id]
                 let c = p.xy
-                gl_translate(float(c) * side_size):
-                    ren[id].draw(int(side_size))
+                gl_translate(float(c) * cell_size):
+                    ren[id].draw(cell_size)
 
         if show_ui: do():
             im_frame():
