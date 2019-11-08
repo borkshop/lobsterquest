@@ -63,13 +63,23 @@ struct glyph:
     code:int
     stretch:bool
 
-    def draw(size):
+    def draw(size, c:color):
+        // TODO support textured sprites
         let txt = unicode_to_string([code])
         gl_set_font_name(gl_font_names[font])
         gl_set_font_size(size.y)
         let bounds = clamp(gl_text_size(txt), xy_0i, size )
-        with_transform(size, bounds):
-            gl_text(txt)
+        with_mode(c):
+            with_transform(size, bounds):
+                gl_text(txt)
+
+    def with_mode(c:color, body):
+        // TODO any necessary shader control needed for sprites
+        // TODO work with scene to group by mode
+        if c != color_zero:
+            gl_color(c): body()
+        else:
+            body()
 
     def with_transform(size, bounds, body):
         if stretch:
@@ -97,8 +107,8 @@ struct render:
     def draw(size):
         if bg != color_zero:
             gl_color(bg): gl_scale(size): gl_unit_square()
-        if fg != color_zero and ch.code != 0:
-            gl_color(fg): ch.draw(xy_i { size, size })
+        if ch.code != 0:
+            ch.draw(xy_i { size, size }, fg)
 
 struct spatial:
     cell:xyz_i  // 2d cell + stacking order
