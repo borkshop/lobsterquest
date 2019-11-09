@@ -368,39 +368,46 @@ def build_twemoji(size):
         build_at(xy_0) loc:
             create_char(ent_input, loc, color_blue_violet, emoji(0x1f9d9)) // 🧙 mage
 
-// arrow keys with "." to stay idiom
-let buttons = [
-    "up",
-    "down",
-    "left",
-    "right",
-    ".",
-]
+class button_action_reader:
+    buttons:[string] = []
+    actions:[action] = []
 
-let button_moves = [
-    move_dir(xy {  0.0, -1.0 }),
-    move_dir(xy {  0.0,  1.0 }),
-    move_dir(xy { -1.0,  0.0 }),
-    move_dir(xy {  1.0,  0.0 }),
-    move_dir(xy_0),
-]
+    have = false
+    input = action_0
+    last_input = 0.0
 
-var last_input = 0.0
+    def read_input():
+        have = false
+        let since_input = gl_time() - last_input
+        let until_next_input = 1.0 / 6
+        for(buttons) button, i:
+            var state = gl_button(button)
+            if state > 1 and since_input < until_next_input:
+                state = 0
+            if state > 0:
+                have = true
+                input = actions[i]
+                last_input = gl_time()
 
-def read_input():
-    let since_input = gl_time() - last_input
-    let until_next_input = 1.0 / 6
-    var input, have = action_0, false
-    for(buttons) button, i:
-        var state = gl_button(button)
-        if state > 1 and since_input < until_next_input:
-            state = 0
-        if state > 0:
-            input, have = button_moves[i], true
-    if !have:
-        return action_0, false
-    last_input = gl_time()
-    return input, true
+//// usage
+
+let play_reader = button_action_reader {
+    // arrow keys with "." to stay idiom
+    buttons: [
+        "up",
+        "down",
+        "left",
+        "right",
+        ".",
+    ],
+    actions: [
+        move_dir(xy {  0.0, -1.0 }),
+        move_dir(xy {  0.0,  1.0 }),
+        move_dir(xy { -1.0,  0.0 }),
+        move_dir(xy {  1.0,  0.0 }),
+        move_dir(xy_0),
+    ],
+}
 
 def step_world(input:action):
     // energize all minds
@@ -534,9 +541,9 @@ do():
             paused = show_ui
 
         if not paused:
-            let input, have_move = read_input()
-            if have_move:
-                step_world(input)
+            play_reader.read_input()
+            if play_reader.have:
+                step_world(play_reader.input)
 
         let minc, maxc = scene.bounds()
         let space_size = float(maxc - minc + 1)
