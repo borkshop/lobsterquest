@@ -229,6 +229,20 @@ class scene_ids:
                 ids.remove(i, 1)
                 zs.remove(i, 1)
 
+    def bounds():
+        var minc = xy_0i
+        var maxc = xy_0i
+        var first = true
+        for(ids) id:
+            let c = pos[id].cell()
+            if first:
+                first = false
+                minc = maxc = c
+            else:
+                minc = min(minc, c)
+                maxc = max(maxc, c)
+        return minc, maxc
+
 // ent_visible gets drawn in back-to-front (by spatial Z) order
 var scene = scene_ids { mask: ent_visible }
 
@@ -237,20 +251,6 @@ var minds = ent_typed_ids { mask: ent_mind }
 
 // ent_body is "solid" and participates in collision
 var bodys = ent_ids { mask: ent_body }
-
-def scene_bounds():
-    var minc = xy_0i
-    var maxc = xy_0i
-    var first = true
-    for(scene.ids) id:
-        let c = pos[id].cell()
-        if first:
-            first = false
-            minc = maxc = c
-        else:
-            minc = min(minc, c)
-            maxc = max(maxc, c)
-    return minc, maxc
 
 def clear_ents():
     type = []
@@ -539,7 +539,7 @@ do():
             if have_move:
                 step_world(input)
 
-        let minc, maxc = scene_bounds()
+        let minc, maxc = scene.bounds()
         let space_size = float(maxc - minc + 1)
         let win_size   = float(gl_window_size())
         let side_size  = float(max(1, min(floor(win_size / space_size))))
