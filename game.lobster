@@ -160,12 +160,12 @@ let action_0 = action { action_none, xy_0 }
 def move_dir(d:xy_f): return action { action_move, d }
 
 enum_flags entype:
-    ent_none = 0  // free entity slot (if no other bits)
-    ent_input = 1 // receives player input
-    ent_visible   // scene draw-ables
-    ent_cell      // defines "A space"; e.g. floor entities have this
-    ent_body      // has a collide-able body
-    ent_mind      // participates in the action system
+    ent_none = 0    // free entity slot (if no other bits)
+    ent_visible = 1 // scene draw-ables
+    ent_cell        // defines "A space"; e.g. floor entities have this
+    ent_body        // has a collide-able body
+    ent_mind        // participates in the action system
+    ent_input       // receives player input
 
 class ent_ids:
     mask:entype
@@ -553,6 +553,8 @@ do():
                 let c = p.xy - p.w / 2
                 gl_translate(c * cell_size):
                     ren[id].draw(cell_size, cell_size * p.w)
+
+        // TODO draw player overlay
 
         if show_ui: do():
             im_frame():
