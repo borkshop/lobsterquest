@@ -206,8 +206,7 @@ var pos = []::spatial
 var ren = []::render
 var enrg = []::float
 
-class scene_ids:
-    mask:entype
+class stacked_scene:
     ids:[int] = []
     zs:[float] = []
 
@@ -244,7 +243,7 @@ class scene_ids:
         return minc, maxc
 
 // ent_visible gets drawn in back-to-front (by spatial Z) order
-var scene = scene_ids { mask: ent_visible }
+var scene = stacked_scene {}
 
 // ent_mind participates in the action system
 var minds = ent_typed_ids { mask: ent_mind }
