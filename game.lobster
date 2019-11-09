@@ -279,94 +279,110 @@ def ent_set_type(id:int, t:entype):
     type[id] = t
     watch_ent(id, old, t)
 
-def create_char(et:entype, loc:xy_f, c:color, g:glyph):
-    let t = ent_body | ent_mind | ent_visible | et
-    let r = render { color_zero, c, g }
-    let p = spatial { loc.x + 0.5, loc.y + 0.5, 1.0, 1.0 }
-    return create_ent(t, p, r, 0)
+class builder:
+    loc = xy_0
 
-def create_obj(et:entype, loc:xy_f, c:color, g:glyph):
-    let t = ent_body | ent_visible | et
-    let r = render { color_zero, c, g }
-    let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.5, 1.0 }
-    return create_ent(t, p, r, 0)
+    def translate(by:xy_f, body):
+        let base = loc
+        loc += by
+        if body:
+            body()
+            loc = base
 
-def create_floor(loc:xy_f, b:color, f:color, g:glyph):
-    let t = ent_visible | ent_cell
-    let r = render { b, f, g }
-    let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.0, 1.0 }
-    return create_ent(t, p, r, 0)
+    def each(offsets, body):
+        let base = loc
+        for(offsets) offset, i:
+            loc = base + offset
+            body(i)
+        loc = base
 
-var build_loc = xy_0
+    def fill_rect(n, body):
+        let base = loc
+        for(n) x: for(n) y:
+            loc = base + xy_f { x, y }
+            body(x, y)
+        loc = base
 
-def build_translate(by:xy_f, body):
-    let old_loc = build_loc
-    build_loc += by
-    body()
-    build_loc = old_loc
+    // TODO decompose into builder state? or factor out into "struct spec" data?
 
-def build_rect(sz, body): for(sz) x: for(sz) y:
-    let loc = build_loc + xy_f { x, y }
-    body(loc, x, y)
+    def create_char(et:entype, c:color, g:glyph):
+        let t = ent_body | ent_mind | ent_visible | et
+        let r = render { color_zero, c, g }
+        let p = spatial { loc.x + 0.5, loc.y + 0.5, 1.0, 1.0 }
+        return create_ent(t, p, r, 0)
 
-def build_each(locs, body): for(locs) loc, i:
-    body(loc + build_loc, i)
+    def create_object(et:entype, c:color, g:glyph):
+        let t = ent_body | ent_visible | et
+        let r = render { color_zero, c, g }
+        let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.5, 1.0 }
+        return create_ent(t, p, r, 0)
 
-def build_at(loc:xy_f, body): body(loc + build_loc)
+    def create_floor(b:color, f:color, g:glyph):
+        let t = ent_visible | ent_cell
+        let r = render { b, f, g }
+        let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.0, 1.0 }
+        return create_ent(t, p, r, 0)
 
-def build_grove(sz, body):
-    let tree_evergreen = emoji(0x1f322) // 🌲
-    let tree_deciduous = emoji(0x1f333) // 🌳
-    let tiles = [
+//// specialization
+
+class twemoji_builder:
+    build = builder{}
+
+    tree_evergreen = emoji(0x1f322) // 🌲
+    tree_deciduous = emoji(0x1f333) // 🌳
+    dirt = [
         ascii(0), ascii(0), uniblock(0x2591), // ░
         ascii(0), ascii(0), uniblock(0x2592), // ▒
         ascii(0), ascii(0), uniblock(0x2593), // ▓
         ascii(0), ascii(0),
     ]
-    let floor_bg_base     = color { 0.05, 0.05, 0.05, 1 }
-    let floor_bg_variance = color { 0.05, 0.05, 0,    0 }
-    let floor_fg_lift     = color { 0.05, 0,    0,    0 }
-    let tree_fg_base      = color { 0.2,  0.25, 0.1,  1 }
-    let tree_fg_variance  = color { 0,    0.5,  0,    0 }
-    build_rect(sz) loc, x, y:
-        let tile = tiles[rnd(length(tiles))]
-        let bg = floor_bg_base + floor_bg_variance * rnd_float()
-        let fg = if tile.code != 0: bg + floor_fg_lift else: color_zero
-        create_floor(loc, bg, fg, tile)
-        if x == 0 || y == 0 || x == sz-1 || y == sz-1:
-            let tree_fg = tree_fg_base + tree_fg_variance * rnd_float()
-            create_obj(ent_none, loc, tree_fg, tree_deciduous)
-    let mid = float(floor(sz / 2))
-    build_translate(xy_f { mid, mid }):
-        body()
 
-def place_elementals():
-    let elements = [
+    elements = [
         0x1f30d, // 🌍
         0x1f4a7, // 💧
         0x1f525, // 🔥
         // 0x1f32c, // 🌬️
         0x1f32a, // 🌪
     ]
-    let colors = [
+
+    element_colors = [
         color_dark_green,
         color_teal,
         color_orange,
         color_cyan,
     ]
-    build_each([
-        xy_f { -2.0,  2.0 },
-        xy_f {  2.0,  2.0 },
-        xy_f {  2.0, -2.0 },
-        xy_f { -2.0, -2.0 },
-    ]) loc, i:
-        create_char(ent_none, loc, colors[i], emoji(elements[i]))
 
-def build_twemoji(size):
-    build_grove(size):
-        place_elementals()
-        build_at(xy_0) loc:
-            create_char(ent_input, loc, color_blue_violet, emoji(0x1f9d9)) // 🧙 mage
+    floor_bg_base     = color { 0.05, 0.05, 0.05, 1 }
+    floor_bg_variance = color { 0.05, 0.05, 0,    0 }
+    floor_fg_lift     = color { 0.05, 0,    0,    0 }
+
+    tree_fg_base      = color { 0.2,  0.25, 0.1,  1 }
+    tree_fg_variance  = color { 0,    0.5,  0,    0 }
+
+    def grove(sz, body):
+        build.fill_rect(sz) x, y:
+            let tile = dirt[rnd(length(dirt))]
+            let bg = floor_bg_base + floor_bg_variance * rnd_float()
+            let fg = if tile.code != 0: bg + floor_fg_lift else: color_zero
+            build.create_floor(bg, fg, tile)
+            if x == 0 || y == 0 || x == sz-1 || y == sz-1:
+                let tree_fg = tree_fg_base + tree_fg_variance * rnd_float()
+                build.create_object(ent_none, tree_fg, tree_deciduous)
+        if body:
+            let mid = float(floor(sz / 2))
+            build.translate(xy_f { mid, mid }):
+                body()
+
+    def scene(size):
+        grove(size):
+            build.each([
+                xy_f { -2.0,  2.0 },
+                xy_f {  2.0,  2.0 },
+                xy_f {  2.0, -2.0 },
+                xy_f { -2.0, -2.0 },
+            ]) i:
+                build.create_char(ent_none, element_colors[i], emoji(elements[i]))
+            build.create_char(ent_input, color_blue_violet, emoji(0x1f9d9)) // 🧙 mage
 
 class button_action_reader:
     buttons:[string] = []
@@ -407,6 +423,9 @@ let play_reader = button_action_reader {
         move_dir(xy {  1.0,  0.0 }),
         move_dir(xy_0),
     ],
+}
+
+let moji_build = twemoji_builder {
 }
 
 def step_world(input:action):
@@ -472,7 +491,7 @@ def step_world(input:action):
                 enrg[id] -= abs(d.x) + abs(d.y)
 
 do():
-    build_twemoji(9)
+    moji_build.scene(9)
 
     fatal(gl_window("Twemoji PoC", 1024, 768))
     for(gl_font_names) name, i:
@@ -508,7 +527,7 @@ do():
                 build_size = im_sliderint("Size", build_size, 3, 100)
                 im_button("Grove"):
                     clear_ents()
-                    build_twemoji(build_size)
+                    moji_build.scene(build_size)
 
                 im_separator()
                 im_button("ImGui Demo"):
