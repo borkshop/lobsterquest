@@ -463,7 +463,7 @@ def step_world(input:action):
                     if targets[other_mind_id] == t:
                         group_ids[other_mind_id] = group_id
                         actors.push(other_mind_id)
-                    other_mind_id++
+                other_mind_id++
             hits.push(at)
             groups.push(actors)
             group_ids[mind_id] = group_id
