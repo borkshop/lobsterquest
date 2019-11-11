@@ -432,34 +432,34 @@ def step_world(input:action):
     // energize all minds
     for(minds.ids) id: enrg[id]++
 
-    // choose moves
-    let moves = map(minds.ids) id, mind_id:
+    // choose actions
+    let actions = map(minds.ids) id, mind_id:
         let t = minds.types[mind_id]
         if t & ent_input:
             input
         else:
             action_0
 
-    // enforce movement energy limits
+    // enforce action energy limits
     for(minds.ids) id, mind_id:
-        moves[mind_id] = moves[mind_id].limit(enrg[id])
+        actions[mind_id] = actions[mind_id].limit(enrg[id])
 
-    // compute movement targets
+    // compute action targets
     let targets = map(minds.ids) id, mind_id:
-        moves[mind_id].target(pos[id])
+        actions[mind_id].target(pos[id])
 
-    // compute hit bodies, grouping moves by shared interest
-    let group_ids = map(moves): -1
-    let groups = vector_reserve(typeof [[int]], moves.length())
-    let hits = vector_reserve(typeof [[int]], moves.length())
+    // compute hit bodies, grouping actions by shared interest
+    let group_ids = map(actions): -1
+    let groups = vector_reserve(typeof [[int]], actions.length())
+    let hits = vector_reserve(typeof [[int]], actions.length())
     for(targets) t, mind_id:
-        if moves[mind_id].isactive() and group_ids[mind_id] < 0:
+        if actions[mind_id].isactive() and group_ids[mind_id] < 0:
             let group_id = groups.length()
             let actors = [mind_id]
             let at = filter(bodys.ids) id: pos[id].cell() == t
             var other_mind_id = mind_id + 1
             while other_mind_id < targets.length():
-                if moves[mind_id].isactive() and group_ids[other_mind_id] < 0:
+                if actions[mind_id].isactive() and group_ids[other_mind_id] < 0:
                     if targets[other_mind_id] == t:
                         group_ids[other_mind_id] = group_id
                         actors.push(other_mind_id)
@@ -468,7 +468,7 @@ def step_world(input:action):
             groups.push(actors)
             group_ids[mind_id] = group_id
 
-    // resolve movement groups
+    // resolve action groups
     for(groups) actors, group_id:
         let at = hits[group_id]
 
