@@ -167,6 +167,11 @@ enum_flags entype:
     ent_mind        // participates in the action system
     ent_input       // receives player input
 
+var type = []::entype
+var pos  = []::spatial
+var ren  = []::render
+var enrg = []::float
+
 class ent_ids:
     mask:entype
     ids:[int] = []
@@ -200,11 +205,6 @@ class ent_typed_ids : ent_ids
                 if i >= 0:
                     ids.remove(i, 1)
                     types.remove(i, 1)
-
-var type = []::entype
-var pos = []::spatial
-var ren = []::render
-var enrg = []::float
 
 class stacked_scene:
     ids:[int] = []
@@ -241,43 +241,6 @@ class stacked_scene:
                 minc = min(minc, c)
                 maxc = max(maxc, c)
         return minc, maxc
-
-// ent_visible gets drawn in back-to-front (by spatial Z) order
-var scene = stacked_scene {}
-
-// ent_mind participates in the action system
-var minds = ent_typed_ids { mask: ent_mind }
-
-// ent_body is "solid" and participates in collision
-var bodys = ent_ids { mask: ent_body }
-
-def clear_ents():
-    type = []
-    pos = []
-    ren = []
-    enrg = []
-    scene.clear()
-    minds.clear()
-    bodys.clear()
-
-def watch_ent(id:int, old:entype, new:entype):
-    scene.update(id, old, new)
-    minds.update(id, old, new)
-    bodys.update(id, old, new)
-
-def create_ent(t, p, r, e):
-    let id = type.length()
-    type.push(t)
-    pos.push(p)
-    ren.push(r)
-    enrg.push(e)
-    watch_ent(id, ent_none, t)
-    return id
-
-def ent_set_type(id:int, t:entype):
-    let old = type[id]
-    type[id] = t
-    watch_ent(id, old, t)
 
 class builder:
     loc = xy_0
@@ -425,6 +388,38 @@ let play_reader = button_action_reader {
         move_dir(xy_0),
     ],
 }
+
+var minds = ent_typed_ids { mask: ent_mind }
+var bodys = ent_ids { mask: ent_body }
+var scene = stacked_scene {}
+
+def watch_ent(id:int, old:entype, new:entype):
+    scene.update(id, old, new)
+    minds.update(id, old, new)
+    bodys.update(id, old, new)
+
+def create_ent(t, p, r, e):
+    let id = type.length()
+    type.push(t)
+    pos.push(p)
+    ren.push(r)
+    enrg.push(e)
+    watch_ent(id, ent_none, t)
+    return id
+
+def ent_set_type(id:int, t:entype):
+    let old = type[id]
+    type[id] = t
+    watch_ent(id, old, t)
+
+def clear_ents():
+    type = []
+    pos  = []
+    ren  = []
+    enrg = []
+    scene.clear()
+    minds.clear()
+    bodys.clear()
 
 let build = builder {
 }
