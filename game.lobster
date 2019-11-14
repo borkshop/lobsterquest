@@ -207,15 +207,26 @@ class shard_system:
 
 def input_fun() -> action
 
+class mind:
+    // TODO partial information sensed in, rather than direct world access
+    shard:shard
+    id:int
+
+    def think():
+        return action_0
+
 class minds : system
+    shard:shard
     input:input_fun
 
     ids:[int] = []
     types:[entype] = []
+    minds:[mind] = []
 
     def ent_reset():
         ids.remove(0, ids.length())
         types.remove(0, types.length())
+        minds.remove(0, minds.length())
 
     def ent_changed(id:int, old:entype, new:entype):
         let diff = old ^ new
@@ -223,17 +234,22 @@ class minds : system
             if new & ent_mind:
                 ids.push(id)
                 types.push(new)
+                minds.push(mind{
+                    shard: shard,
+                    id: id,
+                })
             else: if old & ent_mind:
                 let mind_id = ids.first_index(id)
                 if mind_id >= 0:
                     ids.remove(mind_id, 1)
                     types.remove(mind_id, 1)
+                    minds.remove(mind_id, 1)
 
     def thoughts():
         let input_fun = input
         return map(types) t, mind_id:
             if t & ent_input: input_fun()
-            else:             action_0
+            else:             minds[mind_id].think()
 
 class bodys : system
     ids:[int] = []
@@ -441,6 +457,7 @@ let play_reader = button_action_reader {
 var world = shard_system {}
 
 var minds = minds {
+    shard: world.data,
     input: def(): play_reader.action(),
 }
 var bodys = bodys {}
