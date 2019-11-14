@@ -496,7 +496,7 @@ def step_world(input:action):
                 enrg[id] -= abs(d.x) + abs(d.y)
 
 do():
-    moji_build.scene(9)
+    moji_build.scene(12)
 
     fatal(gl_window("Twemoji PoC", 1024, 768))
     for(gl_font_names) name, i:
