@@ -375,11 +375,12 @@ class twemoji_builder:
 
     def scene(size):
         grove(size):
+            let l = size / 4
             build.each([
-                xy_f { -2.0,  2.0 },
-                xy_f {  2.0,  2.0 },
-                xy_f {  2.0, -2.0 },
-                xy_f { -2.0, -2.0 },
+                xy_f { -l,  l },
+                xy_f {  l,  l },
+                xy_f {  l, -l },
+                xy_f { -l, -l },
             ]) i:
                 build.create_char(ent_none, element_colors[i], emoji(elements[i]))
             build.create_char(ent_input, color_blue_violet, emoji(0x1f9d9)) // 🧙 mage
