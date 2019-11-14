@@ -326,7 +326,7 @@ class builder:
 //// specialization
 
 class twemoji_builder:
-    build = builder{}
+    build:builder
 
     tree_evergreen = emoji(0x1f322) // 🌲
     tree_deciduous = emoji(0x1f333) // 🌳
@@ -425,7 +425,11 @@ let play_reader = button_action_reader {
     ],
 }
 
+let build = builder {
+}
+
 let moji_build = twemoji_builder {
+    build: build,
 }
 
 def step_world(input:action):
