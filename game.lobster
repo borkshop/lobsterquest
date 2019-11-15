@@ -167,10 +167,11 @@ enum_flags entype:
     ent_mind        // participates in the action system
     ent_input       // receives player input
 
-var type = []::entype
-var pos  = []::spatial
-var ren  = []::render
-var enrg = []::float
+class shard:
+    type = []::entype
+    pos  = []::spatial
+    ren  = []::render
+    enrg = []::float
 
 class system:
     def ent_reset():
@@ -178,7 +179,6 @@ class system:
 
     def ent_changed(id:int, old:entype, new:entype):
         fatal_exit("unimplemented: " + this + ".ent_changed()")
-
 
 class minds : system
     ids:[int] = []
@@ -215,8 +215,10 @@ class bodys : system
                 ids.remove_obj(id)
 
 class stacked_scene : system
-    ids:[int] = []
-    zs:[float] = []
+    shard:shard
+
+    ids = []::int
+    zs  = []::float
 
     def ent_reset():
         ids.remove(0, ids.length())
@@ -226,7 +228,7 @@ class stacked_scene : system
 
     def ent_changed(id:int, old:entype, new:entype):
         if new & ent_visible:
-            let z = pos[id].z
+            let z = shard.pos[id].z
             let n, i = binary_search(zs, z)
             ids.insert(i, id)
             zs.insert(i, z)
@@ -241,7 +243,7 @@ class stacked_scene : system
         var maxc = xy_0i
         var first = true
         for(ids) id:
-            let c = pos[id].cell()
+            let c = shard.pos[id].cell()
             if first:
                 first = false
                 minc = maxc = c
@@ -397,35 +399,36 @@ let play_reader = button_action_reader {
     ],
 }
 
+let world = shard{}
 let systems = []::system
 
 var minds = minds {}
 var bodys = bodys {}
-var scene = stacked_scene {}
+var scene = stacked_scene { shard: world }
 
 systems.push(scene)
 systems.push(minds)
 systems.push(bodys)
 
 def create_ent(t, p, r, e):
-    let id = type.length()
-    type.push(t)
-    pos.push(p)
-    ren.push(r)
-    enrg.push(e)
+    let id = world.type.length()
+    world.type.push(t)
+    world.pos.push(p)
+    world.ren.push(r)
+    world.enrg.push(e)
     for(systems): _.ent_changed(id, ent_none, t)
     return id
 
 def ent_set_type(id:int, t:entype):
-    let old = type[id]
-    type[id] = t
+    let old = world.type[id]
+    world.type[id] = t
     for(systems): _.ent_changed(id, old, t)
 
 def clear_ents():
-    type = []
-    pos  = []
-    ren  = []
-    enrg = []
+    world.type = []
+    world.pos  = []
+    world.ren  = []
+    world.enrg = []
     for(systems): _.ent_reset()
 
 let build = builder {
@@ -437,7 +440,7 @@ let moji_build = twemoji_builder {
 
 def step_world(input:action):
     // energize all minds
-    for(minds.ids) id: enrg[id]++
+    for(minds.ids) id: world.enrg[id]++
 
     // choose actions
     let actions = map(minds.ids) id, mind_id:
@@ -449,11 +452,11 @@ def step_world(input:action):
 
     // enforce action energy limits
     for(minds.ids) id, mind_id:
-        actions[mind_id] = actions[mind_id].limit(enrg[id])
+        actions[mind_id] = actions[mind_id].limit(world.enrg[id])
 
     // compute action targets
     let targets = map(minds.ids) id, mind_id:
-        actions[mind_id].target(pos[id])
+        actions[mind_id].target(world.pos[id])
 
     // compute hit bodies, grouping actions by shared interest
     let group_ids = map(actions): -1
@@ -463,7 +466,7 @@ def step_world(input:action):
         if actions[mind_id].isactive() and group_ids[mind_id] < 0:
             let group_id = groups.length()
             let actors = [mind_id]
-            let at = filter(bodys.ids) id: pos[id].cell() == t
+            let at = filter(bodys.ids) id: world.pos[id].cell() == t
             var other_mind_id = mind_id + 1
             while other_mind_id < targets.length():
                 if actions[mind_id].isactive() and group_ids[other_mind_id] < 0:
@@ -486,16 +489,16 @@ def step_world(input:action):
 
             // nothing hit
             if at.length() == 0:
-                let p = pos[id]
+                let p = world.pos[id]
                 let t = targets[mind_id]
                 let d = t - p.cell()
-                pos[id] = spatial {
+                world.pos[id] = spatial {
                     x: p.x + float(d.x),
                     y: p.y + float(d.y),
                     z: p.z,
                     w: p.w,
                 }
-                enrg[id] -= abs(d.x) + abs(d.y)
+                world.enrg[id] -= abs(d.x) + abs(d.y)
 
 do():
     moji_build.scene(12)
@@ -581,10 +584,10 @@ do():
             for(scene.ids) id:
                 // TODO scene precomputed translation
                 // TODO scene precomputed render and glyph drawing data
-                let p = pos[id]
+                let p = world.pos[id]
                 let c = p.xy - p.w / 2
                 gl_translate(c * cell_size):
-                    ren[id].draw(cell_size, cell_size * p.w)
+                    world.ren[id].draw(cell_size, cell_size * p.w)
 
         // TODO draw player overlay
 
