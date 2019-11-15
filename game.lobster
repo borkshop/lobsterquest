@@ -124,9 +124,6 @@ struct action:
     act:actiontype
     dir:xy_f
 
-    def isactive():
-        return act != action_none
-
     def limit(n:float):
         return action {
             act: act,
@@ -479,34 +476,41 @@ def step_world(input:action):
     // energize all minds
     for(minds.ids) id: world.data.enrg[id]++
 
-    // choose actions
-    let actions = minds.thoughts()
+    // choose action intents
+    let intents = minds.thoughts()
+
+    // subset of minds with intent
+    let actor_ids = filter(minds.ids) id, mind_id:
+        intents[mind_id].act != action_none
+    let actions = filter(intents): _.act != action_none
 
     // enforce action energy limits
-    for(minds.ids) id, mind_id:
-        actions[mind_id] = actions[mind_id].limit(world.data.enrg[id])
+    for(actions) a, actor_id:
+        let id = actor_ids[actor_id]
+        actions[actor_id] = a.limit(world.data.enrg[id])
 
     // compute action targets
-    let targets = map(minds.ids) id, mind_id:
-        actions[mind_id].target(world.data.pos[id])
+    let targets = map(actions) a, actor_id:
+        let id = actor_ids[actor_id]
+        a.target(world.data.pos[id])
 
     // compute hit bodies, grouping actions by shared interest
-    let group_ids = map(actions): -1
-    let groups = vector_reserve(typeof [[int]], actions.length())
-    let hits = vector_reserve(typeof [[int]], actions.length())
-    for(targets) t, mind_id:
-        if actions[mind_id].isactive() and group_ids[mind_id] < 0:
+    let group_ids = map(targets): -1
+    let groups    = vector_reserve(typeof [[int]], targets.length())
+    let hits      = vector_reserve(typeof [[int]], targets.length())
+    for(targets) t, actor_id:
+        if group_ids[actor_id] < 0:
             let group_id = groups.length()
-            let actors = [mind_id]
+            let actors = [actor_id]
             let at = filter(bodys.ids) id: world.data.pos[id].cell() == t
-            for_from(targets, mind_id + 1) ot, other_mind_id:
-                if actions[mind_id].isactive() and group_ids[other_mind_id] < 0:
-                    if targets[other_mind_id] == t:
-                        group_ids[other_mind_id] = group_id
-                        actors.push(other_mind_id)
+            for_from(targets, actor_id + 1) ot, other_actor_id:
+                if targets[other_actor_id] == t:
+                    if group_ids[other_actor_id] < 0:
+                        group_ids[other_actor_id] = group_id
+                        actors.push(other_actor_id)
             hits.push(at)
             groups.push(actors)
-            group_ids[mind_id] = group_id
+            group_ids[actor_id] = group_id
 
     // resolve action groups
     for(groups) actors, group_id:
@@ -514,13 +518,13 @@ def step_world(input:action):
 
         // no conflict
         if actors.length() == 1:
-            let mind_id = actors[0]
-            let id = minds.ids[mind_id]
+            let actor_id = actors[0]
+            let id = actor_ids[actor_id]
 
             // nothing hit
             if at.length() == 0:
                 let p = world.data.pos[id]
-                let t = targets[mind_id]
+                let t = targets[actor_id]
                 let d = t - p.cell()
                 world.data.pos[id] = spatial {
                     x: p.x + float(d.x),
