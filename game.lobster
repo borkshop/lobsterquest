@@ -187,7 +187,8 @@ class ent_ids:
             else: if old & mask:
                 ids.remove_obj(id)
 
-class ent_typed_ids : ent_ids
+class minds:
+    ids:[int] = []
     types:[entype] = []
 
     def clear():
@@ -196,15 +197,15 @@ class ent_typed_ids : ent_ids
 
     def update(id:int, old:entype, new:entype):
         let diff = old ^ new
-        if diff & mask:
-            if new & mask:
+        if diff & ent_mind:
+            if new & ent_mind:
                 ids.push(id)
                 types.push(new)
-            else: if old & mask:
-                let i = ids.first_index(id)
-                if i >= 0:
-                    ids.remove(i, 1)
-                    types.remove(i, 1)
+            else: if old & ent_mind:
+                let mind_id = ids.first_index(id)
+                if mind_id >= 0:
+                    ids.remove(mind_id, 1)
+                    types.remove(mind_id, 1)
 
 class stacked_scene:
     ids:[int] = []
@@ -389,7 +390,7 @@ let play_reader = button_action_reader {
     ],
 }
 
-var minds = ent_typed_ids { mask: ent_mind }
+var minds = minds {}
 var bodys = ent_ids { mask: ent_body }
 var scene = stacked_scene {}
 
