@@ -180,6 +180,31 @@ class system:
     def ent_changed(id:int, old:entype, new:entype):
         fatal_exit("unimplemented: " + this + ".ent_changed()")
 
+class shard_system:
+    data    = shard{}
+    systems = []::system
+
+    def create(t, p, r, e):
+        let id = data.type.length()
+        data.type.push(t)
+        data.pos.push(p)
+        data.ren.push(r)
+        data.enrg.push(e)
+        for(systems): _.ent_changed(id, ent_none, t)
+        return id
+
+    def set_type(id:int, t:entype):
+        let old = data.type[id]
+        data.type[id] = t
+        for(systems): _.ent_changed(id, old, t)
+
+    def reset():
+        for(systems): _.ent_reset()
+        data.type = []
+        data.pos  = []
+        data.ren  = []
+        data.enrg = []
+
 class minds : system
     ids:[int] = []
     types:[entype] = []
@@ -253,6 +278,7 @@ class stacked_scene : system
         return minc, maxc
 
 class builder:
+    shard:shard_system
     loc = xy_0
 
     def translate(by:xy_f, body):
@@ -282,19 +308,19 @@ class builder:
         let t = ent_body | ent_mind | ent_visible | et
         let r = render { color_zero, c, g }
         let p = spatial { loc.x + 0.5, loc.y + 0.5, 1.0, 1.0 }
-        return create_ent(t, p, r, 0)
+        return shard.create(t, p, r, 0)
 
     def create_object(et:entype, c:color, g:glyph):
         let t = ent_body | ent_visible | et
         let r = render { color_zero, c, g }
         let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.5, 1.0 }
-        return create_ent(t, p, r, 0)
+        return shard.create(t, p, r, 0)
 
     def create_floor(b:color, f:color, g:glyph):
         let t = ent_visible | ent_cell
         let r = render { b, f, g }
         let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.0, 1.0 }
-        return create_ent(t, p, r, 0)
+        return shard.create(t, p, r, 0)
 
 //// specialization
 
@@ -399,39 +425,18 @@ let play_reader = button_action_reader {
     ],
 }
 
-let world = shard{}
-let systems = []::system
+var world = shard_system {}
 
 var minds = minds {}
 var bodys = bodys {}
-var scene = stacked_scene { shard: world }
+var scene = stacked_scene { shard: world.data }
 
-systems.push(scene)
-systems.push(minds)
-systems.push(bodys)
-
-def create_ent(t, p, r, e):
-    let id = world.type.length()
-    world.type.push(t)
-    world.pos.push(p)
-    world.ren.push(r)
-    world.enrg.push(e)
-    for(systems): _.ent_changed(id, ent_none, t)
-    return id
-
-def ent_set_type(id:int, t:entype):
-    let old = world.type[id]
-    world.type[id] = t
-    for(systems): _.ent_changed(id, old, t)
-
-def clear_ents():
-    world.type = []
-    world.pos  = []
-    world.ren  = []
-    world.enrg = []
-    for(systems): _.ent_reset()
+world.systems.push(scene)
+world.systems.push(minds)
+world.systems.push(bodys)
 
 let build = builder {
+    shard: world,
 }
 
 let moji_build = twemoji_builder {
@@ -440,7 +445,7 @@ let moji_build = twemoji_builder {
 
 def step_world(input:action):
     // energize all minds
-    for(minds.ids) id: world.enrg[id]++
+    for(minds.ids) id: world.data.enrg[id]++
 
     // choose actions
     let actions = map(minds.ids) id, mind_id:
@@ -452,11 +457,11 @@ def step_world(input:action):
 
     // enforce action energy limits
     for(minds.ids) id, mind_id:
-        actions[mind_id] = actions[mind_id].limit(world.enrg[id])
+        actions[mind_id] = actions[mind_id].limit(world.data.enrg[id])
 
     // compute action targets
     let targets = map(minds.ids) id, mind_id:
-        actions[mind_id].target(world.pos[id])
+        actions[mind_id].target(world.data.pos[id])
 
     // compute hit bodies, grouping actions by shared interest
     let group_ids = map(actions): -1
@@ -466,7 +471,7 @@ def step_world(input:action):
         if actions[mind_id].isactive() and group_ids[mind_id] < 0:
             let group_id = groups.length()
             let actors = [mind_id]
-            let at = filter(bodys.ids) id: world.pos[id].cell() == t
+            let at = filter(bodys.ids) id: world.data.pos[id].cell() == t
             var other_mind_id = mind_id + 1
             while other_mind_id < targets.length():
                 if actions[mind_id].isactive() and group_ids[other_mind_id] < 0:
@@ -489,16 +494,16 @@ def step_world(input:action):
 
             // nothing hit
             if at.length() == 0:
-                let p = world.pos[id]
+                let p = world.data.pos[id]
                 let t = targets[mind_id]
                 let d = t - p.cell()
-                world.pos[id] = spatial {
+                world.data.pos[id] = spatial {
                     x: p.x + float(d.x),
                     y: p.y + float(d.y),
                     z: p.z,
                     w: p.w,
                 }
-                world.enrg[id] -= abs(d.x) + abs(d.y)
+                world.data.enrg[id] -= abs(d.x) + abs(d.y)
 
 do():
     moji_build.scene(12)
@@ -536,7 +541,7 @@ do():
                 im_text("Build")
                 build_size = im_sliderint("Size", build_size, 3, 100)
                 im_button("Grove"):
-                    clear_ents()
+                    world.reset()
                     moji_build.scene(build_size)
 
                 im_separator()
@@ -584,10 +589,10 @@ do():
             for(scene.ids) id:
                 // TODO scene precomputed translation
                 // TODO scene precomputed render and glyph drawing data
-                let p = world.pos[id]
+                let p = world.data.pos[id]
                 let c = p.xy - p.w / 2
                 gl_translate(c * cell_size):
-                    world.ren[id].draw(cell_size, cell_size * p.w)
+                    world.data.ren[id].draw(cell_size, cell_size * p.w)
 
         // TODO draw player overlay
 
