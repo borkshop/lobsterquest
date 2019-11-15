@@ -508,6 +508,9 @@ def step_world(input:action):
                     if group_ids[other_actor_id] < 0:
                         group_ids[other_actor_id] = group_id
                         actors.push(other_actor_id)
+                    // NOTE should not be possible unless we introduce
+                    // second-order consequences (e.g. pushing):
+                    // else: if other_actor_id != group_id:
             hits.push(at)
             groups.push(actors)
             group_ids[actor_id] = group_id
