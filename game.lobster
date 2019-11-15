@@ -172,21 +172,6 @@ var pos  = []::spatial
 var ren  = []::render
 var enrg = []::float
 
-class ent_ids:
-    mask:entype
-    ids:[int] = []
-
-    def clear():
-        ids.remove(0, ids.length())
-
-    def update(id:int, old:entype, new:entype):
-        let diff = old ^ new
-        if diff & mask:
-            if new & mask:
-                ids.push(id)
-            else: if old & mask:
-                ids.remove_obj(id)
-
 class minds:
     ids:[int] = []
     types:[entype] = []
@@ -206,6 +191,20 @@ class minds:
                 if mind_id >= 0:
                     ids.remove(mind_id, 1)
                     types.remove(mind_id, 1)
+
+class bodys:
+    ids:[int] = []
+
+    def clear():
+        ids.remove(0, ids.length())
+
+    def update(id:int, old:entype, new:entype):
+        let diff = old ^ new
+        if diff & ent_body:
+            if new & ent_body:
+                ids.push(id)
+            else: if old & ent_body:
+                ids.remove_obj(id)
 
 class stacked_scene:
     ids:[int] = []
@@ -391,7 +390,7 @@ let play_reader = button_action_reader {
 }
 
 var minds = minds {}
-var bodys = ent_ids { mask: ent_body }
+var bodys = bodys {}
 var scene = stacked_scene {}
 
 def watch_ent(id:int, old:entype, new:entype):
