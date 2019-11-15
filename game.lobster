@@ -172,15 +172,23 @@ var pos  = []::spatial
 var ren  = []::render
 var enrg = []::float
 
-class minds:
+class system:
+    def ent_reset():
+        fatal_exit("unimplemented: " + this + ".ent_reset()")
+
+    def ent_changed(id:int, old:entype, new:entype):
+        fatal_exit("unimplemented: " + this + ".ent_changed()")
+
+
+class minds : system
     ids:[int] = []
     types:[entype] = []
 
-    def clear():
+    def ent_reset():
         ids.remove(0, ids.length())
         types.remove(0, types.length())
 
-    def update(id:int, old:entype, new:entype):
+    def ent_changed(id:int, old:entype, new:entype):
         let diff = old ^ new
         if diff & ent_mind:
             if new & ent_mind:
@@ -192,13 +200,13 @@ class minds:
                     ids.remove(mind_id, 1)
                     types.remove(mind_id, 1)
 
-class bodys:
+class bodys : system
     ids:[int] = []
 
-    def clear():
+    def ent_reset():
         ids.remove(0, ids.length())
 
-    def update(id:int, old:entype, new:entype):
+    def ent_changed(id:int, old:entype, new:entype):
         let diff = old ^ new
         if diff & ent_body:
             if new & ent_body:
@@ -206,17 +214,17 @@ class bodys:
             else: if old & ent_body:
                 ids.remove_obj(id)
 
-class stacked_scene:
+class stacked_scene : system
     ids:[int] = []
     zs:[float] = []
 
-    def clear():
+    def ent_reset():
         ids.remove(0, ids.length())
         zs.remove(0, zs.length())
 
     // TODO update_z
 
-    def update(id:int, old:entype, new:entype):
+    def ent_changed(id:int, old:entype, new:entype):
         if new & ent_visible:
             let z = pos[id].z
             let n, i = binary_search(zs, z)
@@ -389,14 +397,15 @@ let play_reader = button_action_reader {
     ],
 }
 
+let systems = []::system
+
 var minds = minds {}
 var bodys = bodys {}
 var scene = stacked_scene {}
 
-def watch_ent(id:int, old:entype, new:entype):
-    scene.update(id, old, new)
-    minds.update(id, old, new)
-    bodys.update(id, old, new)
+systems.push(scene)
+systems.push(minds)
+systems.push(bodys)
 
 def create_ent(t, p, r, e):
     let id = type.length()
@@ -404,22 +413,20 @@ def create_ent(t, p, r, e):
     pos.push(p)
     ren.push(r)
     enrg.push(e)
-    watch_ent(id, ent_none, t)
+    for(systems): _.ent_changed(id, ent_none, t)
     return id
 
 def ent_set_type(id:int, t:entype):
     let old = type[id]
     type[id] = t
-    watch_ent(id, old, t)
+    for(systems): _.ent_changed(id, old, t)
 
 def clear_ents():
     type = []
     pos  = []
     ren  = []
     enrg = []
-    scene.clear()
-    minds.clear()
-    bodys.clear()
+    for(systems): _.ent_reset()
 
 let build = builder {
 }
