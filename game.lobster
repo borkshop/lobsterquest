@@ -208,9 +208,17 @@ class mind:
     // TODO partial information sensed in, rather than direct world access
     shard:shard
     id:int
+    state:int = 0
 
     def think():
-        return action_0
+        let m = state % 2
+        let d = state / 2
+        let x = m ^ d
+        state = ++state % 4
+        return if x & d: move_dir(xy {  0.0,  1.0 }) // down
+        else: if  x & m: move_dir(xy {  1.0,  0.0 }) // right
+        else: if  d:     move_dir(xy { -1.0,  0.0 }) // left
+        else:            move_dir(xy {  0.0, -1.0 }) // up
 
 class minds : system
     shard:shard
