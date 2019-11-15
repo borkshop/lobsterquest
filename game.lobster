@@ -499,13 +499,11 @@ def step_world(input:action):
             let group_id = groups.length()
             let actors = [mind_id]
             let at = filter(bodys.ids) id: world.data.pos[id].cell() == t
-            var other_mind_id = mind_id + 1
-            while other_mind_id < targets.length():
+            for_from(targets, mind_id + 1) ot, other_mind_id:
                 if actions[mind_id].isactive() and group_ids[other_mind_id] < 0:
                     if targets[other_mind_id] == t:
                         group_ids[other_mind_id] = group_id
                         actors.push(other_mind_id)
-                other_mind_id++
             hits.push(at)
             groups.push(actors)
             group_ids[mind_id] = group_id
@@ -626,3 +624,8 @@ do():
         if show_ui: do():
             im_frame():
                 ui.resume(nil)
+
+def for_from(xs, i, body):
+    while i < xs.length():
+        body(xs[i], i)
+        i++
