@@ -205,7 +205,11 @@ class shard_system:
         data.ren  = []
         data.enrg = []
 
+def input_fun() -> action
+
 class minds : system
+    input:input_fun
+
     ids:[int] = []
     types:[entype] = []
 
@@ -224,6 +228,12 @@ class minds : system
                 if mind_id >= 0:
                     ids.remove(mind_id, 1)
                     types.remove(mind_id, 1)
+
+    def thoughts():
+        let input_fun = input
+        return map(types) t, mind_id:
+            if t & ent_input: input_fun()
+            else:             action_0
 
 class bodys : system
     ids:[int] = []
@@ -392,6 +402,9 @@ class button_action_reader:
     input = action_0
     last_input = 0.0
 
+    def action():
+        return if have: input else: action_0
+
     def read_input():
         have = false
         let since_input = gl_time() - last_input
@@ -427,7 +440,9 @@ let play_reader = button_action_reader {
 
 var world = shard_system {}
 
-var minds = minds {}
+var minds = minds {
+    input: def(): play_reader.action(),
+}
 var bodys = bodys {}
 var scene = stacked_scene { shard: world.data }
 
@@ -448,12 +463,7 @@ def step_world(input:action):
     for(minds.ids) id: world.data.enrg[id]++
 
     // choose actions
-    let actions = map(minds.ids) id, mind_id:
-        let t = minds.types[mind_id]
-        if t & ent_input:
-            input
-        else:
-            action_0
+    let actions = minds.thoughts()
 
     // enforce action energy limits
     for(minds.ids) id, mind_id:
