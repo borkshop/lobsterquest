@@ -232,22 +232,22 @@ class minds : system
     types = []::entype
     minds = []::mind
 
+    def enter(id, t):
+        ids.push(id)
+        types.push(t)
+        minds.push(mind { shard: shard, id: id })
+
+    def exit(id):
+        let mind_id = ids.first_index(id)
+        if mind_id >= 0:
+            ids.remove(mind_id, 1)
+            types.remove(mind_id, 1)
+            minds.remove(mind_id, 1)
+
     def ent_changed(id:int, old:entype, new:entype):
-        let diff = old ^ new
-        if diff & ent_mind:
-            if new & ent_mind:
-                ids.push(id)
-                types.push(new)
-                minds.push(mind{
-                    shard: shard,
-                    id: id,
-                })
-            else: if old & ent_mind:
-                let mind_id = ids.first_index(id)
-                if mind_id >= 0:
-                    ids.remove(mind_id, 1)
-                    types.remove(mind_id, 1)
-                    minds.remove(mind_id, 1)
+        if (old ^ new) & ent_mind:
+            if       new & ent_mind: this.enter(id, new)
+            else: if old & ent_mind: this.exit(id)
 
     def ent_reset():
         ids   = []
@@ -263,13 +263,16 @@ class minds : system
 class bodys : system
     ids:[int] = []
 
+    def enter(id):
+        ids.push(id)
+
+    def exit(id):
+        ids.remove_obj(id)
+
     def ent_changed(id:int, old:entype, new:entype):
-        let diff = old ^ new
-        if diff & ent_body:
-            if new & ent_body:
-                ids.push(id)
-            else: if old & ent_body:
-                ids.remove_obj(id)
+        if (old ^ new) & ent_body:
+            if       new & ent_body: this.enter(id)
+            else: if old & ent_body: this.exit(id)
 
     def ent_reset():
         ids = []
@@ -279,18 +282,25 @@ class stacked_scene : system
 
     ids = []::int
     zs  = []::float
+    // TODO maybe bucket-by-z rather than full sorting
+    // TODO maybe own and pre-compute all rendering data
+
+    def enter(id):
+        let z = shard.pos[id].z
+        let n, scene_id = zs.binary_search(z)
+        ids.insert(scene_id, id)
+        zs.insert(scene_id, z)
+
+    def exit(id):
+        let scene_id = ids.first_index(id)
+        if scene_id >= 0:
+            ids.remove(scene_id, 1)
+            zs.remove(scene_id, 1)
 
     def ent_changed(id:int, old:entype, new:entype):
-        if new & ent_visible:
-            let z = shard.pos[id].z
-            let n, i = binary_search(zs, z)
-            ids.insert(i, id)
-            zs.insert(i, z)
-        else: if old & ent_visible:
-            let i = ids.first_index(id)
-            if i >= 0:
-                ids.remove(i, 1)
-                zs.remove(i, 1)
+        if (old ^ new) & ent_visible:
+            if       new & ent_visible: this.enter(id)
+            else: if old & ent_visible: this.exit(id)
 
     def ent_reset():
         ids = []
