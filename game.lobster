@@ -228,9 +228,9 @@ class minds : system
     shard:shard
     input:input_fun
 
-    ids:[int] = []
-    types:[entype] = []
-    minds:[mind] = []
+    ids   = []::int
+    types = []::entype
+    minds = []::mind
 
     def ent_reset():
         ids.remove(0, ids.length())
