@@ -45,8 +45,9 @@ def while_first_index(xs, x, body):
 - imgui
   - closable windows would be nice
   - use imgui more like the overlay demo example
-- entities
-  - freelist and re-use
+- ECS
+  - entity freelist and re-use
+  - is it useful to leave a hole in a sparse system rather than removing on type exit?
 - ai system based on behavior trees
 - relations to other entities (threats, assists, respects, etc)
 - graph-oriented body system item holding and with equipment
