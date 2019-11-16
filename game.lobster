@@ -3,6 +3,11 @@ import imgui
 import std
 import vec
 
+def first_index(xs, x):
+    for(xs) _, i: if _ == x:
+        return i
+    return -1
+
 /* TODO
 
 - rendering
@@ -40,11 +45,6 @@ import vec
 - graph-oriented body system item holding and with equipment
 
 */
-
-def first_index(xs, x):
-    for(xs) _, i: if _ == x:
-        return i
-    return -1
 
 let color_zero = color { 0, 0, 0, 0 }
 
