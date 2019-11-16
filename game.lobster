@@ -19,7 +19,6 @@ def while_first_index(xs, x, body):
 
 - rendering
   - optimize glyph draw: group by mode; cache strings, meshes, or use textures
-  - animated movement and other actions
   - viewport control (zoom and pan)
   - more moji coverage, like skin and gender
   - maybe expand to 2-glyphs
@@ -184,6 +183,7 @@ class system:
 
     def ent_changed(id:int, old:entype, new:entype):
         fatal_exit("unimplemented: " + this + ".ent_changed()")
+        return new
 
 class shard_system:
     data    = shard{}
@@ -205,7 +205,10 @@ class shard_system:
 
     def notify_type(id, old, new):
         for(systems):
-            _.ent_changed(id, old, new)
+            let prior = new
+            new = _.ent_changed(id, old, new)
+            if new != prior:
+                data.type[id] = new
 
     def reset():
         for(systems): _.ent_reset()
@@ -254,6 +257,7 @@ class minds : system
         if (old ^ new) & ent_mind:
             if       new & ent_mind: this.enter(id, new)
             else: if old & ent_mind: this.exit(id)
+        return new
 
     def ent_reset():
         ids   = []
@@ -279,9 +283,98 @@ class bodys : system
         if (old ^ new) & ent_body:
             if       new & ent_body: this.enter(id)
             else: if old & ent_body: this.exit(id)
+        return new
 
     def ent_reset():
         ids = []
+
+class anims : system
+    shard:shard
+
+    blocked = false
+    ids     = []::int
+    block   = []::bool
+    time    = []::float
+    elapsed = []::float
+    as      = []::spatial
+    bs      = []::spatial
+    // TODO size animation
+    // TODO animation of other spatial attributes as added, e.g. heading or other transforms
+
+    def update(update_dt:float):
+        let left = map(shard.type.length()): update_dt
+        // TODO maybe decompose loop into stages
+        for(ids) id, anim_id:
+            def advance(dt):
+                if dt <= 0:
+                    return 0.0
+
+                let prior = elapsed[anim_id]
+                let total = time[anim_id]
+                if prior >= total:
+                    return dt
+
+                let t = clamp(prior + dt, 0, total)
+                let spent = t - prior
+
+                let f = t / total
+                let a = as[anim_id]
+                let b = bs[anim_id]
+                shard.pos[id] = lerp(a, b, f)
+
+                elapsed[anim_id] = t
+                return dt - spent
+            left[id] = advance(left[id])
+        let live, dead = elapsed.partition_indices() t, anim_id: t < time[anim_id]
+        drop(live, dead)
+
+    def drop(live, dead):
+        if dead.length() == 0:
+            return
+        let dead_ids = map(dead): ids[_]
+        ids          = map(live): ids[_]
+        block        = map(live): block[_]
+        blocked      = block.fold(false): _a || _b
+        time         = map(live): time[_]
+        elapsed      = map(live): elapsed[_]
+        as           = map(live): as[_]
+        bs           = map(live): bs[_]
+
+    def has_any(id):
+        let anim_id = ids.first_index(id)
+        return anim_id >= 0
+
+    def clear(id):
+        let prior, rest = ids.partition_indices(): _ == id
+        drop(prior, rest)
+
+    def add(
+        id       : int,
+        blocking : bool,
+        t        : float,
+        a        : spatial,
+        b        : spatial
+    ): if a == b: return -1 else:
+        let anim_id = ids.length()
+        ids.push(id)
+        block.push(blocking)
+        time.push(t)
+        elapsed.push(0)
+        as.push(a)
+        bs.push(b)
+        blocked = blocked || blocking
+        return anim_id
+
+    def ent_changed(id:int, old:entype, new:entype):
+        return new
+
+    def ent_reset():
+        ids     = []
+        block   = []
+        time    = []
+        elapsed = []
+        as      = []
+        bs      = []
 
 class stacked_scene : system
     shard:shard
@@ -305,6 +398,7 @@ class stacked_scene : system
         if (old ^ new) & ent_visible:
             if       new & ent_visible: this.enter(id)
             else: if old & ent_visible: this.exit(id)
+        return new
 
     def ent_reset():
         ids = []
@@ -439,25 +533,20 @@ class button_action_reader:
 
     have = false
     input = action_0
-    last_input = 0.0
 
     def action():
         return if have: input else: action_0
 
     def read_input():
         have = false
-        let since_input = gl_time() - last_input
-        let until_next_input = 1.0 / 6
         for(buttons) button, i:
-            var state = gl_button(button)
-            if state > 1 and since_input < until_next_input:
-                state = 0
-            if state > 0:
+            if gl_button(button) > 0:
                 have = true
                 input = actions[i]
-                last_input = gl_time()
 
 //// usage
+
+let movement_time = 1.0 / 6
 
 let play_reader = button_action_reader {
     // arrow keys with "." to stay idiom
@@ -484,6 +573,7 @@ var minds = minds {
     input: def(): play_reader.action(),
 }
 var bodys = bodys {}
+var anims = anims { shard: world.data }
 world.systems.push(minds)
 world.systems.push(bodys)
 
@@ -545,25 +635,35 @@ def step_world(input:action):
 
     // resolve action groups
     for(groups) actors, group_id:
-        let at = hits[group_id]
-
-        // no conflict
-        if actors.length() == 1:
-            let actor_id = actors[0]
+        def add_anim(actor_id, full):
             let id = actor_ids[actor_id]
+            let a = world.data.pos[id]
+            let t = targets[actor_id]
+            let d = t - a.cell()
+            let b = spatial {
+                x: a.x + float(d.x),
+                y: a.y + float(d.y),
+                z: a.z,
+                w: a.w,
+            }
+            var cost = abs(d.x) + abs(d.y)
+            if full:
+                anims.add(id, true, movement_time, a, b)
+            else:
+                let hab = lerp(a, b, 0.5)
+                anims.add(id, true, movement_time/2, a, hab)
+                anims.add(id, true, movement_time/2, hab, a)
+                cost = cost / 2
+            if cost > 0:
+                world.data.enrg[id] -= cost
 
-            // nothing hit
-            if at.length() == 0:
-                let p = world.data.pos[id]
-                let t = targets[actor_id]
-                let d = t - p.cell()
-                world.data.pos[id] = spatial {
-                    x: p.x + float(d.x),
-                    y: p.y + float(d.y),
-                    z: p.z,
-                    w: p.w,
-                }
-                world.data.enrg[id] -= abs(d.x) + abs(d.y)
+        let at = hits[group_id]
+        if actors.length() > 1:
+            for(actors): add_anim(_, false) // half-animate all conflicts
+        else: if at.length() > 0:
+            add_anim(actors[0], false) // half-animate hits
+        else:
+            add_anim(actors[0], true) // full animate unfettered move
 
 do():
     moji_build.scene(12)
@@ -634,10 +734,12 @@ do():
             show_ui = !show_ui
             paused = show_ui
 
-        if not paused:
+        if not (paused or anims.blocked):
             play_reader.read_input()
             if play_reader.have:
                 step_world(play_reader.input)
+
+        anims.update(gl_delta_time())
 
         let minc, maxc = scene.bounds()
         let space_size = float(maxc - minc + 1)
