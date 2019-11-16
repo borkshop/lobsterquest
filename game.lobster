@@ -8,6 +8,13 @@ def first_index(xs, x):
         return i
     return -1
 
+def while_first_index(xs, x, body):
+    forever():
+        let i = xs.first_index(x)
+        if i < 0:
+            return
+        body(i)
+
 /* TODO
 
 - rendering
@@ -237,12 +244,10 @@ class minds : system
         types.push(t)
         minds.push(mind { shard: shard, id: id })
 
-    def exit(id):
-        let mind_id = ids.first_index(id)
-        if mind_id >= 0:
-            ids.remove(mind_id, 1)
-            types.remove(mind_id, 1)
-            minds.remove(mind_id, 1)
+    def exit(id): while_first_index(ids, id) mind_id:
+        ids.remove(mind_id, 1)
+        types.remove(mind_id, 1)
+        minds.remove(mind_id, 1)
 
     def ent_changed(id:int, old:entype, new:entype):
         if (old ^ new) & ent_mind:
@@ -266,8 +271,8 @@ class bodys : system
     def enter(id):
         ids.push(id)
 
-    def exit(id):
-        ids.remove_obj(id)
+    def exit(id): while_first_index(ids, id) body_id:
+        ids.remove(body_id, 1)
 
     def ent_changed(id:int, old:entype, new:entype):
         if (old ^ new) & ent_body:
@@ -291,11 +296,9 @@ class stacked_scene : system
         ids.insert(scene_id, id)
         zs.insert(scene_id, z)
 
-    def exit(id):
-        let scene_id = ids.first_index(id)
-        if scene_id >= 0:
-            ids.remove(scene_id, 1)
-            zs.remove(scene_id, 1)
+    def exit(id): while_first_index(ids, id) scene_id:
+        ids.remove(scene_id, 1)
+        zs.remove(scene_id, 1)
 
     def ent_changed(id:int, old:entype, new:entype):
         if (old ^ new) & ent_visible:
