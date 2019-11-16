@@ -164,26 +164,6 @@ class world:
         // Rotate in place if cannot proceed.
         return i, xy_0i, 1, langton
 
-    def for_lobsters(size, points, func):
-        for(len) i: if lobsters[i]:
-            let v1 = float(points[i])
-            let v2 = float(points[i] + directions[i])
-            func(i, v1, v2)
-            // render lobsters again if they transit the edge of the world
-            if v2.x < 0:
-                let d = xy_x * size
-                func(i, v1+d, v2+d)
-            if v2.x >= size:
-                let d = xy_x * size
-                func(i, v1-d, v2-d)
-            if v2.y < 0:
-                let d = xy_y * size
-                func(i, v1+d, v2+d)
-            if v2.y >= size:
-                let d = xy_y * size
-                func(i, v1-d, v2-d)
-
-
 def new_round_square_topology(size):
     let grid = xy_1i * size
     let points = flatten(mapxy(grid) v: v)
@@ -262,7 +242,7 @@ class view:
 
         // Each lobster, including duplicate lobsters when a lobster exits off
         // an edge and returns through another.
-        w.for_lobsters(size, points) i, v1, v2:
+        for_lobsters(w.lobsters, w.directions) i, v1, v2:
             // Interpolate position
             let v = lerp(v1, v2, tween)
 
@@ -278,6 +258,25 @@ class view:
                 gl_scale(0.75)
                 gl_translate(xy_1 / -2)
                 gl_rect(xy_1, 0)
+
+    def for_lobsters(lobsters, directions, func):
+        for(length(points)) i: if lobsters[i]:
+            let v1 = float(points[i])
+            let v2 = float(points[i] + directions[i])
+            func(i, v1, v2)
+            // render lobsters again if they transit the edge of the world
+            if v2.x < 0:
+                let d = xy_x * size
+                func(i, v1+d, v2+d)
+            if v2.x >= size:
+                let d = xy_x * size
+                func(i, v1-d, v2-d)
+            if v2.y < 0:
+                let d = xy_y * size
+                func(i, v1+d, v2+d)
+            if v2.y >= size:
+                let d = xy_y * size
+                func(i, v1-d, v2-d)
 
 def new_square_view(size, points, first_rule_color, last_rule_color):
     return view{
