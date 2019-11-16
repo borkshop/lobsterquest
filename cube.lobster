@@ -1,0 +1,40 @@
+namespace cube
+
+// face_meshes contains the meshes for the six faces of a cube,
+// facing outward.
+def new_face_vertices(): return [
+    "3102", // 1
+    "1540", // 2
+    "0462", // 3
+    "5137", // 4
+    "7326", // 5
+    "5764", // 6
+]
+
+// These are in order from top-right, counter-clockwise.
+// I can offer no explanation why the origin is not the top- or bottom-left.
+let square = [xy_0, xy_x, xy_1, xy_y]
+let indices = [0, 1, 2, 2, 3, 0]
+
+def new_face_meshes(vertices):
+    return map(vertices) v:
+        let positions = map(v) c: xyz_v(map(3) i: float(c & (1 << (2 - i)) != 0))
+        gl_new_mesh(
+            "PT",
+            positions, // "P"
+            [], // colors,
+            [], // normals,
+            square, // "T" texcoords,
+            [], // textcoords2,
+            indices
+        )
+
+def draw(face_meshes, face_colors, face_textures):
+    gl_set_shader("textured")
+    gl_translate(-xyz_1/2): for(6) i:
+        // The texture colors are multiplied by the color in context.
+        // Since the texture on our mesh is white on black, we can change the
+        // white to a unique color for each face of the world.
+        gl_color(face_colors[i])
+        gl_set_primitive_texture(0, face_textures[i])
+        gl_render_mesh(face_meshes[i])
