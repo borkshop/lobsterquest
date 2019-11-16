@@ -187,13 +187,17 @@ class shard_system:
         data.pos.push(p)
         data.ren.push(r)
         data.enrg.push(e)
-        for(systems): _.ent_changed(id, ent_none, t)
+        notify_type(id, ent_none, t)
         return id
 
     def set_type(id:int, t:entype):
         let old = data.type[id]
         data.type[id] = t
-        for(systems): _.ent_changed(id, old, t)
+        notify_type(id, old, t)
+
+    def notify_type(id, old, new):
+        for(systems):
+            _.ent_changed(id, old, new)
 
     def reset():
         for(systems): _.ent_reset()
