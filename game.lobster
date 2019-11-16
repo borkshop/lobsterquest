@@ -232,11 +232,6 @@ class minds : system
     types = []::entype
     minds = []::mind
 
-    def ent_reset():
-        ids.remove(0, ids.length())
-        types.remove(0, types.length())
-        minds.remove(0, minds.length())
-
     def ent_changed(id:int, old:entype, new:entype):
         let diff = old ^ new
         if diff & ent_mind:
@@ -254,6 +249,11 @@ class minds : system
                     types.remove(mind_id, 1)
                     minds.remove(mind_id, 1)
 
+    def ent_reset():
+        ids   = []
+        types = []
+        minds = []
+
     def thoughts():
         let input_fun = input
         return map(types) t, mind_id:
@@ -263,9 +263,6 @@ class minds : system
 class bodys : system
     ids:[int] = []
 
-    def ent_reset():
-        ids.remove(0, ids.length())
-
     def ent_changed(id:int, old:entype, new:entype):
         let diff = old ^ new
         if diff & ent_body:
@@ -274,17 +271,14 @@ class bodys : system
             else: if old & ent_body:
                 ids.remove_obj(id)
 
+    def ent_reset():
+        ids = []
+
 class stacked_scene : system
     shard:shard
 
     ids = []::int
     zs  = []::float
-
-    def ent_reset():
-        ids.remove(0, ids.length())
-        zs.remove(0, zs.length())
-
-    // TODO update_z
 
     def ent_changed(id:int, old:entype, new:entype):
         if new & ent_visible:
@@ -297,6 +291,12 @@ class stacked_scene : system
             if i >= 0:
                 ids.remove(i, 1)
                 zs.remove(i, 1)
+
+    def ent_reset():
+        ids = []
+        zs  = []
+
+    // TODO update_z
 
     def bounds():
         var minc = xy_0i
