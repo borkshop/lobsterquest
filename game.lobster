@@ -477,27 +477,29 @@ let play_reader = button_action_reader {
     ],
 }
 
+// TODO one for each face / level / etc
 var world = shard_system {}
-
 var minds = minds {
     shard: world.data,
     input: def(): play_reader.action(),
 }
 var bodys = bodys {}
-var scene = stacked_scene { shard: world.data }
-
-world.systems.push(scene)
 world.systems.push(minds)
 world.systems.push(bodys)
 
+// TODO for each visible shard
+var scene = stacked_scene { shard: world.data }
+world.systems.push(scene)
+
+// TODO make ephemeral ... or attach it to an area
 let build = builder {
     shard: world,
 }
-
 let moji_build = twemoji_builder {
     build: build,
 }
 
+// TODO attach to world area
 def step_world(input:action):
     // energize all minds
     for(minds.ids) id: world.data.enrg[id]++
