@@ -667,42 +667,45 @@ def step_world(input:action):
             add_anim(actors[0], true) // full animate unfettered move
 
 class ui:
-    show        = false
     paused      = false
+    show_menu   = false
     show_engine = false
     show_editor = false
     build_size  = 13
 
     def run_forever(draw, step):
-        while gl_frame():
+        while gl_frame(): im_frame():
             if gl_button("escape") == 1:
-                show = !show
-                paused = show
+                show_menu = !show_menu
+                paused = show_menu
             if not paused:
                 step()
             draw()
-            if show: im_frame():
-                im_window("Menu", im_window_always_autoresize):
-                    paused = im_checkbox("World Paused", paused)
-                    show_engine = im_checkbox("Engine Info", show_engine)
 
-                    im_separator()
-                    im_text("Build")
-                    build_size = im_sliderint("Size", build_size, 3, 100)
-                    im_button("Grove"):
-                        world.reset()
-                        moji_build.scene(build_size)
+            if show_menu: im_window("Menu", im_window_always_autoresize):
+                im_button("Hide Menu"):
+                    show_menu = false
+                    paused = false
 
-                    im_separator()
-                    im_button("Quit"):
-                        return from program
+                show_engine = im_checkbox("Engine Info", show_engine)
+                show_editor = im_checkbox("Edit Everything", show_editor)
 
-                if show_engine: im_window("engine", im_window_always_autoresize):
-                    im_show_engine_stats()
-                    im_separator()
-                    show_editor = im_checkbox("Edit Everything", show_editor)
-                    if show_editor:
-                        im_show_vars()
+                im_separator()
+                im_text("Build")
+                build_size = im_sliderint("Size", build_size, 3, 100)
+                im_button("Grove"):
+                    world.reset()
+                    moji_build.scene(build_size)
+
+                im_separator()
+                im_button("Quit"):
+                    return
+
+            if show_engine: im_window("engine", im_window_always_autoresize):
+                im_show_engine_stats()
+
+            if show_editor: im_window("editor", im_window_always_autoresize):
+                im_show_vars()
 
 do():
     moji_build.scene(12)
