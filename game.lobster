@@ -666,6 +666,44 @@ def step_world(input:action):
         else:
             add_anim(actors[0], true) // full animate unfettered move
 
+class ui:
+    show        = false
+    paused      = false
+    show_engine = false
+    show_editor = false
+    build_size  = 13
+
+    def run_forever(draw, step):
+        while gl_frame():
+            if gl_button("escape") == 1:
+                show = !show
+                paused = show
+            if not paused:
+                step()
+            draw()
+            if show: im_frame():
+                im_window("Menu", im_window_always_autoresize):
+                    paused = im_checkbox("World Paused", paused)
+                    show_engine = im_checkbox("Engine Info", show_engine)
+
+                    im_separator()
+                    im_text("Build")
+                    build_size = im_sliderint("Size", build_size, 3, 100)
+                    im_button("Grove"):
+                        world.reset()
+                        moji_build.scene(build_size)
+
+                    im_separator()
+                    im_button("Quit"):
+                        return from program
+
+                if show_engine: im_window("engine", im_window_always_autoresize):
+                    im_show_engine_stats()
+                    im_separator()
+                    show_editor = im_checkbox("Edit Everything", show_editor)
+                    if show_editor:
+                        im_show_vars()
+
 do():
     moji_build.scene(12)
 
@@ -679,67 +717,10 @@ do():
     im_init(true)
     check(im_add_font(im_font, im_fontsize), "cannot load imgui font")
 
-    var paused = false
-    var show_ui = false
-
-    def run_ui(next):
-        var show_engine = false
-        var show_imgui_demo = false
-        var show_editor = false
-
-        var build_size = 13
-
-        def update_ui():
-            if show_imgui_demo:
-                show_imgui_demo = im_window_demo()
-                return
-
-            im_window("Menu", im_window_always_autoresize):
-                paused = im_checkbox("World Paused", paused)
-                show_engine = im_checkbox("Engine Info", show_engine)
-
-                im_separator()
-                im_text("Build")
-                build_size = im_sliderint("Size", build_size, 3, 100)
-                im_button("Grove"):
-                    world.reset()
-                    moji_build.scene(build_size)
-
-                im_separator()
-                im_button("ImGui Demo"):
-                    show_imgui_demo = true
-                    return
-
-                im_separator()
-                im_button("Quit"):
-                    return from program
-
-            if show_engine: im_window("engine", im_window_always_autoresize):
-                im_show_engine_stats()
-                im_separator()
-                show_editor = im_checkbox("Edit Everything", show_editor)
-                if show_editor:
-                    im_show_vars()
-
-        forever():
-            next(nil)
-            update_ui()
-        return nil
-
-    let ui = coroutine run_ui()
-
-    while gl_frame():
+    let ui = ui {}
+    ui.run_forever():
         gl_clear(color_black)
-
-        if gl_button("escape") == 1:
-            show_ui = !show_ui
-            paused = show_ui
-
-        if not (paused or anims.blocked) and play_reader.read_input():
-            step_world(play_reader.input)
-
         anims.update(gl_delta_time())
-
         let minc, maxc = scene.bounds()
         let space_size = float(maxc - minc + 1)
         let win_size   = float(gl_window_size())
@@ -754,12 +735,10 @@ do():
                 let c = p.xy - p.w / 2
                 gl_translate(c * cell_size):
                     world.data.ren[id].draw(cell_size, cell_size * p.w)
-
         // TODO draw player overlay
-
-        if show_ui: do():
-            im_frame():
-                ui.resume(nil)
+    step:
+        if not anims.blocked and play_reader.read_input():
+            step_world(play_reader.input)
 
 def for_from(xs, i, body):
     while i < xs.length():
