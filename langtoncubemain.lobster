@@ -5,14 +5,18 @@ import cube
 import util3d
 import texture
 import std
+import sprites
+import sheets
 
 let hz = 3
-let size = 13
-let count = 5
+let size = 4
+let count = 2
 let rules = [1, -1, 0]
 let neighborhoods, points = langton_new_round_square_topology(size)
 let w = langton_new_world(neighborhoods, count, rules)
-let v = langton_new_square_view(size, points, color_dark_grey, color_grey)
+let first_rule_color = color{ 0.75, 0.75, 0.5, 1.0 }
+let last_rule_color = color{ 0.5, 0.3, 0.2, 1.0 }
+let v = langton_new_square_view(size, points, first_rule_color, last_rule_color)
 
 w.tick()
 var start = gl_time()
@@ -27,7 +31,7 @@ def next():
 
 fatal(gl_window("Langton Cube", 515, 515))
 
-let tex = gl_load_texture("data/textures/lobster.jpg")
+let tex = entity_texture(tile_pine_tree)
 assert tex
 
 // Use the frame buffer to render a unique texture for each face of the cube,

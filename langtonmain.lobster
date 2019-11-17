@@ -2,11 +2,12 @@ import langton
 import color
 import vec
 import std
+import sprites
+import sheets
 
-fatal(gl_window("Langosta de Langton", 512, 512, 0))
+fatal(gl_window("Langton\'s Ents", 512, 512, 0))
 
-let tex = gl_load_texture("data/textures/lobster.jpg")
-assert tex
+let tex = entity_texture(tile_pine_tree)
 
 // center_unit_square projects a unit square coordinate system over
 // the center of the window, regardless of its aspect ratio.
@@ -17,14 +18,14 @@ def center_unit_square():
     gl_scale(scale)
 
 do():
-    let hz = 3
-    let size = 9
-    let count = 5
+    let hz = 5
+    let size = 10
+    let count = 10
     let rules = [1, -1, 0]
     let neighborhoods, points = langton_new_round_square_topology(size)
     let w = langton_new_world(neighborhoods, count, rules)
-    let first_rule_color = color_dark_grey
-    let last_rule_color = color_grey
+    let first_rule_color = color{ 0.75, 0.75, 0.5, 1.0 }
+    let last_rule_color = color{ 0.5, 0.3, 0.2, 1.0 }
     let v = langton_new_square_view(size, points, first_rule_color, last_rule_color)
 
     w.tick()

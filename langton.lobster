@@ -239,6 +239,7 @@ class view:
         // tweened along their translation and rotation vectors.
         gl_set_shader("textured")
         gl_set_primitive_texture(0, tex)
+        gl_color(color_white)
 
         // Each ent, including duplicate ents when a ent exits off
         // an edge and returns through another.

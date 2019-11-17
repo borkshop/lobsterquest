@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 )
 
 func main() {
@@ -22,37 +23,62 @@ func main() {
 	}
 }
 
-const dir = "openmoji"
+const (
+	dir = "openmoji"
+	res = 72
+)
+
+const sheetsTemplate = `
+import vec
+{{with .Size}}
+let sprite_map_size = xy{ {{.X}}, {{.Y}} }
+{{end}}
+let sprite_count = {{.Paths | len}}
+let sprite_resolution = {{.Resolution}}
+
+enum entity_type_ids:
+{{range .Names}}    {{.}}
+{{end}}
+let entity_sprite_indicies = [
+{{range .NameIndexToSpriteIndex}}    {{.}},
+{{end}}]
+`
+
+type Sheets struct {
+	Size                   image.Point
+	Resolution             int
+	Count                  int
+	Names                  []string
+	NameIndexToSpriteIndex []int
+	Paths                  []string
+	PathToSpriteIndex      map[string]int
+}
 
 func run() error {
-	id := 0
-	var names []string
-	var locs []string
-	pathToSpriteIndex := make(map[string]int)
-	nameIndexToSpriteIndex := make(map[int]int)
-	var err error
-
-	id, names, locs, err = collect("sheets/Emoji Quest - Tiles.tsv", "tile", id, names, locs, pathToSpriteIndex, nameIndexToSpriteIndex)
-	if err != nil {
+	sheets := Sheets{
+		Resolution:        res,
+		PathToSpriteIndex: make(map[string]int),
+	}
+	if err := sheets.Collect("sheets/Emoji Quest - Tiles.tsv", "tile"); err != nil {
 		return err
 	}
-	id, names, locs, err = collect("sheets/Emoji Quest - Items.tsv", "item", id, names, locs, pathToSpriteIndex, nameIndexToSpriteIndex)
-	if err != nil {
+	if err := sheets.Collect("sheets/Emoji Quest - Items.tsv", "item"); err != nil {
 		return err
 	}
 
 	var x, y int
-	for x*x < len(locs) {
+	for x*x < len(sheets.Paths) {
 		x++
 	}
-	for x*y < len(locs) {
+	for x*y < len(sheets.Paths) {
 		y++
 	}
+	sheets.Size = image.Pt(x, y)
 
-	rect := image.Rectangle{image.ZP, image.Pt(x*72, y*72)}
+	rect := image.Rectangle{image.ZP, image.Pt(x*res, y*res)}
 	sprites := image.NewRGBA(rect)
 
-	for i, loc := range locs {
+	for i, loc := range sheets.Paths {
 		file, err := os.Open(loc)
 		if err != nil {
 			return err
@@ -61,7 +87,7 @@ func run() error {
 		if err != nil {
 			return err
 		}
-		rect := image.Rectangle{image.ZP, image.Pt(72, 72)}.Add(image.Pt((i%x)*72, (i/x)*72))
+		rect := image.Rectangle{image.ZP, image.Pt(res, res)}.Add(image.Pt((i%x)*res, (i/x)*res))
 		draw.Draw(sprites, rect, sprite, image.ZP, draw.Src)
 	}
 
@@ -76,29 +102,25 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(sheetsfile, "import vec\n")
-	fmt.Fprintf(sheetsfile, "namespace sheets\n")
-	fmt.Fprintf(sheetsfile, "\n")
-	fmt.Fprintf(sheetsfile, "enum names:\n")
-	for _, name := range names {
-		fmt.Fprintf(sheetsfile, "    %s\n", name)
+
+	t, err := template.New("sheets").Parse(sheetsTemplate)
+	if err != nil {
+		return err
 	}
-	fmt.Fprintf(sheetsfile, "\n")
-	fmt.Fprintf(sheetsfile, "let sprites = [\n")
-	for i := range names {
-		j := nameIndexToSpriteIndex[i]
-		fmt.Fprintf(sheetsfile, "    xy{ %d, %d },\n", (j%x)*72, (j/x)*72)
+	err = t.Execute(sheetsfile, sheets)
+	if err != nil {
+		return err
 	}
-	fmt.Fprintf(sheetsfile, "]\n")
+
 	sheetsfile.Close()
 
 	return nil
 }
 
-func collect(path string, prefix string, id int, names, locs []string, pathToSpriteIndex map[string]int, nameIndexToSpriteIndex map[int]int) (int, []string, []string, error) {
+func (sheets *Sheets) Collect(path string, prefix string) error {
 	file, err := os.Open(path)
 	if err != nil {
-		return id, names, locs, err
+		return err
 	}
 
 	scanner := bufio.NewScanner(file)
@@ -130,17 +152,16 @@ func collect(path string, prefix string, id int, names, locs []string, pathToSpr
 		name = prefix + "_" + strings.Join(strings.Split(strings.Split(name, "/")[0], " "), "_")
 
 		if found != "" {
-			nameIndex := len(names)
-			names = append(names, name)
-			stencilIndex, ok := pathToSpriteIndex[found]
+			sheets.Names = append(sheets.Names, name)
+			spriteIndex, ok := sheets.PathToSpriteIndex[found]
 			if !ok {
-				stencilIndex = len(locs)
-				pathToSpriteIndex[found] = stencilIndex
-				locs = append(locs, found)
+				spriteIndex = len(sheets.Paths)
+				sheets.PathToSpriteIndex[found] = spriteIndex
+				sheets.Paths = append(sheets.Paths, found)
 			}
-			nameIndexToSpriteIndex[nameIndex] = stencilIndex
+			sheets.NameIndexToSpriteIndex = append(sheets.NameIndexToSpriteIndex, spriteIndex)
 		}
 	}
 
-	return id, names, locs, scanner.Err()
+	return scanner.Err()
 }
