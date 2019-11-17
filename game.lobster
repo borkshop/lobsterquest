@@ -543,6 +543,7 @@ class button_action_reader:
             if gl_button(button) > 0:
                 have = true
                 input = actions[i]
+        return have
 
 //// usage
 
@@ -734,10 +735,8 @@ do():
             show_ui = !show_ui
             paused = show_ui
 
-        if not (paused or anims.blocked):
-            play_reader.read_input()
-            if play_reader.have:
-                step_world(play_reader.input)
+        if not (paused or anims.blocked) and play_reader.read_input():
+            step_world(play_reader.input)
 
         anims.update(gl_delta_time())
 
