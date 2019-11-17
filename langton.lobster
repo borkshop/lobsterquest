@@ -1,12 +1,12 @@
-// With one lobster, this is a faithful representation of Langton’s Ant,
+// With one ent, this is a faithful representation of Langton’s Ant,
 // implemented as a cellular automaton instead of a single-agent automaton.
 // However, there are additional rules that dictate the behavior of collisions.
-// Each lobster has a unique priority.
-// Each lobster makes a bid to follow the course set out for them by the
+// Each ent has a unique priority.
+// Each ent makes a bid to follow the course set out for them by the
 // langton rule number beneath them.
-// For each tile, the neighboring lobster with the highest priority that has
+// For each tile, the neighboring ent with the highest priority that has
 // bid to move onto that tile advances.
-// All lobsters that fail their bid turn in place instead.
+// All ents that fail their bid turn in place instead.
 
 import gui
 import texture
@@ -28,20 +28,20 @@ def scatter(dst, src, neighborhoods):
         for(neighborhood) j, k:
             dst[i][k] = src[j]
 
-// gather_bids visits each cell and determines the direction the lobster in
+// gather_bids visits each cell and determines the direction the ent in
 // that cell would like to move, based on its heading.
 // headings are indexes into cardinal_directions, for the direction each
-// lobster is currently heading.
-def gather_bids(bids, neighborhoods, lobsters, headings):
+// ent is currently heading.
+def gather_bids(bids, neighborhoods, ents, headings):
     for(neighborhoods) neighbors, i:
-        bids[i] = if lobsters[i]:
+        bids[i] = if ents[i]:
             let heading = headings[i]
             let neighbor = neighbors[heading]
-            if !lobsters[neighbor]: neighbor
+            if !ents[neighbor]: neighbor
             else: -1
         else: -1
 
-// The tick method then scatters bids and each lobster’s priority into
+// The tick method then scatters bids and each ent’s priority into
 // bid_neighborhoods and weight_neighborhoods.
 
 def find_winner(i, neighborhood, bid_neighborhood, weight_neighborhood):
@@ -89,7 +89,7 @@ def move(len, dst, src, fun):
 
 def index_of_point(v, size): return v.y * size + v.x
 
-// world captures all allocations necessary to run the langton’s lobsters
+// world captures all allocations necessary to run the langton’s ents
 // cellular automaton.
 // The automaton uses columns of data organized by their respective point in
 // the world in row-major-order, but is flexible enough to use other orders
@@ -105,12 +105,12 @@ class world:
     len:int
 
     // leading edge
-    lobsters_next:[int]
+    ents_next:[int]
     weights_next:[int]
     headings_next:[int]
     langtons_next:[int]
     // following edge
-    lobsters:[int]
+    ents:[int]
     weights:[int]
     headings:[int]
     langtons:[int]
@@ -128,19 +128,19 @@ class world:
     headings_rotated:[int]
 
     def tick():
-        move(len, lobsters, lobsters_next)
+        move(len, ents, ents_next)
         move(len, weights, weights_next)
         move(len, langtons, langtons_next)
         move(len, headings, headings_next) n: (4 + n) % 4
 
-        gather_bids(bids, neighborhoods, lobsters, headings)
+        gather_bids(bids, neighborhoods, ents, headings)
         scatter(bid_neighborhoods, bids, neighborhoods)
         scatter(weight_neighborhoods, weights, neighborhoods)
         gather_winners(len, winners, neighborhoods, bid_neighborhoods, weight_neighborhoods)
         scatter(winner_neighborhoods, winners, neighborhoods)
         gather_transitions()
 
-        transit(len, lobsters_next, lobsters, transitions)
+        transit(len, ents_next, ents, transitions)
         transit(len, weights_next, weights, transitions)
         transit(len, headings_next, headings_rotated, transitions)
 
@@ -174,16 +174,16 @@ def new_world(neighborhoods, count, rules):
     let len = length(neighborhoods)
     let headings = map(len): rnd(4)
 
-    // // just one lobster:
-    // let lobsters_next = map(len): 0
-    // lobsters_next[length(len)/2] = 1
-    // // random lobsters
-    // let lobsters_next = map(len): if rnd(len) <= count: 1 else: 0
-    // count lobsters randomly distributed
+    // // just one ent:
+    // let ents_next = map(len): 0
+    // ents_next[length(len)/2] = 1
+    // // random ents
+    // let ents_next = map(len): if rnd(len) <= count: 1 else: 0
+    // count ents randomly distributed
     count = min(len, count)
-    let lobsters_next = map(len): 0
-    move(length(count), lobsters_next, map(count): 1)
-    randomize(lobsters_next)
+    let ents_next = map(len): 0
+    move(length(count), ents_next, map(count): 1)
+    randomize(ents_next)
 
     return world{
         len: len,
@@ -191,8 +191,8 @@ def new_world(neighborhoods, count, rules):
         neighborhoods: neighborhoods,
         weights_next: randomize(map(len) n: n),
         weights: map(len): 0,
-        lobsters_next: lobsters_next,
-        lobsters: map(len): 0,
+        ents_next: ents_next,
+        ents: map(len): 0,
         bids: map(len): 0,
         bid_neighborhoods: map(len): map(cardinal_directions): 0,
         weight_neighborhoods: map(len): map(cardinal_directions): 0,
@@ -235,14 +235,14 @@ class view:
                 gl_scale(xy_1 / size)
                 gl_rect(xy_1, 0)
 
-        // draw foreground according to presence and heading of lobsters,
+        // draw foreground according to presence and heading of ents,
         // tweened along their translation and rotation vectors.
         gl_set_shader("textured")
         gl_set_primitive_texture(0, tex)
 
-        // Each lobster, including duplicate lobsters when a lobster exits off
+        // Each ent, including duplicate ents when a ent exits off
         // an edge and returns through another.
-        for_lobsters(w.lobsters, w.directions) i, v1, v2:
+        for_ents(w.ents, w.directions) i, v1, v2:
             // Interpolate position
             let v = lerp(v1, v2, tween)
 
@@ -259,12 +259,12 @@ class view:
                 gl_translate(xy_1 / -2)
                 gl_rect(xy_1, 0)
 
-    def for_lobsters(lobsters, directions, func):
-        for(length(points)) i: if lobsters[i]:
+    def for_ents(ents, directions, func):
+        for(length(points)) i: if ents[i]:
             let v1 = float(points[i])
             let v2 = float(points[i] + directions[i])
             func(i, v1, v2)
-            // render lobsters again if they transit the edge of the world
+            // render ents again if they transit the edge of the world
             if v2.x < 0:
                 let d = xy_x * size
                 func(i, v1+d, v2+d)
