@@ -327,9 +327,7 @@ class anims : system
         let live, dead = elapsed.partition_indices() t, anim_id: t < time[anim_id]
         drop(live, dead)
 
-    def drop(live, dead):
-        if dead.length() == 0:
-            return
+    def drop(live, dead): if dead.length:
         let dead_ids = map(dead): ids[_]
         ids          = map(live): ids[_]
         block        = map(live): block[_]
