@@ -686,9 +686,9 @@ def step_world(input:action):
         actions[actor_id] = a.limit(world.data.enrg[id])
 
     // compute action targets
+    let actor_locs = map(actor_ids): world.data.pos[_]
     let targets = map(actions) a, actor_id:
-        let id = actor_ids[actor_id]
-        a.target(world.data.pos[id])
+        a.target(actor_locs[actor_id])
 
     // compute hit bodies, grouping actions by shared interest
     let group_ids = map(targets): -1
@@ -728,6 +728,7 @@ def step_world(input:action):
             anim.after(0): anim.pos = a
             if full:
                 anim.after(1): anim.pos = b
+                actor_locs[actor_id] = b
             else:
                 anim.after(1): anim.pos = lerp(a, b, 0.5)
                 anim.after(1): anim.pos = a
