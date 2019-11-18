@@ -670,7 +670,8 @@ def step_world(input:action):
     for(minds.ids): anims.clear(_) // TODO batch method
 
     // energize all minds
-    for(minds.ids) id: world.data.enrg[id]++
+    for(minds.ids) id:
+        world.data.enrg[id] = clamp(world.data.enrg[id] + 1, 0, 5)
 
     // choose action intents
     let intents = minds.thoughts()
