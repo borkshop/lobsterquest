@@ -758,6 +758,23 @@ def step_world(input:action):
         else:
             move_actor(actors[0], true) // full animate unfettered move
 
+    // indicate energy level by jitter
+    for(minds.ids) id, mind_id:
+        let n = world.data.enrg[id]
+        if n > 0:
+            let step = 0.1 / (5 - n + 1)
+            let steps = [
+                spatial {  step, 0, 0, 0 },
+                spatial { -step, 0, 0, 0 },
+            ]
+            anims.animate(id, movement_time * 4) anim:
+                let loc = actor_loc(mind_id)
+                anim.after(0): anim.pos = loc
+                for(steps) move:
+                    anim.after(1): anim.pos = loc + move
+                    anim.after(1): anim.pos = loc
+                anim.looped = true
+
 class ui:
     paused      = false
     show_menu   = false
