@@ -631,37 +631,37 @@ def step_world(input:action):
             groups.push(actors)
             group_ids[actor_id] = group_id
 
+    def move_actor(actor_id, full):
+        let id = actor_ids[actor_id]
+        let a = world.data.pos[id]
+        let t = targets[actor_id]
+        let d = t - a.cell()
+        let b = spatial {
+            x: a.x + float(d.x),
+            y: a.y + float(d.y),
+            z: a.z,
+            w: a.w,
+        }
+        var cost = abs(d.x) + abs(d.y)
+        if full:
+            anims.add(id, true, movement_time, a, b)
+        else:
+            let hab = lerp(a, b, 0.5)
+            anims.add(id, true, movement_time/2, a, hab)
+            anims.add(id, true, movement_time/2, hab, a)
+            cost = cost / 2
+        if cost > 0:
+            world.data.enrg[id] -= cost
+
     // resolve action groups
     for(groups) actors, group_id:
-        def add_anim(actor_id, full):
-            let id = actor_ids[actor_id]
-            let a = world.data.pos[id]
-            let t = targets[actor_id]
-            let d = t - a.cell()
-            let b = spatial {
-                x: a.x + float(d.x),
-                y: a.y + float(d.y),
-                z: a.z,
-                w: a.w,
-            }
-            var cost = abs(d.x) + abs(d.y)
-            if full:
-                anims.add(id, true, movement_time, a, b)
-            else:
-                let hab = lerp(a, b, 0.5)
-                anims.add(id, true, movement_time/2, a, hab)
-                anims.add(id, true, movement_time/2, hab, a)
-                cost = cost / 2
-            if cost > 0:
-                world.data.enrg[id] -= cost
-
         let at = hits[group_id]
         if actors.length() > 1:
-            for(actors): add_anim(_, false) // half-animate all conflicts
+            for(actors): move_actor(_, false) // half-animate all conflicts
         else: if at.length() > 0:
-            add_anim(actors[0], false) // half-animate hits
+            move_actor(actors[0], false) // half-animate hits
         else:
-            add_anim(actors[0], true) // full animate unfettered move
+            move_actor(actors[0], true) // full animate unfettered move
 
 class ui:
     paused      = false
