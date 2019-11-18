@@ -179,10 +179,9 @@ class shard:
 
 class system:
     def ent_reset():
-        fatal_exit("unimplemented: " + this + ".ent_reset()")
+        nil
 
     def ent_changed(id:int, old:entype, new:entype):
-        fatal_exit("unimplemented: " + this + ".ent_changed()")
         return new
 
 class shard_system:
@@ -344,6 +343,14 @@ class anims : system
         let anim_id = ids.first_index(id)
         return anim_id >= 0
 
+    def ent_reset():
+        ids     = []
+        block   = []
+        time    = []
+        elapsed = []
+        as      = []
+        bs      = []
+
     def clear(id):
         let prior, rest = ids.partition_indices(): _ == id
         drop(prior, rest)
@@ -364,17 +371,6 @@ class anims : system
         bs.push(b)
         blocked = blocked || blocking
         return anim_id
-
-    def ent_changed(id:int, old:entype, new:entype):
-        return new
-
-    def ent_reset():
-        ids     = []
-        block   = []
-        time    = []
-        elapsed = []
-        as      = []
-        bs      = []
 
 class stacked_scene : system
     shard:shard
