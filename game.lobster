@@ -1,5 +1,7 @@
 import color
 import imgui
+import sheets
+import sprites
 import std
 import vec
 
@@ -23,7 +25,6 @@ def while_first_index(xs, x, body):
   - more moji coverage, like skin and gender
   - maybe expand to 2-glyphs
   - maybe blending with pixel/grid art
-  - maybe tiled sprite sheet
 - spatial
   - super-cell entities
   - shape control
@@ -55,47 +56,76 @@ def while_first_index(xs, x, body):
 
 let color_zero = color { 0, 0, 0, 0 }
 
-let gl_font_names = [
+let glyph_fonts = [
     "data/fonts/US101/US101.TTF",
     "data/fonts/Square/square.ttf",
     "data/fonts/unifont.ttf",
     "data/fonts/Twemoji/TwitterColorEmoji-SVGinOT.ttf",
+    "",
+]
+
+let glyph_shaders = [
+    "color",
+    "color",
+    "color",
+    "color",
+    "textured",
 ]
 
 struct glyph:
-    font:int
+    mode:int
     code:int
     stretch:bool
 
-    def draw(size:xy_f, c:color):
-        // TODO support textured sprites
-        let txt = unicode_to_string([code])
-        gl_set_font_name(gl_font_names[font])
-        gl_set_font_size(int(size.y))
-        let bounds = clamp(float(gl_text_size(txt)), xy_0, size)
-        with_mode(c):
-            with_transform(size, bounds):
-                gl_text(txt)
+    def font_name(): return glyph_fonts[mode]
 
-    def with_mode(c:color, body):
-        // TODO any necessary shader control needed for sprites
+    def text():
+        if font_name() != "":
+            return unicode_to_string([code])
+        return ""
+
+    def draw(size:xy_f, c:color):
+        with_mode(c, size):
+            if font_name() != "":
+                with_transform(size):
+                    gl_text(text())
+            else:
+                gl_scale(size):
+                    gl_unit_square()
+
+    def bounds(size:xy_f):
+        if font_name() != "":
+            return clamp(float(gl_text_size(text())), xy_0, size)
+        else: if size.x > size.y:
+            return xy { size.y, size.y }
+        else:
+            return xy { size.x, size.x }
+
+    def with_mode(c:color, size:xy_f, body):
         // TODO work with scene to group by mode
+        gl_set_shader(glyph_shaders[mode])
+        if font_name() != "":
+            gl_set_font_name(font_name())
+            gl_set_font_size(int(size.y))
+        else:
+            gl_set_primitive_texture(0, sprite_texture(code))
         if c != color_zero:
             gl_color(c): body()
         else:
             body()
 
-    def with_transform(size:xy_f, bounds:xy_f, body):
+    def with_transform(size:xy_f, body):
         // TODO work with scene to pre-compute these
+        let box = bounds(size)
         if stretch:
             gl_scale(xyz_f {
-                if bounds.x < size.x: size.x / bounds.x else: 1,
-                if bounds.y < size.y: size.y / bounds.y else: 1,
+                if box.x < size.x: size.x / box.x else: 1,
+                if box.y < size.y: size.y / box.y else: 1,
                 1,
             }):
                 body()
         else:
-            gl_translate((size - bounds) / 2):
+            gl_translate((size - box) / 2):
                 body()
 
 def ascii(code:int):    return glyph { 0, code, false }
@@ -103,6 +133,7 @@ def sqascii(code:int):  return glyph { 1, code, true  }
 def unicode(code:int):  return glyph { 2, code, false }
 def uniblock(code:int): return glyph { 2, code, true  }
 def emoji(code:int):    return glyph { 3, code, false }
+def sprite(code:int):   return glyph { 4, code, true  }
 
 struct render:
     bg:color
@@ -599,7 +630,7 @@ class twemoji_builder:
                 xy_f { -l, -l },
             ]) i:
                 build.create_char(ent_none, element_colors[i], emoji(elements[i]))
-            build.create_char(ent_input, color_blue_violet, emoji(0x1f9d9)) // 🧙 mage
+            build.create_char(ent_input, color_white, sprite(tile_unlit_tree)) // XXX currently tihs is actually the male wizard
 
 class button_action_reader:
     buttons:[string] = []
@@ -820,8 +851,8 @@ do():
     moji_build.scene(12)
 
     fatal(gl_window("Twemoji PoC", 1024, 768))
-    for(gl_font_names) name, i:
-        check(gl_set_font_name(name), "cannot load gl font " + i)
+    for(glyph_fonts) name, i: if name != "":
+        check(gl_set_font_name(name), "cannot load gl font [" + i + "]" + name)
 
     // setup imgui for menu and debug overlay
     let im_font = "data/fonts/Inconsolata/Inconsolata-Bold.ttf"
