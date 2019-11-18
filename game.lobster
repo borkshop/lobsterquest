@@ -666,6 +666,9 @@ let moji_build = twemoji_builder {
 
 // TODO attach to world area
 def step_world(input:action):
+    // clear all prior action animations
+    for(minds.ids): anims.clear(_) // TODO batch method
+
     // energize all minds
     for(minds.ids) id: world.data.enrg[id]++
 
