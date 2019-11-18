@@ -351,7 +351,7 @@ class anims : system
 
     def clear(id):
         let prior, rest = ids.partition_indices(): _ == id
-        drop(prior, rest)
+        drop(rest, prior)
 
     def add(
         id       : int,
