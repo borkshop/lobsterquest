@@ -677,8 +677,9 @@ def step_world(input:action):
     let intents = minds.thoughts()
 
     // subset of minds with intent
-    let actor_ids = filter(minds.ids) id, mind_id:
+    let actor_mind_ids = filter_indices(minds.ids) id, mind_id:
         intents[mind_id].act != action_none
+    let actor_ids = map(actor_mind_ids): minds.ids[_]
     let actions = filter(intents): _.act != action_none
 
     // enforce action energy limits
@@ -686,8 +687,17 @@ def step_world(input:action):
         let id = actor_ids[actor_id]
         actions[actor_id] = a.limit(world.data.enrg[id])
 
-    // compute action targets
+    // track current actor location
     let actor_locs = map(actor_ids): world.data.pos[_]
+    def actor_loc(mind_id):
+        let n_minds, actor_id = actor_mind_ids.binary_search(mind_id)
+        if n_minds > 0:
+            return actor_locs[actor_id]
+        else:
+            let id = minds.ids[mind_id]
+            return world.data.pos[id]
+
+    // compute action targets
     let targets = map(actions) a, actor_id:
         a.target(actor_locs[actor_id])
 
@@ -712,6 +722,7 @@ def step_world(input:action):
             groups.push(actors)
             group_ids[actor_id] = group_id
 
+    // animate actor movement, updating actor_locs if full
     def move_actor(actor_id, full):
         let id = actor_ids[actor_id]
         let a = world.data.pos[id]
