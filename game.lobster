@@ -289,12 +289,16 @@ class bodys : system
     def ent_reset():
         ids = []
 
+enum_flags anim_flags:
+    anim_base  = 0
+    anim_block = 1
+
 class anims : system
     shard:shard
 
     blocked = false
     ids     = []::int
-    block   = []::bool
+    flags   = []::anim_flags
     time    = []::float
     elapsed = []::float
     as      = []::spatial
@@ -332,8 +336,8 @@ class anims : system
     def drop(live, dead): if dead.length:
         let dead_ids = map(dead): ids[_]
         ids          = map(live): ids[_]
-        block        = map(live): block[_]
-        blocked      = block.fold(false): _a || _b
+        flags        = map(live): flags[_]
+        blocked      = flags.fold(false): if (_a | _b) & anim_block: true else: false
         time         = map(live): time[_]
         elapsed      = map(live): elapsed[_]
         as           = map(live): as[_]
@@ -345,7 +349,7 @@ class anims : system
 
     def ent_reset():
         ids     = []
-        block   = []
+        flags   = []
         time    = []
         elapsed = []
         as      = []
@@ -359,20 +363,20 @@ class anims : system
         drop(rest, prior)
 
     def add(
-        id       : int,
-        blocking : bool,
-        t        : float,
-        a        : spatial,
-        b        : spatial
+        id : int,
+        f  : anim_flags,
+        t  : float,
+        a  : spatial,
+        b  : spatial
     ): if a == b: return -1 else:
         let anim_id = ids.length()
         ids.push(id)
-        block.push(blocking)
+        flags.push(f)
         time.push(t)
         elapsed.push(0)
         as.push(a)
         bs.push(b)
-        blocked = blocked || blocking
+        blocked = blocked || f & anim_block
         return anim_id
 
 class anim_scaffold:
@@ -384,27 +388,27 @@ class anim_scaffold:
     pos      = spatial_0
     last_t   = 0.0
 
-    q_pos      = []::spatial
-    q_blocking = []::bool
-    q_time     = []::float
+    q_pos   = []::spatial
+    q_flags = []::anim_flags
+    q_time  = []::float
 
     def clear():   anims.clear(id)
     def has_any(): return anims.has_any(id)
 
     def with(body):
         if last_t > 0:
-            last_t     = 0.0
-            q_pos      = []
-            q_blocking = []
-            q_time     = []
+            last_t  = 0.0
+            q_pos   = []
+            q_flags = []
+            q_time  = []
         body(this)
         if last_t > 0:
             var a = spatial_0
             for(q_pos) b, i:
                 if i > 0:
-                    var blk = q_blocking[i]
+                    var f = q_flags[i]
                     let t = q_time[i] / last_t * time
-                    anims.add(id, blk, t, a, b)
+                    anims.add(id, f, t, a, b)
                 a = b
 
     def after(t:float, body):
@@ -413,7 +417,7 @@ class anim_scaffold:
             last_t += t
         body(this)
         q_pos.push(pos)
-        q_blocking.push(blocking)
+        q_flags.push(if blocking: anim_block else: anim_base)
         q_time.push(last_t - prior_t)
 
 def animate(anims::anims, id:int, over:float, body):
