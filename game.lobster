@@ -54,8 +54,6 @@ def while_first_index(xs, x, body):
 
 */
 
-let color_zero = color { 0, 0, 0, 0 }
-
 let glyph_fonts = [
     "data/fonts/US101/US101.TTF",
     "data/fonts/Square/square.ttf",
@@ -109,7 +107,7 @@ struct glyph:
             gl_set_font_size(int(size.y))
         else:
             gl_set_primitive_texture(0, sprite_texture(code))
-        if c != color_zero:
+        if c != color_clear:
             gl_color(c): body()
         else:
             body()
@@ -141,7 +139,7 @@ struct render:
     ch:glyph
 
     def draw(cell_size:xy_f, size:xy_f):
-        if bg != color_zero:
+        if bg != color_clear:
             gl_color(bg): gl_scale(cell_size): gl_unit_square()
         if ch.code != 0:
             ch.draw(size, fg)
@@ -554,13 +552,13 @@ class builder:
 
     def create_char(et:entype, c:color, g:glyph):
         let t = ent_body | ent_mind | ent_visible | et
-        let r = render { color_zero, c, g }
+        let r = render { color_clear, c, g }
         let p = spatial { loc.x + 0.5, loc.y + 0.5, 1.0, 1.0 }
         return shard.create(t, p, r, 0)
 
     def create_object(et:entype, c:color, g:glyph):
         let t = ent_body | ent_visible | et
-        let r = render { color_zero, c, g }
+        let r = render { color_clear, c, g }
         let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.5, 1.0 }
         return shard.create(t, p, r, 0)
 
@@ -610,7 +608,7 @@ class twemoji_builder:
         build.fill_rect(sz) x, y:
             let tile = dirt[rnd(length(dirt))]
             let bg = floor_bg_base + floor_bg_variance * rnd_float()
-            let fg = if tile.code != 0: bg + floor_fg_lift else: color_zero
+            let fg = if tile.code != 0: bg + floor_fg_lift else: color_clear
             build.create_floor(bg, fg, tile)
             if x == 0 || y == 0 || x == sz-1 || y == sz-1:
                 let tree_fg = tree_fg_base + tree_fg_variance * rnd_float()
