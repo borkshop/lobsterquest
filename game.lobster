@@ -292,6 +292,8 @@ class bodys : system
 enum_flags anim_flags:
     anim_base  = 0
     anim_block = 1
+    anim_keep
+    anim_loop
 
 class anims : system
     shard:shard
@@ -308,6 +310,9 @@ class anims : system
 
     def update(update_dt:float):
         let left = map(shard.type.length()): update_dt
+
+        let resets = []::int
+
         // TODO maybe decompose loop into stages
         for(ids) id, anim_id:
             def advance(dt):
@@ -327,10 +332,23 @@ class anims : system
                 let b = bs[anim_id]
                 shard.pos[id] = lerp(a, b, f)
 
+                if t >= total and flags[anim_id] & anim_loop:
+                    resets.push(id)
+
                 elapsed[anim_id] = t
                 return dt - spent
             left[id] = advance(left[id])
-        let live, dead = elapsed.partition_indices() t, anim_id: t < time[anim_id]
+
+        // prune all expired animations (that aren't flagged to keep)
+        let live, dead = elapsed.partition_indices() t, anim_id:
+            t < time[anim_id] || flags[anim_id] & anim_keep
+
+        // reset all looped animations
+        if resets.length:
+            for(ids) id, anim_id:
+                if resets.first_index(id) >= 0:
+                    elapsed[anim_id] = 0
+
         drop(live, dead)
 
     def drop(live, dead): if dead.length:
@@ -384,6 +402,7 @@ class anim_scaffold:
     id    : int
     time  : float
 
+    looped   = false
     blocking = false
     pos      = spatial_0
     last_t   = 0.0
@@ -407,6 +426,10 @@ class anim_scaffold:
             for(q_pos) b, i:
                 if i > 0:
                     var f = q_flags[i]
+                    if looped:
+                        f = f | anim_keep
+                        if i == q_pos.length - 1:
+                            f = f | anim_loop
                     let t = q_time[i] / last_t * time
                     anims.add(id, f, t, a, b)
                 a = b
