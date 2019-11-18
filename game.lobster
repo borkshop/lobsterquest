@@ -123,6 +123,8 @@ struct spatial : xyzw_f
     def cell():
         return xy_i { int(x), int(y) }
 
+let spatial_0 = spatial { 0, 0, 0, 0 }
+
 enum_flags actiontype:
     action_none = 0
     action_move = 1
@@ -372,6 +374,54 @@ class anims : system
         bs.push(b)
         blocked = blocked || blocking
         return anim_id
+
+class anim_scaffold:
+    anims : anims
+    id    : int
+    time  : float
+
+    blocking = false
+    pos      = spatial_0
+    last_t   = 0.0
+
+    q_pos      = []::spatial
+    q_blocking = []::bool
+    q_time     = []::float
+
+    def clear():   anims.clear(id)
+    def has_any(): return anims.has_any(id)
+
+    def with(body):
+        if last_t > 0:
+            last_t     = 0.0
+            q_pos      = []
+            q_blocking = []
+            q_time     = []
+        body(this)
+        if last_t > 0:
+            var a = spatial_0
+            for(q_pos) b, i:
+                if i > 0:
+                    var blk = q_blocking[i]
+                    let t = q_time[i] / last_t * time
+                    anims.add(id, blk, t, a, b)
+                a = b
+
+    def after(t:float, body):
+        let prior_t = last_t
+        if q_pos.length > 0:
+            last_t += t
+        body(this)
+        q_pos.push(pos)
+        q_blocking.push(blocking)
+        q_time.push(last_t - prior_t)
+
+def animate(anims::anims, id:int, over:float, body):
+    anim_scaffold {
+        anims: anims,
+        id:    id,
+        time:  over,
+    }.with(body)
 
 class stacked_scene : system
     shard:shard
@@ -643,13 +693,15 @@ def step_world(input:action):
             w: a.w,
         }
         var cost = abs(d.x) + abs(d.y)
-        if full:
-            anims.add(id, true, movement_time, a, b)
-        else:
-            let hab = lerp(a, b, 0.5)
-            anims.add(id, true, movement_time/2, a, hab)
-            anims.add(id, true, movement_time/2, hab, a)
-            cost = cost / 2
+        anims.animate(id, movement_time) anim:
+            anim.blocking = true
+            anim.after(0): anim.pos = a
+            if full:
+                anim.after(1): anim.pos = b
+            else:
+                anim.after(1): anim.pos = lerp(a, b, 0.5)
+                anim.after(1): anim.pos = a
+                cost = cost / 2
         if cost > 0:
             world.data.enrg[id] -= cost
 
