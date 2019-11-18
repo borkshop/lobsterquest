@@ -351,6 +351,9 @@ class anims : system
 
     def clear(id):
         let prior, rest = ids.partition_indices(): _ == id
+        if prior.length:
+            let anim_id = prior[prior.length - 1]
+            shard.pos[id] = bs[anim_id]
         drop(rest, prior)
 
     def add(
