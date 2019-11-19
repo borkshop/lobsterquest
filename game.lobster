@@ -527,12 +527,15 @@ class builder:
     shard:shard_system
     loc = xy_0
 
-    def translate(by:xy_f, body):
+    def at(l:xy_f, body):
         let base = loc
-        loc += by
+        loc = l
         if body:
             body()
             loc = base
+
+    def translate(by:xy_f, body):
+        at(loc + by, body)
 
     def each(offsets, body):
         let base = loc
