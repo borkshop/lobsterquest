@@ -26,9 +26,8 @@ gl_set_font_size(10)
 while gl_frame() and gl_button("escape") != -1:
     read_input() d:
         tid = (tid + d + max_tid) % max_tid
-        let sid = entity_sprite_indicies[tid]
-        tex = sprite_texture(sid)
-        print("tid:" + tid + " sid:" + sid + " " + entity_type_ids(tid))
+        tex = entity_texture(tid)
+        print("entity_id:" + tid + " " + entity_type_ids(tid))
 
     var size = float(gl_window_size())
 

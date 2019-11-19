@@ -106,8 +106,7 @@ struct glyph:
             gl_set_font_name(font_name())
             gl_set_font_size(int(size.y))
         else:
-            let sprite_id = entity_sprite_indicies[code]
-            gl_set_primitive_texture(0, sprite_texture(sprite_id))
+            gl_set_primitive_texture(0, entity_texture(code))
         if c != color_clear:
             gl_color(c): body()
         else:
