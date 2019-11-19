@@ -106,7 +106,8 @@ struct glyph:
             gl_set_font_name(font_name())
             gl_set_font_size(int(size.y))
         else:
-            gl_set_primitive_texture(0, sprite_texture(code))
+            let sprite_id = entity_sprite_indicies[code]
+            gl_set_primitive_texture(0, sprite_texture(sprite_id))
         if c != color_clear:
             gl_color(c): body()
         else:
@@ -668,8 +669,7 @@ scaffolds[char_scaffold].with():
 
 // wizard
 scaffolds[char_scaffold].with():
-    // XXX currently tihs is actually the male wizard
-    _.glyph = sprite(tile_unlit_tree)
+    _.glyph = sprite(tile_cheese_wizard)
     _.fg = color_white
     scaffolds.push(_)
 
