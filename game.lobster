@@ -645,25 +645,25 @@ scaffolds[floor_scaffold].with():
 
 // element_earth
 scaffolds[char_scaffold].with():
-    _.glyph = emoji(0x1f30d) // 🌍
+    _.glyph = sprite(item_clover)
     _.fg = color_dark_green
     scaffolds.push(_)
 
 // element_water
 scaffolds[char_scaffold].with():
-    _.glyph = emoji(0x1f4a7) // 💧
+    _.glyph = sprite(item_water)
     _.fg = color_teal
     scaffolds.push(_)
 
 // element_fire
 scaffolds[char_scaffold].with():
-    _.glyph = emoji(0x1f525) // 🔥
+    _.glyph = sprite(item_fire)
     _.fg = color_orange
     scaffolds.push(_)
 
 // element_air
 scaffolds[char_scaffold].with():
-    _.glyph = emoji(0x1f32a) // 🌪 NOTE or: 0x1f32c 🌬️
+    _.glyph = sprite(item_wind)
     _.fg = color_cyan
     scaffolds.push(_)
 
