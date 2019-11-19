@@ -15,15 +15,20 @@ def read_input(body):
             body(-1)
             last_input = gl_time()
 
-var tile_id = 0
-var tex = sprite_texture(tile_id)
+var tid = 0
+var tex = sprite_texture(tid)
 
-let max_tile = 128
+let max_tid = entity_sprite_indicies.length()
+
+gl_set_font_name("data/fonts/US101/US101.TTF")
+gl_set_font_size(10)
 
 while gl_frame() and gl_button("escape") != -1:
     read_input() d:
-        tile_id = (tile_id + d + max_tile) % max_tile
-        tex = sprite_texture(tile_id)
+        tid = (tid + d + max_tid) % max_tid
+        let sid = entity_sprite_indicies[tid]
+        tex = sprite_texture(sid)
+        print("tid:" + tid + " sid:" + sid + " " + entity_type_ids(tid))
 
     var size = float(gl_window_size())
 
