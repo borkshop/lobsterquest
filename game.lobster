@@ -523,9 +523,35 @@ class stacked_scene : system
                 maxc = max(maxc, c)
         return minc, maxc
 
+class ent_scaffold:
+    type  : entype
+    bg    = color_clear
+    fg    = color_clear
+    glyph = ascii(0)
+    z     = 0.0
+    size  = 1.0
+    enrg  = 0.0
+
+    def with(body):
+        let co = copy(this)
+        body(co)
+        return co
+
+    def create(shard:shard_system, loc:xy_f):
+        loc = loc + xy { 0.5, 0.5 }
+        let pos = spatial { loc.x, loc.y, z, size }
+        let ren = render { bg, fg, glyph }
+        return shard.create(type, pos, ren, enrg)
+
 class builder:
     shard:shard_system
     loc = xy_0
+
+    def create(es:ent_scaffold):
+        return es.create(shard, loc)
+
+    def create_with(es:ent_scaffold, body):
+        return this.create(es.with(body))
 
     def at(l:xy_f, body):
         let base = loc
@@ -551,87 +577,142 @@ class builder:
             body(x, y)
         loc = base
 
-    // TODO decompose into builder state? or factor out into "struct spec" data?
-
-    def create_char(et:entype, c:color, g:glyph):
-        let t = ent_body | ent_mind | ent_visible | et
-        let r = render { color_clear, c, g }
-        let p = spatial { loc.x + 0.5, loc.y + 0.5, 1.0, 1.0 }
-        return shard.create(t, p, r, 0)
-
-    def create_object(et:entype, c:color, g:glyph):
-        let t = ent_body | ent_visible | et
-        let r = render { color_clear, c, g }
-        let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.5, 1.0 }
-        return shard.create(t, p, r, 0)
-
-    def create_floor(b:color, f:color, g:glyph):
-        let t = ent_visible | ent_cell
-        let r = render { b, f, g }
-        let p = spatial { loc.x + 0.5, loc.y + 0.5, 0.0, 1.0 }
-        return shard.create(t, p, r, 0)
-
 //// specialization
 
-class twemoji_builder:
-    build:builder
+enum scaffold_index:
+    floor_scaffold
+    object_scaffold
+    char_scaffold
+    tree_evergreen
+    tree_deciduous
+    dirt_1
+    dirt_2
+    dirt_3
+    element_earth
+    element_water
+    element_fire
+    element_air
+    wizard
 
-    tree_evergreen = emoji(0x1f322) // 🌲
-    tree_deciduous = emoji(0x1f333) // 🌳
-    dirt = [
-        ascii(0), ascii(0), uniblock(0x2591), // ░
-        ascii(0), ascii(0), uniblock(0x2592), // ▒
-        ascii(0), ascii(0), uniblock(0x2593), // ▓
-        ascii(0), ascii(0),
+let scaffolds = []::ent_scaffold
+
+// floor_scaffold
+scaffolds.push(ent_scaffold {
+    type : ent_cell | ent_visible,
+    z    : 0.0,
+    size : 1.0,
+})
+
+// object_scaffold
+scaffolds.push(ent_scaffold {
+    type : ent_body | ent_visible,
+    z    : 0.5,
+    size : 1.0,
+})
+
+// char_scaffold
+scaffolds.push(ent_scaffold {
+    type : ent_body | ent_mind | ent_visible,
+    z    : 1.0,
+    size : 1.0,
+})
+
+// tree_evergreen
+scaffolds[object_scaffold].with():
+    _.glyph = emoji(0x1f322) // 🌲
+    scaffolds.push(_)
+
+// tree_deciduous
+scaffolds[object_scaffold].with():
+    _.glyph = emoji(0x1f333) // 🌳
+    scaffolds.push(_)
+
+// dirt_1
+scaffolds[floor_scaffold].with():
+    _.glyph = uniblock(0x2591) // ░
+    scaffolds.push(_)
+
+// dirt_2
+scaffolds[floor_scaffold].with():
+    _.glyph = uniblock(0x2592) // ▒
+    scaffolds.push(_)
+
+// dirt_3
+scaffolds[floor_scaffold].with():
+    _.glyph = uniblock(0x2593) // ▓
+    scaffolds.push(_)
+
+// element_earth
+scaffolds[char_scaffold].with():
+    _.glyph = emoji(0x1f30d) // 🌍
+    _.fg = color_dark_green
+    scaffolds.push(_)
+
+// element_water
+scaffolds[char_scaffold].with():
+    _.glyph = emoji(0x1f4a7) // 💧
+    _.fg = color_teal
+    scaffolds.push(_)
+
+// element_fire
+scaffolds[char_scaffold].with():
+    _.glyph = emoji(0x1f525) // 🔥
+    _.fg = color_orange
+    scaffolds.push(_)
+
+// element_air
+scaffolds[char_scaffold].with():
+    _.glyph = emoji(0x1f32a) // 🌪 NOTE or: 0x1f32c 🌬️
+    _.fg = color_cyan
+    scaffolds.push(_)
+
+// wizard
+scaffolds[char_scaffold].with():
+    // XXX currently tihs is actually the male wizard
+    _.glyph = sprite(tile_unlit_tree)
+    _.fg = color_white
+    scaffolds.push(_)
+
+def build_twemoji_grove(build:builder, size):
+    let dirt = [
+        floor_scaffold, floor_scaffold, dirt_1,
+        floor_scaffold, floor_scaffold, dirt_2,
+        floor_scaffold, floor_scaffold, dirt_3,
+        floor_scaffold, floor_scaffold,
     ]
 
-    elements = [
-        0x1f30d, // 🌍
-        0x1f4a7, // 💧
-        0x1f525, // 🔥
-        // 0x1f32c, // 🌬️
-        0x1f32a, // 🌪
+    let elements = [
+        element_earth,
+        element_water,
+        element_fire,
+        element_air,
     ]
 
-    element_colors = [
-        color_dark_green,
-        color_teal,
-        color_orange,
-        color_cyan,
-    ]
+    let floor_bg_base     = color { 0.05, 0.05, 0.05, 1 }
+    let floor_bg_variance = color { 0.05, 0.05, 0,    0 }
+    let floor_fg_lift     = color { 0.05, 0,    0,    0 }
 
-    floor_bg_base     = color { 0.05, 0.05, 0.05, 1 }
-    floor_bg_variance = color { 0.05, 0.05, 0,    0 }
-    floor_fg_lift     = color { 0.05, 0,    0,    0 }
+    let tree_fg_base      = color { 0.2,  0.25, 0.1,  1 }
+    let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
-    tree_fg_base      = color { 0.2,  0.25, 0.1,  1 }
-    tree_fg_variance  = color { 0,    0.5,  0,    0 }
-
-    def grove(sz, body):
-        build.fill_rect(sz) x, y:
-            let tile = dirt[rnd(length(dirt))]
-            let bg = floor_bg_base + floor_bg_variance * rnd_float()
-            let fg = if tile.code != 0: bg + floor_fg_lift else: color_clear
-            build.create_floor(bg, fg, tile)
-            if x == 0 || y == 0 || x == sz-1 || y == sz-1:
-                let tree_fg = tree_fg_base + tree_fg_variance * rnd_float()
-                build.create_object(ent_none, tree_fg, tree_deciduous)
-        if body:
-            let mid = float(floor(sz / 2))
-            build.translate(xy_f { mid, mid }):
-                body()
-
-    def scene(size):
-        grove(size):
-            let l = size / 4
-            build.each([
-                xy_f { -l,  l },
-                xy_f {  l,  l },
-                xy_f {  l, -l },
-                xy_f { -l, -l },
-            ]) i:
-                build.create_char(ent_none, element_colors[i], emoji(elements[i]))
-            build.create_char(ent_input, color_white, sprite(tile_unlit_tree)) // XXX currently tihs is actually the male wizard
+    build.fill_rect(size) x, y:
+        build.create_with(scaffolds[dirt.rnd_pick()]) tile:
+            tile.bg = floor_bg_base + floor_bg_variance * rnd_float()
+            if tile.glyph.code != 0: tile.fg = tile.bg + floor_fg_lift
+        if x == 0 || y == 0 || x == size-1 || y == size-1:
+            build.create_with(scaffolds[tree_deciduous]) tree:
+                tree.fg = tree_fg_base + tree_fg_variance * rnd_float()
+    let mid = float(floor(size / 2))
+    build.translate(xy_f { mid, mid }):
+        let l = size / 4
+        build.each([
+            xy_f { -l,  l },
+            xy_f {  l,  l },
+            xy_f {  l, -l },
+            xy_f { -l, -l },
+        ]): build.create(scaffolds[elements[_]])
+        build.create_with(scaffolds[wizard]) player:
+            player.type = player.type | ent_input
 
 class button_action_reader:
     buttons:[string] = []
@@ -687,14 +768,6 @@ world.systems.push(bodys)
 // TODO for each visible shard
 var scene = stacked_scene { shard: world.data }
 world.systems.push(scene)
-
-// TODO make ephemeral ... or attach it to an area
-let build = builder {
-    shard: world,
-}
-let moji_build = twemoji_builder {
-    build: build,
-}
 
 // TODO attach to world area
 def step_world(input:action):
@@ -832,13 +905,6 @@ class ui:
                 show_editor = im_checkbox("Edit Everything", show_editor)
 
                 im_separator()
-                im_text("Build")
-                build_size = im_sliderint("Size", build_size, 3, 100)
-                im_button("Grove"):
-                    world.reset()
-                    moji_build.scene(build_size)
-
-                im_separator()
                 im_button("Quit"):
                     return
 
@@ -849,7 +915,10 @@ class ui:
                 im_show_vars()
 
 do():
-    moji_build.scene(12)
+    let build = builder {
+        shard: world,
+    }
+    build_twemoji_grove(build, 12)
 
     fatal(gl_window("Twemoji PoC", 1024, 768))
     for(glyph_fonts) name, i: if name != "":
