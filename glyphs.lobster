@@ -63,7 +63,7 @@ struct glyph:
             gl_set_font_name(font_name())
             gl_set_font_size(int(size.y))
         else:
-            gl_set_primitive_texture(0, entity_texture(code))
+            gl_set_primitive_texture(0, sheet_sprites[code])
         if c != color_clear:
             gl_color(c): body()
         else:
@@ -88,4 +88,5 @@ def sqascii(code:int):  return glyph { 1, code, true  }
 def unicode(code:int):  return glyph { 2, code, false }
 def uniblock(code:int): return glyph { 2, code, true  }
 def emoji(code:int):    return glyph { 3, code, false }
-def sprite(code:int):   return glyph { 4, code, true  }
+def tile_sprite(id:tile_entity_id): return glyph { 4, tile_sprite_id[id], true  }
+def item_sprite(id:item_entity_id): return glyph { 4, item_sprite_id[id], true  }

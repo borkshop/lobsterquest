@@ -1,10 +1,8 @@
 import color
-import sheets
 import texture
+import vec
 
-var sprite_textures = []::resource
-
-private def load_sprites(filename, resolution, map_size, count):
+def load_sprites(filename, resolution, map_size, count):
     let spritesmap = gl_load_texture(filename)
     assert spritesmap
     let stride = map_size.x
@@ -22,11 +20,3 @@ private def load_sprites(filename, resolution, map_size, count):
         gl_rect(float(map_size), 0)
         assert gl_switch_to_framebuffer(nil)
         tex
-
-def entity_texture(entity):
-    return sprite_texture(entity_sprite_indicies[entity])
-
-def sprite_texture(sprite):
-    if length(sprite_textures) == 0:
-        sprite_textures = load_sprites("sprites.png", sprite_resolution, sprite_map_size, sprite_count)
-    return sprite_textures[sprite]

@@ -534,12 +534,12 @@ scaffolds.push(ent_scaffold {
 
 // tree_evergreen
 scaffolds[object_scaffold].with():
-    _.glyph = sprite(tile_pine_tree)
+    _.glyph = tile_sprite(tile_pine_tree)
     scaffolds.push(_)
 
 // tree_deciduous
 scaffolds[object_scaffold].with():
-    _.glyph = sprite(tile_apple_tree)
+    _.glyph = tile_sprite(tile_apple_tree)
     scaffolds.push(_)
 
 // dirt_1
@@ -559,31 +559,31 @@ scaffolds[floor_scaffold].with():
 
 // element_earth
 scaffolds[char_scaffold].with():
-    _.glyph = sprite(item_clover)
+    _.glyph = item_sprite(item_clover)
     _.fg = color_dark_green
     scaffolds.push(_)
 
 // element_water
 scaffolds[char_scaffold].with():
-    _.glyph = sprite(item_water)
+    _.glyph = item_sprite(item_water)
     _.fg = color_teal
     scaffolds.push(_)
 
 // element_fire
 scaffolds[char_scaffold].with():
-    _.glyph = sprite(item_fire)
+    _.glyph = item_sprite(item_fire)
     _.fg = color_orange
     scaffolds.push(_)
 
 // element_air
 scaffolds[char_scaffold].with():
-    _.glyph = sprite(item_wind)
+    _.glyph = item_sprite(item_wind)
     _.fg = color_cyan
     scaffolds.push(_)
 
 // wizard
 scaffolds[char_scaffold].with():
-    _.glyph = sprite(tile_cheese_wizard)
+    _.glyph = tile_sprite(tile_cheese_wizard)
     _.fg = color_white
     scaffolds.push(_)
 
@@ -840,6 +840,9 @@ do():
     build_twemoji_grove(build, 12)
 
     fatal(gl_window("Twemoji PoC", 1024, 768))
+
+    load_sheet()
+
     for(glyph_fonts) name, i: if name != "":
         check(gl_set_font_name(name), "cannot load gl font [" + i + "]" + name)
 
