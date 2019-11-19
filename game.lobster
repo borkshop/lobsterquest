@@ -219,19 +219,19 @@ class shard_system:
     data    = shard{}
     systems = []::system
 
-    def create(t, p, r, e):
+    def create(type, pos, ren, enrg):
         let id = data.type.length()
-        data.type.push(t)
-        data.pos.push(p)
-        data.ren.push(r)
-        data.enrg.push(e)
-        notify_type(id, ent_none, t)
+        data.type.push(type)
+        data.pos.push(pos)
+        data.ren.push(ren)
+        data.enrg.push(enrg)
+        notify_type(id, ent_none, type)
         return id
 
-    def set_type(id:int, t:entype):
+    def set_type(id:int, type:entype):
         let old = data.type[id]
-        data.type[id] = t
-        notify_type(id, old, t)
+        data.type[id] = type
+        notify_type(id, old, type)
 
     def notify_type(id, old, new):
         for(systems):
@@ -273,9 +273,9 @@ class minds : system
     types = []::entype
     minds = []::mind
 
-    def enter(id, t):
+    def enter(id, type):
         ids.push(id)
-        types.push(t)
+        types.push(type)
         minds.push(mind { shard: shard, id: id })
 
     def exit(id): while_first_index(ids, id) mind_id:
