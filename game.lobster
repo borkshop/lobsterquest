@@ -620,12 +620,12 @@ scaffolds.push(ent_scaffold {
 
 // tree_evergreen
 scaffolds[object_scaffold].with():
-    _.glyph = emoji(0x1f322) // 🌲
+    _.glyph = sprite(tile_pine_tree)
     scaffolds.push(_)
 
 // tree_deciduous
 scaffolds[object_scaffold].with():
-    _.glyph = emoji(0x1f333) // 🌳
+    _.glyph = sprite(tile_apple_tree)
     scaffolds.push(_)
 
 // dirt_1
@@ -681,6 +681,11 @@ def build_twemoji_grove(build:builder, size):
         floor_scaffold, floor_scaffold,
     ]
 
+    let trees = [
+        tree_deciduous,
+        tree_evergreen,
+    ]
+
     let elements = [
         element_earth,
         element_water,
@@ -700,7 +705,7 @@ def build_twemoji_grove(build:builder, size):
             tile.bg = floor_bg_base + floor_bg_variance * rnd_float()
             if tile.glyph.code != 0: tile.fg = tile.bg + floor_fg_lift
         if x == 0 || y == 0 || x == size-1 || y == size-1:
-            build.create_with(scaffolds[tree_deciduous]) tree:
+            build.create_with(scaffolds[trees.rnd_pick()]) tree:
                 tree.fg = tree_fg_base + tree_fg_variance * rnd_float()
     let mid = float(floor(size / 2))
     build.translate(xy_f { mid, mid }):
