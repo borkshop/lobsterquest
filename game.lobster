@@ -94,28 +94,6 @@ struct action:
     act:actiontype
     dir:xy_f
 
-    def limit(n:float):
-        return action {
-            act: act,
-            dir: limit_dir(n),
-        }
-
-    def limit_dir(n:float):
-        let s = float(sign(dir))
-        let d = abs(dir)
-        let t = d.x + d.y
-        if t <= n:
-            return dir, n - t
-        var o = t - n
-        var x, y = d.x, d.y
-        while o > 0:
-            if x > 0:
-                x--
-            else: if y > 0:
-                y--
-            o--
-        return s * xy_f { x, y }, 0
-
     def target(p:spatial):
         var l = p.xy
         if act & action_move:
@@ -138,7 +116,6 @@ class shard:
     type = []::entype
     pos  = []::spatial
     ren  = []::render
-    enrg = []::float
 
 class system:
     def ent_reset():
@@ -151,12 +128,11 @@ class shard_system:
     data    = shard{}
     systems = []::system
 
-    def create(type, pos, ren, enrg):
+    def create(type, pos, ren):
         let id = data.type.length()
         data.type.push(type)
         data.pos.push(pos)
         data.ren.push(ren)
-        data.enrg.push(enrg)
         notify_type(id, ent_none, type)
         return id
 
@@ -177,7 +153,6 @@ class shard_system:
         data.type = []
         data.pos  = []
         data.ren  = []
-        data.enrg = []
 
 def input_fun() -> action
 
@@ -462,7 +437,6 @@ class ent_scaffold:
     glyph = ascii(0)
     z     = 0.0
     size  = 1.0
-    enrg  = 0.0
 
     def with(body):
         let co = copy(this)
@@ -473,7 +447,7 @@ class ent_scaffold:
         loc = loc + xy { 0.5, 0.5 }
         let pos = spatial { loc.x, loc.y, z, size }
         let ren = render { bg, fg, glyph }
-        return shard.create(type, pos, ren, enrg)
+        return shard.create(type, pos, ren)
 
 class builder:
     shard:shard_system
@@ -710,10 +684,6 @@ def step_world(input:action):
     // clear all prior action animations
     for(minds.ids): anims.clear(_) // TODO batch method
 
-    // energize all minds
-    for(minds.ids) id:
-        world.data.enrg[id] = clamp(world.data.enrg[id] + 1, 0, 5)
-
     // choose action intents
     let intents = minds.thoughts()
 
@@ -722,11 +692,6 @@ def step_world(input:action):
         intents[mind_id].act != action_none
     let actor_ids = map(actor_mind_ids): minds.ids[_]
     let actions = filter(intents): _.act != action_none
-
-    // enforce action energy limits
-    for(actions) a, actor_id:
-        let id = actor_ids[actor_id]
-        actions[actor_id] = a.limit(world.data.enrg[id])
 
     // track current actor location
     let actor_locs = map(actor_ids): world.data.pos[_]
@@ -775,7 +740,6 @@ def step_world(input:action):
             z: a.z,
             w: a.w,
         }
-        var cost = abs(d.x) + abs(d.y)
         anims.animate(id, movement_time) anim:
             anim.blocking = true
             anim.after(0): anim.pos = a
@@ -785,9 +749,6 @@ def step_world(input:action):
             else:
                 anim.after(1): anim.pos = lerp(a, b, 0.5)
                 anim.after(1): anim.pos = a
-                cost = cost / 2
-        if cost > 0:
-            world.data.enrg[id] -= cost
 
     // resolve action groups
     for(groups) actors, group_id:
@@ -798,23 +759,6 @@ def step_world(input:action):
             move_actor(actors[0], false) // half-animate hits
         else:
             move_actor(actors[0], true) // full animate unfettered move
-
-    // indicate energy level by jitter
-    for(minds.ids) id, mind_id:
-        let n = world.data.enrg[id]
-        if n > 0:
-            let step = 0.1 / (5 - n + 1)
-            let steps = [
-                spatial {  step, 0, 0, 0 },
-                spatial { -step, 0, 0, 0 },
-            ]
-            anims.animate(id, movement_time * 4) anim:
-                let loc = actor_loc(mind_id)
-                anim.after(0): anim.pos = loc
-                for(steps) move:
-                    anim.after(1): anim.pos = loc + move
-                    anim.after(1): anim.pos = loc
-                anim.looped = true
 
 class ui:
     paused      = false
