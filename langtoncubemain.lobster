@@ -33,7 +33,9 @@ def next():
 
 fatal(gl_window("Langton Cube", 515, 515))
 
-let tex = entity_texture(tile_pine_tree)
+load_sheet()
+
+let tex = sheet_sprites[tile_sprite_id[tile_pine_tree]]
 assert tex
 
 // Use the frame buffer to render a unique texture for each face of the cube,
