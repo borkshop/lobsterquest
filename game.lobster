@@ -19,19 +19,40 @@ def while_first_index(xs, x, body):
 
 /* TODO
 - viewport control (zoom and pan)
+
+- bodys
+  - stats and statuses like hearts, stamina, duress, poisoned, etc
+  - graph-oriented components for item holding, equipment, etc
+
+- action
+  - item usage: in hand, in cell, neighbor cell...
+  - support resolving "far moves" ( affecting other than adjacent cell )
+
+- minds
+  - tracks progress and abilities, e.g. elemental essences, status of mojick
+  - quest tracking
+
+- pivot all render data into an internally owned system in glyphs.lobster...
+- ...what even is shard then: type and position only?
+- ...can we find a way to collapse it with shard_system in a way that doesn't
+  create an object cycle with the systems themselves?
+
 - spatial
   - super-cell entities
   - shape control
   - better collision processing, either using a spatial index, or circle collision
+
+- ECS
+  - entity freelist and re-use
+  - is it useful to leave a hole in a sparse system rather than removing on type exit?
+
 - input
   - alternate key bindings
   - help overlay
   - maybe naturalize the menu overlay ( rather than use imgui )
   - click to move; touchscreen?  on-screen D-pad?
   - inspection system for users?
-- movement
-  - support resolving "far moves" ( affecting other than adjacent cell )
-  - actions other than movement
+
 - interaction
   - what to do on hit?
   - solutions for multiple actors
@@ -39,12 +60,8 @@ def while_first_index(xs, x, body):
 - imgui
   - closable windows would be nice
   - use imgui more like the overlay demo example
-- ECS
-  - entity freelist and re-use
-  - is it useful to leave a hole in a sparse system rather than removing on type exit?
 - ai system based on behavior trees
 - relations to other entities (threats, assists, respects, etc)
-- graph-oriented body system item holding and with equipment
 
 */
 
