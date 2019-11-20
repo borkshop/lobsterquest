@@ -182,7 +182,8 @@ def new_round_square_topology(size):
     let grid = xy_1i * size
     let points = flatten(mapxy(grid) v: v)
     let neighborhoods = map(points) v: map(cardinal_directions) d: index_of_point((v + d + grid) % grid, size)
-    return neighborhoods
+    let turns = map(points): map(cardinal_directions): 0
+    return neighborhoods, turns
 
 def new_world(neighborhoods, turns, count, rules):
     let len = length(neighborhoods)
