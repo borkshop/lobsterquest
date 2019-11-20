@@ -18,15 +18,15 @@ def center_unit_square():
     gl_scale(scale)
 
 do():
-    let hz = 5
+    let hz = 1
     let size = 10
     let count = 10
     let rules = [1, -1, 0]
-    let neighborhoods, points = langton_new_round_square_topology(size)
+    let neighborhoods = langton_new_round_square_topology(size)
     let w = langton_new_world(neighborhoods, count, rules)
     let first_rule_color = color{ 0.75, 0.75, 0.5, 1.0 }
     let last_rule_color = color{ 0.5, 0.3, 0.2, 1.0 }
-    let v = langton_new_square_view(size, points, first_rule_color, last_rule_color)
+    let v = langton_new_square_view(size, first_rule_color, last_rule_color)
 
     w.tick()
     var start = gl_time()
@@ -43,4 +43,4 @@ do():
         let tween = next()
         gl_clear(first_rule_color)
         center_unit_square()
-        v.draw(w, tween, tex)
+        v.draw(w, 0, tween, tex)

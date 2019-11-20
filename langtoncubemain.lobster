@@ -7,16 +7,18 @@ import texture
 import std
 import sprites
 import sheets
+import topology
 
-let hz = 3
+let hz = 2
 let size = 4
-let count = 2
+let area = size * size
+let count = 6
 let rules = [1, -1, 0]
-let neighborhoods, points = langton_new_round_square_topology(size)
-let w = langton_new_world(neighborhoods, count, rules)
+let neighborhoods, turns = new_daia_topology(size)
+let w = langton_new_world(neighborhoods, turns, count, rules)
 let first_rule_color = color{ 0.75, 0.75, 0.5, 1.0 }
 let last_rule_color = color{ 0.5, 0.3, 0.2, 1.0 }
-let v = langton_new_square_view(size, points, first_rule_color, last_rule_color)
+let v = langton_new_square_view(size, neighborhoods, first_rule_color, last_rule_color)
 
 w.tick()
 var start = gl_time()
@@ -46,7 +48,7 @@ let face_meshes = cube_new_face_meshes(cube_new_face_vertices())
 
 // Rotate the camera to place the origin vertex of the cube in the center of
 // the view.
-camera_pitch = 45
+camera_pitch = 30
 camera_yaw = -45
 
 // This demo is able to use camera_FPS_view but uses a different control model
@@ -62,10 +64,11 @@ def camera_GPS_update(upkey, leftkey, downkey, rightkey, elevation:float, mouses
 while gl_frame() and gl_button("escape") != -1:
     let tween = next()
 
+    // Render each face texture of the cube.
     for(6) i:
         render_to_texture(face_textures[i], xy_1i * detail, false, nil, 0):
             gl_scale(xy_1 * detail)
-            v.draw(w, tween, tex)
+            v.draw(w, i * area, tween, tex)
 
     gl_clear(color_dark_grey / 2)
     gl_cursor(false)
@@ -74,6 +77,6 @@ while gl_frame() and gl_button("escape") != -1:
     camera_GPS_update("w", "a", "s", "d", 2.0, 4.0, 4.0)
     camera_FPS_view()
 
-    gl_light(camera_position, xy { 128.0, 0.1 })
+    gl_light(camera_position, xy { 128.0, 0.2 })
 
     cube_draw(face_meshes, map(6): color_white, face_textures)

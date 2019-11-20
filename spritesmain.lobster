@@ -32,7 +32,7 @@ while gl_frame() and gl_button("escape") != -1:
         for(item_sprite_id) sid, id: if sid == sprite_id: s += " " + item_entity_id(id)
         print(s)
 
-    var size = float(gl_window_size())
+    let size = float(gl_window_size())
 
     gl_clear(color{ 0.75, 0.75, 0.5, 1.0 })
     gl_set_shader("textured")

@@ -1,5 +1,15 @@
 namespace cube
 
+//                                 inverted clockwise
+//  Z       4---5             .---.   .---.
+//   \      |\  |\    1540->1 |\ 1 \  |   |\  5<-5464
+//    0--X  | 0---1           | .---. | 5 | .
+//    |     | | | |   0462->2 |2|   | |   |3| 3<-5137
+//    Y     6-|-7 |           ' | 0 | '---' |
+//           \|  \|   3102->0  \|   |  \ 4 \| 4<-7326
+//            2---3             '---'   '---'
+//                    counter-clockwise
+
 // face_meshes contains the meshes for the six faces of a cube,
 // facing outward.
 def new_face_vertices(): return [

@@ -109,22 +109,26 @@ class world:
     weights_next:[int]
     headings_next:[int]
     langtons_next:[int]
+    directions_next:[xy_i]
+    rotations_next:[int]
     // following edge
     ents:[int]
     weights:[int]
     headings:[int]
+    trailings:[int]
     langtons:[int]
+    directions:[xy_i]
+    rotations:[int]
 
     // intermediate
     neighborhoods:[[int]]
+    turns:[[int]]
     bids:[int]
     bid_neighborhoods:[[int]]
     weight_neighborhoods:[[int]]
     winners:[int]
     winner_neighborhoods:[[int]]
     transitions:[int]
-    directions:[xy_i]
-    rotations:[int]
     headings_rotated:[int]
 
     def tick():
@@ -141,36 +145,46 @@ class world:
         gather_transitions()
 
         transit(len, ents_next, ents, transitions)
+        transit(len, directions_next, directions, transitions)
         transit(len, weights_next, weights, transitions)
         transit(len, headings_next, headings_rotated, transitions)
+        transit(len, trailings, headings, transitions)
 
     def gather_transitions():
         for(len) i:
-            let transition, direction, rotation, langton = find_transition(i, neighborhoods[i], winners[i], winner_neighborhoods[i], langtons[i])
+            let transition,
+                direction,
+                rotation,
+                langton,
+                turn = find_transition(i, neighborhoods[i], winners[i], winner_neighborhoods[i], langtons[i], turns[i])
             transitions[i] = transition
             directions[i] = direction
             rotations[i] = rotation
-            headings_rotated[i] = headings[i] + rotation
+            headings_rotated[i] = headings[i] + rotation + turn
             langtons_next[i] = langton
 
-    def find_transition(i, neighbors, winner, winner_neighbors, langton):
+    def find_transition(i, neighbors, winner, winner_neighbors, langton, turn):
         // A neighbor moves here.
         if winner >= 0:
-            return winner, xy_0i, 0, langton
+            return winner, xy_0i, 0, langton, 0
         let found = find(winner_neighbors) j: i == j
         // We move to a neighbor.
         if found >= 0:
-            return neighbors[found], cardinal_directions[found], rules[langton], (length(rules) + langton + 1) % length(rules)
+            return neighbors[found],
+                cardinal_directions[found],
+                rules[langton],
+                (length(rules) + langton + 1) % length(rules),
+                turn[found]
         // Rotate in place if cannot proceed.
-        return i, xy_0i, 1, langton
+        return i, xy_0i, 1, langton, 0
 
 def new_round_square_topology(size):
     let grid = xy_1i * size
     let points = flatten(mapxy(grid) v: v)
     let neighborhoods = map(points) v: map(cardinal_directions) d: index_of_point((v + d + grid) % grid, size)
-    return neighborhoods, points
+    return neighborhoods
 
-def new_world(neighborhoods, count, rules):
+def new_world(neighborhoods, turns, count, rules):
     let len = length(neighborhoods)
     let headings = map(len): rnd(4)
 
@@ -189,6 +203,7 @@ def new_world(neighborhoods, count, rules):
         len: len,
         rules: rules,
         neighborhoods: neighborhoods,
+        turns: turns,
         weights_next: randomize(map(len) n: n),
         weights: map(len): 0,
         ents_next: ents_next,
@@ -199,41 +214,51 @@ def new_world(neighborhoods, count, rules):
         winners: map(len): 0,
         winner_neighborhoods: map(len): map(cardinal_directions): 0,
         transitions: map(len): 0,
-        directions: map(len): rnd_pick(cardinal_directions),
+        directions: map(len): xy_0i,
+        directions_next: map(len): xy_0i,
         headings: headings,
         headings_next: map(len): headings[_],
+        trailings: map(len): headings[_],
         rotations: map(len): 0,
+        rotations_next: map(len): 0,
         headings_rotated: map(len): 0,
         langtons: map(len): 0,
         langtons_next: map(len): 0
     }
 
+def spectrum(first, last, count):
+    return map(count) i: lerp(first, last, float(i) / float(count-1))
+
+def for_grid(grid, fun):
+    forxy(grid) point:
+        fun(point, point.x + point.y * grid.x)
+
+def for_translate_grid(grid, fun):
+    for_grid(grid) point, i:
+        gl_translate float(point) / float(grid):
+            fun(point, i)
+
+def draw_tween_color_grid(grid, next, prev, offset, palette, tween):
+    // draw background color according to langton rule number.
+    gl_set_shader("color")
+    for_translate_grid(grid) point, i:
+        let v = float(point)
+        let c1 = palette[prev[i + offset]]
+        let c2 = palette[next[i + offset]]
+        let c = lerp(c1, c2, tween)
+        gl_color(c)
+        gl_scale(xy_1 / float(grid))
+        gl_rect(xy_1, 0)
+
 class view:
     size: int
-    points:[xy_i]
+    neighborhoods:[[int]]
     first_rule_color:color
     last_rule_color:color
 
-    def draw(w, tween, tex):
-        gl_clear(first_rule_color)
-
-        // draw background color according to langton rule number.
-        gl_set_shader("color")
-        for(w.len) i:
-            let v = float(points[i])
-            gl_translate v / size:
-                // Interpolate the rule number colors between the first and
-                // last rule colors.
-                // Then interpolate the rule number colors between the previous
-                // and next generation.
-                let r1 = float(w.langtons[i]) / float(length(w.rules))
-                let r2 = float(w.langtons_next[i]) / float(length(w.rules))
-                let c1 = lerp(first_rule_color, last_rule_color, r1)
-                let c2 = lerp(first_rule_color, last_rule_color, r2)
-                let c = lerp(c1, c2, tween)
-                gl_color(c)
-                gl_scale(xy_1 / size)
-                gl_rect(xy_1, 0)
+    def draw(w, offset, tween, tex):
+        let palette = spectrum(first_rule_color, last_rule_color, length(w.rules))
+        draw_tween_color_grid(xy_1i * size, w.langtons_next, w.langtons, offset, palette, tween)
 
         // draw foreground according to presence and heading of ents,
         // tweened along their translation and rotation vectors.
@@ -243,13 +268,14 @@ class view:
 
         // Each ent, including duplicate ents when a ent exits off
         // an edge and returns through another.
-        for_ents(w.ents, w.directions) i, v1, v2:
-            // Interpolate position
+        for_ents(
+            w.ents, w.ents_next,
+            w.directions, w.directions_next,
+            w.headings, w.headings_next,
+            w.trailings, w.rotations,
+            offset
+        ) i, v1, v2, a1, a2:
             let v = lerp(v1, v2, tween)
-
-            // Interpolate heading
-            let a1 = float(w.headings[i]) * 90.0
-            let a2 = float(w.headings_rotated[i]) * 90.0
             let a = lerp(a1, a2, tween)
 
             gl_translate v / size:
@@ -260,29 +286,26 @@ class view:
                 gl_translate(xy_1 / -2)
                 gl_rect(xy_1, 0)
 
-    def for_ents(ents, directions, func):
-        for(length(points)) i: if ents[i]:
-            let v1 = float(points[i])
-            let v2 = float(points[i] + directions[i])
-            func(i, v1, v2)
-            // render ents again if they transit the edge of the world
-            if v2.x < 0:
-                let d = xy_x * size
-                func(i, v1+d, v2+d)
-            if v2.x >= size:
-                let d = xy_x * size
-                func(i, v1-d, v2-d)
-            if v2.y < 0:
-                let d = xy_y * size
-                func(i, v1+d, v2+d)
-            if v2.y >= size:
-                let d = xy_y * size
-                func(i, v1-d, v2-d)
+    def for_ents(
+        ents, ents_next,
+        directions, directions_next,
+        headings, headings_next,
+        trailings, rotations,
+        offset, func
+    ):
+        for_grid(xy_1i * size) point, i:
+            if ents[i + offset]:
+                let index = i + offset
+                let v1 = float(point)
+                let v2 = v1 + float(directions[index])
+                let a1 = float(headings[index]) * 90.0
+                let a2 = a1 + float(rotations[index]) * 90.0
+                func(index, v1, v2, a1, a2)
 
-def new_square_view(size, points, first_rule_color, last_rule_color):
+def new_square_view(size, neighborhoods, first_rule_color, last_rule_color):
     return view{
         size: size,
-        points: points,
+        neighborhoods: neighborhoods,
         first_rule_color: first_rule_color,
         last_rule_color: last_rule_color,
     }
