@@ -34,8 +34,6 @@ def while_first_index(xs, x, body):
 
 - pivot all render data into an internally owned system in glyphs.lobster...
 - ...what even is shard then: type and position only?
-- ...can we find a way to collapse it with shard_system in a way that doesn't
-  create an object cycle with the systems themselves?
 
 - spatial
   - super-cell entities
@@ -112,11 +110,6 @@ enum_flags entype:
     ent_mind        // participates in the action system
     ent_input       // receives player input
 
-class shard:
-    type = []::entype
-    pos  = []::spatial
-    ren  = []::render
-
 class system:
     def ent_reset():
         nil
@@ -124,35 +117,38 @@ class system:
     def ent_changed(id:int, old:entype, new:entype):
         return new
 
-class shard_system:
-    data    = shard{}
+class shard:
+    type = []::entype
+    pos  = []::spatial
+    ren  = []::render
+
     systems = []::system
 
-    def create(type, pos, ren):
-        let id = data.type.length()
-        data.type.push(type)
-        data.pos.push(pos)
-        data.ren.push(ren)
-        notify_type(id, ent_none, type)
+    def create(t:entype, p:spatial, r:render):
+        let id = type.length()
+        type.push(t)
+        pos.push(p)
+        ren.push(r)
+        notify_type(id, ent_none, t)
         return id
 
-    def set_type(id:int, type:entype):
-        let old = data.type[id]
-        data.type[id] = type
-        notify_type(id, old, type)
+    def set_type(id:int, t:entype):
+        let old = type[id]
+        type[id] = t
+        notify_type(id, old, t)
 
     def notify_type(id, old, new):
         for(systems):
             let prior = new
             new = _.ent_changed(id, old, new)
             if new != prior:
-                data.type[id] = new
+                type[id] = new
 
     def reset():
         for(systems): _.ent_reset()
-        data.type = []
-        data.pos  = []
-        data.ren  = []
+        type = []
+        pos  = []
+        ren  = []
 
 def input_fun() -> action
 
@@ -444,14 +440,14 @@ class ent_scaffold:
         body(co)
         return co
 
-    def create(shard:shard_system, loc:xy_f):
+    def create(shard:shard, loc:xy_f):
         loc = loc + xy { 0.5, 0.5 }
         let pos = spatial { loc.x, loc.y, z, size }
         let ren = render { bg, fg, glyph }
         return shard.create(type, pos, ren)
 
 class builder:
-    shard:shard_system
+    shard:shard
     loc = xy_0
 
     def create(es:ent_scaffold):
@@ -666,7 +662,7 @@ let play_reader = button_action_reader {
 }
 
 // TODO one for each face / level / etc
-var world = shard_system {}
+var world = shard {}
 var minds = minds {}
 var bodys = bodys {}
 var anims = anims {}
@@ -674,13 +670,13 @@ world.systems.push(minds)
 world.systems.push(bodys)
 
 // TODO for each visible shard
-var scene = stacked_scene { shard: world.data }
+var scene = stacked_scene { shard: world }
 world.systems.push(scene)
 
 // TODO attach to world area
 def step_world(input:action):
     // clear all prior action animations
-    for(minds.ids): anims.clear(world.data, _) // TODO batch method
+    for(minds.ids): anims.clear(world, _) // TODO batch method
 
     // choose action intents
     let intents = minds.thoughts(world): play_reader.action()
@@ -692,14 +688,14 @@ def step_world(input:action):
     let actions = filter(intents): _.act != action_none
 
     // track current actor location
-    let actor_locs = map(actor_ids): world.data.pos[_]
+    let actor_locs = map(actor_ids): world.pos[_]
     def actor_loc(mind_id):
         let n_minds, actor_id = actor_mind_ids.binary_search(mind_id)
         if n_minds > 0:
             return actor_locs[actor_id]
         else:
             let id = minds.ids[mind_id]
-            return world.data.pos[id]
+            return world.pos[id]
 
     // compute action targets
     let targets = map(actions) a, actor_id:
@@ -713,7 +709,7 @@ def step_world(input:action):
         if group_ids[actor_id] < 0:
             let group_id = groups.length()
             let actors = [actor_id]
-            let at = filter(bodys.ids) id: world.data.pos[id].cell() == t
+            let at = filter(bodys.ids) id: world.pos[id].cell() == t
             for_from(targets, actor_id + 1) ot, other_actor_id:
                 if targets[other_actor_id] == t:
                     if group_ids[other_actor_id] < 0:
@@ -729,7 +725,7 @@ def step_world(input:action):
     // animate actor movement, updating actor_locs if full
     def move_actor(actor_id, full):
         let id = actor_ids[actor_id]
-        let a = world.data.pos[id]
+        let a = world.pos[id]
         let t = targets[actor_id]
         let d = t - a.cell()
         let b = spatial {
@@ -814,7 +810,7 @@ do():
     let ui = ui {}
     ui.run_forever():
         gl_clear(color_black)
-        anims.update(world.data, gl_delta_time())
+        anims.update(world, gl_delta_time())
         let minc, maxc = scene.bounds()
         let space_size = float(maxc - minc + 1)
         let win_size   = float(gl_window_size())
