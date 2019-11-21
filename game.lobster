@@ -515,14 +515,21 @@ class stacked_scene : system
                 maxc = max(maxc, c)
         return minc, maxc
 
-    def draw(shard, cell_size:xy_f):
-        for(ids) id:
-            // TODO precomputed translation
-            // TODO precomputed render and glyph drawing data
-            let p = shard.pos[id]
-            let c = p.xy - p.w / 2
-            gl_translate(c * cell_size):
-                shard.ren[id].draw(cell_size, cell_size * p.w)
+    def draw(shard, screen_size, dt):
+        shard.update(dt)
+        let minc, maxc = bounds(shard)
+        let space_size = float(maxc - minc + 1)
+        let side_size  = float(max(1, min(floor(screen_size / space_size))))
+        let cell_size  = xy_f { side_size, side_size }
+        let view_rem   = screen_size - space_size * side_size
+        gl_translate(float(-minc.xy) * side_size + view_rem / 2):
+            for(ids) id:
+                // TODO precomputed translation
+                // TODO precomputed render and glyph drawing data
+                let p = shard.pos[id]
+                let c = p.xy - p.w / 2
+                gl_translate(c * cell_size):
+                    shard.ren[id].draw(cell_size, cell_size * p.w)
 
 class ent_scaffold:
     type  : entype
@@ -820,16 +827,7 @@ do():
     let ui = ui {}
     ui.run_forever():
         gl_clear(color_black)
-        world.update(gl_delta_time())
-        let minc, maxc = scene.bounds(world)
-        let space_size = float(maxc - minc + 1)
-        let win_size   = float(gl_window_size())
-        let side_size  = float(max(1, min(floor(win_size / space_size))))
-        let cell_size  = xy_f { side_size, side_size }
-        let view_rem   = win_size - space_size * side_size
-        gl_translate(float(-minc.xy) * side_size + view_rem / 2):
-            scene.draw(world, cell_size)
-
+        scene.draw(world, float(gl_window_size()), gl_delta_time())
         // TODO draw player overlay
     step:
         if world.can_step() and play_reader.read_input():
