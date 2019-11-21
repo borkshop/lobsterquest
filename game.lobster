@@ -114,7 +114,7 @@ class system:
     def ent_reset():
         nil
 
-    def ent_changed(id:int, old:entype, new:entype):
+    def ent_changed(shard, id:int, old:entype, new:entype):
         return new
 
 class shard:
@@ -140,7 +140,7 @@ class shard:
     def notify_type(id, old, new):
         for(systems):
             let prior = new
-            new = _.ent_changed(id, old, new)
+            new = _.ent_changed(this, id, old, new)
             if new != prior:
                 type[id] = new
 
@@ -182,7 +182,7 @@ class minds : system
         types.remove(mind_id, 1)
         minds.remove(mind_id, 1)
 
-    def ent_changed(id:int, old:entype, new:entype):
+    def ent_changed(shard, id:int, old:entype, new:entype):
         if (old ^ new) & ent_mind:
             if       new & ent_mind: this.enter(id, new)
             else: if old & ent_mind: this.exit(id)
@@ -207,7 +207,7 @@ class bodys : system
     def exit(id): while_first_index(ids, id) body_id:
         ids.remove(body_id, 1)
 
-    def ent_changed(id:int, old:entype, new:entype):
+    def ent_changed(shard, id:int, old:entype, new:entype):
         if (old ^ new) & ent_body:
             if       new & ent_body: this.enter(id)
             else: if old & ent_body: this.exit(id)
@@ -375,14 +375,12 @@ def animate(anims::anims, id:int, over:float, body):
     }.with(body)
 
 class stacked_scene : system
-    shard:shard
-
     ids = []::int
     zs  = []::float
     // TODO maybe bucket-by-z rather than full sorting
     // TODO maybe own and pre-compute all rendering data
 
-    def enter(id):
+    def enter(shard, id):
         let z = shard.pos[id].z
         let n, scene_id = zs.binary_search(z)
         ids.insert(scene_id, id)
@@ -392,9 +390,9 @@ class stacked_scene : system
         ids.remove(scene_id, 1)
         zs.remove(scene_id, 1)
 
-    def ent_changed(id:int, old:entype, new:entype):
+    def ent_changed(shard, id:int, old:entype, new:entype):
         if (old ^ new) & ent_visible:
-            if       new & ent_visible: this.enter(id)
+            if       new & ent_visible: this.enter(shard, id)
             else: if old & ent_visible: this.exit(id)
         return new
 
@@ -404,7 +402,7 @@ class stacked_scene : system
 
     // TODO update_z
 
-    def bounds():
+    def bounds(shard):
         var minc = xy_0i
         var maxc = xy_0i
         var first = true
@@ -418,7 +416,7 @@ class stacked_scene : system
                 maxc = max(maxc, c)
         return minc, maxc
 
-    def draw(cell_size:xy_f):
+    def draw(shard, cell_size:xy_f):
         for(ids) id:
             // TODO precomputed translation
             // TODO precomputed render and glyph drawing data
@@ -670,7 +668,7 @@ world.systems.push(minds)
 world.systems.push(bodys)
 
 // TODO for each visible shard
-var scene = stacked_scene { shard: world }
+var scene = stacked_scene {}
 world.systems.push(scene)
 
 // TODO attach to world area
@@ -811,14 +809,14 @@ do():
     ui.run_forever():
         gl_clear(color_black)
         anims.update(world, gl_delta_time())
-        let minc, maxc = scene.bounds()
+        let minc, maxc = scene.bounds(world)
         let space_size = float(maxc - minc + 1)
         let win_size   = float(gl_window_size())
         let side_size  = float(max(1, min(floor(win_size / space_size))))
         let cell_size  = xy_f { side_size, side_size }
         let view_rem   = win_size - space_size * side_size
         gl_translate(float(-minc.xy) * side_size + view_rem / 2):
-            scene.draw(cell_size)
+            scene.draw(world, cell_size)
 
         // TODO draw player overlay
     step:
