@@ -5,7 +5,7 @@ import vec
 var sheet_sprites = []::resource
 
 def load_sheet():
-    sheet_sprites = load_sprites("sheets.png", 72, xy { 12, 11 }, 128)
+    sheet_sprites = load_sprites("sheets.png", 72, xy { 12, 11 }, 132)
 
 enum tile_entity_id:
     tile_none

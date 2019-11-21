@@ -117,8 +117,9 @@ func main() {
 	flag.Parse()
 
 	var (
-		tiles = Sheet{EntityType: "tile"}
-		items = Sheet{EntityType: "item"}
+		tiles   = Sheet{EntityType: "tile"}
+		items   = Sheet{EntityType: "item"}
+		avatars = Sheet{EntityType: "avatar"}
 	)
 
 	for _, sh := range []struct {
@@ -127,6 +128,7 @@ func main() {
 	}{
 		{&tiles, "sheets/Emoji Quest - Tiles.tsv"},
 		{&items, "sheets/Emoji Quest - Items.tsv"},
+		{&avatars, "sheets/Emoji Quest - Avatars.tsv"},
 	} {
 		fmt.Printf("collecting %v moji from %v\n", sh.EntityType, sh.filename)
 		if err := sh.CollectFile(sh.filename); err != nil {
