@@ -429,6 +429,15 @@ class stacked_scene : system
                 maxc = max(maxc, c)
         return minc, maxc
 
+    def draw(cell_size:xy_f):
+        for(ids) id:
+            // TODO precomputed translation
+            // TODO precomputed render and glyph drawing data
+            let p = shard.pos[id]
+            let c = p.xy - p.w / 2
+            gl_translate(c * cell_size):
+                shard.ren[id].draw(cell_size, cell_size * p.w)
+
 class ent_scaffold:
     type  : entype
     bg    = color_clear
@@ -823,13 +832,8 @@ do():
         let cell_size  = xy_f { side_size, side_size }
         let view_rem   = win_size - space_size * side_size
         gl_translate(float(-minc.xy) * side_size + view_rem / 2):
-            for(scene.ids) id:
-                // TODO scene precomputed translation
-                // TODO scene precomputed render and glyph drawing data
-                let p = world.data.pos[id]
-                let c = p.xy - p.w / 2
-                gl_translate(c * cell_size):
-                    world.data.ren[id].draw(cell_size, cell_size * p.w)
+            scene.draw(cell_size)
+
         // TODO draw player overlay
     step:
         if not anims.blocked and play_reader.read_input():
