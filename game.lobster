@@ -288,14 +288,13 @@ class anims : system
         drop(live, dead)
 
     def drop(live, dead): if dead.length:
-        let dead_ids = map(dead): ids[_]
-        ids          = map(live): ids[_]
-        flags        = map(live): flags[_]
-        blocked      = flags.fold(false): if (_a | _b) & anim_block: true else: false
-        time         = map(live): time[_]
-        elapsed      = map(live): elapsed[_]
-        as           = map(live): as[_]
-        bs           = map(live): bs[_]
+        ids     = map(live): ids[_]
+        flags   = map(live): flags[_]
+        blocked = flags.fold(false): if (_a | _b) & anim_block: true else: false
+        time    = map(live): time[_]
+        elapsed = map(live): elapsed[_]
+        as      = map(live): as[_]
+        bs      = map(live): bs[_]
 
     def has_any(id):
         let anim_id = ids.first_index(id)
