@@ -8,6 +8,7 @@ def load_sheet():
     sheet_sprites = load_sprites("sheets.png", 72, xy { 12, 11 }, 128)
 
 enum tile_entity_id:
+    tile_none
 
     // notes: Euia is the nice side of the world. It is forested and has six
     //        mountains, in two ranges, along the northern and southern fringes.
@@ -320,6 +321,7 @@ enum tile_entity_id:
     tile_america // 🌎
 
 let tile_sprite_id = [
+    -1, // tile_none
     0, // tile_euia
     1, // tile_apple_tree
     2, // tile_pine_tree
@@ -406,6 +408,7 @@ let tile_sprite_id = [
 ]
 
 enum item_entity_id:
+    item_none
 
     // quantity: 1
     // tip: A delicious red apple.
@@ -622,6 +625,7 @@ enum item_entity_id:
     item_broom // 🧹
 
 let item_sprite_id = [
+    -1, // item_none
     68, // item_apple
     69, // item_pine_apple
     70, // item_pear

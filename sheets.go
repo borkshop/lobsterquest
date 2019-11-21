@@ -88,7 +88,10 @@ def load_sheet():
 
 {{ define "sheet" }}{{ $sheet := . -}}
 
-enum {{ $sheet.EntityType }}_entity_id:{{- range $id, $name := $sheet.Names }}
+enum {{ $sheet.EntityType }}_entity_id:
+    {{ $sheet.EntityType }}_none
+
+{{- range $id, $name := $sheet.Names }}
 {{ range $key := $sheet.InfoKeys $id }}{{ with $sheet.Info $id $key }}
 {{ wrap 80 $key "    // " . }}
 {{- end }}{{ end }}
@@ -96,6 +99,7 @@ enum {{ $sheet.EntityType }}_entity_id:{{- range $id, $name := $sheet.Names }}
 {{-   end }}
 
 let {{ $sheet.EntityType }}_sprite_id = [
+    -1, // {{ $sheet.EntityType }}_none
 {{ range $id, $name := $sheet.Names }}    {{ $sheet.SpriteID $id }}, // {{ $sheet.Symbol $id }}
 {{ end }}]
 {{ end }}
