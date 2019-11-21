@@ -83,9 +83,8 @@ var sheet_sprites = []::resource
 def load_sheet():
     sheet_sprites = load_sprites("{{ .ImageOut }}", {{ .Sprites.Resolution }}, xy { {{ .Sprites.Size.X }}, {{ .Sprites.Size.Y }} }, {{ .Sprites.Paths | len }})
 
-{{ template "sheet" .Tiles }}
-{{ template "sheet" .Items }}
-{{ template "sheet" .Avatars }}
+{{ range .Sheets }}{{ template "sheet" . }}
+{{ end }}
 
 {{ define "sheet" }}{{ $sheet := . -}}
 
@@ -117,31 +116,39 @@ func main() {
 	flag.StringVar(&outBase, "out", "sheets", "output basename")
 	flag.Parse()
 
-	var (
-		tiles   = Sheet{EntityType: "tile"}
-		items   = Sheet{EntityType: "item"}
-		avatars = Sheet{EntityType: "avatar"}
-	)
+	filenames := []string{
+		"sheets/Emoji Quest - Tiles.tsv",
+		"sheets/Emoji Quest - Items.tsv",
+		"sheets/Emoji Quest - Avatars.tsv",
+	}
 
-	for _, sh := range []struct {
-		*Sheet
-		filename string
-	}{
-		{&tiles, "sheets/Emoji Quest - Tiles.tsv"},
-		{&items, "sheets/Emoji Quest - Items.tsv"},
-		{&avatars, "sheets/Emoji Quest - Avatars.tsv"},
-	} {
-		fmt.Printf("collecting %v moji from %v\n", sh.EntityType, sh.filename)
-		if err := sh.CollectFile(sh.filename); err != nil {
-			log.Fatalf("failed to collect %v entities from %v: %v", sh.EntityType, sh.filename, err)
+	sheets := make([]Sheet, len(filenames))
+	for i, filename := range filenames {
+		parts := strings.SplitN(filename, " - ", 2)
+		if len(parts) != 2 {
+			log.Fatalf("unrecognized sheet filename: %q", filename)
+		}
+		name := parts[1]
+		name = strings.TrimSuffix(name, filepath.Ext(name))
+		name = strings.TrimSuffix(name, "s")
+		name = strings.ToLower(name)
+		sheets[i] = Sheet{EntityType: name}
+	}
+
+	for i := range sheets {
+		sh := &sheets[i]
+		filename := filenames[i]
+		fmt.Printf("collecting %v moji from %v\n", sh.EntityType, filename)
+		if err := sh.CollectFile(filename); err != nil {
+			log.Fatalf("failed to collect %v entities from %v: %v", sh.EntityType, filename, err)
 		}
 		if len(sh.moji) == 0 {
-			log.Printf("no moji found in %v", sh.filename)
+			log.Printf("no moji found in %v", filename)
 			continue
 		}
 		n := sh.FindGlyphs(&sprites, sourceDir)
 		if n == 0 {
-			log.Fatalf("found no glyphs for %v, missing glyph directory in %q?", sh.filename, sourceDir)
+			log.Fatalf("found no glyphs for %v, missing glyph directory in %q?", filename, sourceDir)
 		}
 		fmt.Printf("Found %v / %v %v moji glyphs\n", n, len(sh.moji), sh.EntityType)
 	}
@@ -152,17 +159,9 @@ func main() {
 
 	if err := writeTemplateFile(outBase+".lobster", sheetsTemplate, struct {
 		ImageOut string
-		Tiles    *Sheet
-		Items    *Sheet
-		Avatars  *Sheet
-		Sprites  *Sprites
-	}{
-		outBase + ".png",
-		&tiles,
-		&items,
-		&avatars,
-		&sprites,
-	}); err != nil {
+		Sheets   []Sheet
+		Sprites  Sprites
+	}{outBase + ".png", sheets, sprites}); err != nil {
 		log.Fatalf("failed to write entity code: %v", err)
 	}
 }
