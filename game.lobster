@@ -374,6 +374,105 @@ def animate(anims::anims, id:int, over:float, body):
         time:  over,
     }.with(body)
 
+class chunk : shard
+    minds = minds {}
+    bodys = bodys {}
+    anims = anims {}
+
+    movement_time = 1.0 / 6
+
+    def can_step():
+        return !anims.blocked
+
+    def update(dt:float):
+        anims.update(this, dt)
+
+    def step(input:input_fun):
+        // clear all prior action animations
+        for(minds.ids): anims.clear(this, _) // TODO batch method
+
+        // choose action intents
+        let intents = minds.thoughts(this, input)
+
+        // subset of minds with intent
+        let actor_mind_ids = filter_indices(minds.ids) id, mind_id:
+            intents[mind_id].act != action_none
+        let actor_ids = map(actor_mind_ids): minds.ids[_]
+        let actions = filter(intents): _.act != action_none
+
+        // track current actor location
+        let actor_locs = map(actor_ids): pos[_]
+        def actor_loc(mind_id):
+            let n_minds, actor_id = actor_mind_ids.binary_search(mind_id)
+            if n_minds > 0:
+                return actor_locs[actor_id]
+            else:
+                let id = minds.ids[mind_id]
+                return pos[id]
+
+        // compute action targets
+        let targets = map(actions) a, actor_id:
+            a.target(actor_locs[actor_id])
+
+        // compute hit bodies, grouping actions by shared interest
+        let group_ids = map(targets): -1
+        let groups    = vector_reserve(typeof [[int]], targets.length())
+        let hits      = vector_reserve(typeof [[int]], targets.length())
+        for(targets) t, actor_id:
+            if group_ids[actor_id] < 0:
+                let group_id = groups.length()
+                let actors = [actor_id]
+                let at = filter(bodys.ids) id: pos[id].cell() == t
+                for_from(targets, actor_id + 1) ot, other_actor_id:
+                    if targets[other_actor_id] == t:
+                        if group_ids[other_actor_id] < 0:
+                            group_ids[other_actor_id] = group_id
+                            actors.push(other_actor_id)
+                        // NOTE should not be possible unless we introduce
+                        // second-order consequences (e.g. pushing):
+                        // else: if other_actor_id != group_id:
+                hits.push(at)
+                groups.push(actors)
+                group_ids[actor_id] = group_id
+
+        // animate actor movement, updating actor_locs if full
+        def move_actor(actor_id, full):
+            let id = actor_ids[actor_id]
+            let a = pos[id]
+            let t = targets[actor_id]
+            let d = t - a.cell()
+            let b = spatial {
+                x: a.x + float(d.x),
+                y: a.y + float(d.y),
+                z: a.z,
+                w: a.w,
+            }
+            anims.animate(id, movement_time) anim:
+                anim.blocking = true
+                anim.after(0): anim.pos = a
+                if full:
+                    anim.after(1): anim.pos = b
+                    actor_locs[actor_id] = b
+                else:
+                    anim.after(1): anim.pos = lerp(a, b, 0.5)
+                    anim.after(1): anim.pos = a
+
+        // resolve action groups
+        for(groups) actors, group_id:
+            let at = hits[group_id]
+            if actors.length() > 1:
+                for(actors): move_actor(_, false) // half-animate all conflicts
+            else: if at.length() > 0:
+                move_actor(actors[0], false) // half-animate hits
+            else:
+                move_actor(actors[0], true) // full animate unfettered move
+
+def new_chunk():
+    let ch = chunk {}
+    ch.systems.push(ch.minds)
+    ch.systems.push(ch.bodys)
+    return ch
+
 class stacked_scene : system
     ids = []::int
     zs  = []::float
@@ -639,8 +738,6 @@ class button_action_reader:
 
 //// usage
 
-let movement_time = 1.0 / 6
-
 let play_reader = button_action_reader {
     // arrow keys with "." to stay idiom
     buttons: [
@@ -660,97 +757,7 @@ let play_reader = button_action_reader {
 }
 
 // TODO one for each face / level / etc
-var world = shard {}
-var minds = minds {}
-var bodys = bodys {}
-var anims = anims {}
-world.systems.push(minds)
-world.systems.push(bodys)
-
-// TODO for each visible shard
-var scene = stacked_scene {}
-world.systems.push(scene)
-
-// TODO attach to world area
-def step_world(input:action):
-    // clear all prior action animations
-    for(minds.ids): anims.clear(world, _) // TODO batch method
-
-    // choose action intents
-    let intents = minds.thoughts(world): play_reader.action()
-
-    // subset of minds with intent
-    let actor_mind_ids = filter_indices(minds.ids) id, mind_id:
-        intents[mind_id].act != action_none
-    let actor_ids = map(actor_mind_ids): minds.ids[_]
-    let actions = filter(intents): _.act != action_none
-
-    // track current actor location
-    let actor_locs = map(actor_ids): world.pos[_]
-    def actor_loc(mind_id):
-        let n_minds, actor_id = actor_mind_ids.binary_search(mind_id)
-        if n_minds > 0:
-            return actor_locs[actor_id]
-        else:
-            let id = minds.ids[mind_id]
-            return world.pos[id]
-
-    // compute action targets
-    let targets = map(actions) a, actor_id:
-        a.target(actor_locs[actor_id])
-
-    // compute hit bodies, grouping actions by shared interest
-    let group_ids = map(targets): -1
-    let groups    = vector_reserve(typeof [[int]], targets.length())
-    let hits      = vector_reserve(typeof [[int]], targets.length())
-    for(targets) t, actor_id:
-        if group_ids[actor_id] < 0:
-            let group_id = groups.length()
-            let actors = [actor_id]
-            let at = filter(bodys.ids) id: world.pos[id].cell() == t
-            for_from(targets, actor_id + 1) ot, other_actor_id:
-                if targets[other_actor_id] == t:
-                    if group_ids[other_actor_id] < 0:
-                        group_ids[other_actor_id] = group_id
-                        actors.push(other_actor_id)
-                    // NOTE should not be possible unless we introduce
-                    // second-order consequences (e.g. pushing):
-                    // else: if other_actor_id != group_id:
-            hits.push(at)
-            groups.push(actors)
-            group_ids[actor_id] = group_id
-
-    // animate actor movement, updating actor_locs if full
-    def move_actor(actor_id, full):
-        let id = actor_ids[actor_id]
-        let a = world.pos[id]
-        let t = targets[actor_id]
-        let d = t - a.cell()
-        let b = spatial {
-            x: a.x + float(d.x),
-            y: a.y + float(d.y),
-            z: a.z,
-            w: a.w,
-        }
-        anims.animate(id, movement_time) anim:
-            anim.blocking = true
-            anim.after(0): anim.pos = a
-            if full:
-                anim.after(1): anim.pos = b
-                actor_locs[actor_id] = b
-            else:
-                anim.after(1): anim.pos = lerp(a, b, 0.5)
-                anim.after(1): anim.pos = a
-
-    // resolve action groups
-    for(groups) actors, group_id:
-        let at = hits[group_id]
-        if actors.length() > 1:
-            for(actors): move_actor(_, false) // half-animate all conflicts
-        else: if at.length() > 0:
-            move_actor(actors[0], false) // half-animate hits
-        else:
-            move_actor(actors[0], true) // full animate unfettered move
+var world = new_chunk()
 
 class ui:
     paused      = false
@@ -787,6 +794,11 @@ class ui:
                 im_show_vars()
 
 do():
+    // TODO one for each visible chunk
+    // TODO support dynamic attach/detach
+    var scene = stacked_scene {}
+    world.systems.push(scene)
+
     let build = builder {
         shard: world,
     }
@@ -808,7 +820,7 @@ do():
     let ui = ui {}
     ui.run_forever():
         gl_clear(color_black)
-        anims.update(world, gl_delta_time())
+        world.update(gl_delta_time())
         let minc, maxc = scene.bounds(world)
         let space_size = float(maxc - minc + 1)
         let win_size   = float(gl_window_size())
@@ -820,8 +832,8 @@ do():
 
         // TODO draw player overlay
     step:
-        if not anims.blocked and play_reader.read_input():
-            step_world(play_reader.input)
+        if world.can_step() and play_reader.read_input():
+            world.step(): play_reader.action()
 
 def for_from(xs, i, body):
     while i < xs.length():
