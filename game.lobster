@@ -230,8 +230,6 @@ enum_flags anim_flags:
     anim_loop
 
 class anims : system
-    shard:shard
-
     blocked = false
     ids     = []::int
     flags   = []::anim_flags
@@ -242,7 +240,7 @@ class anims : system
     // TODO size animation
     // TODO animation of other spatial attributes as added, e.g. heading or other transforms
 
-    def update(update_dt:float):
+    def update(shard:shard, update_dt:float):
         let left = map(shard.type.length()): update_dt
 
         let resets = []::int
@@ -306,7 +304,7 @@ class anims : system
         as      = []
         bs      = []
 
-    def clear(id):
+    def clear(shard:shard, id):
         let prior, rest = ids.partition_indices(): _ == id
         if prior.length:
             let anim_id = prior[prior.length - 1]
@@ -344,7 +342,7 @@ class anim_scaffold:
     q_flags = []::anim_flags
     q_time  = []::float
 
-    def clear():   anims.clear(id)
+    def clear(shard): anims.clear(shard, id)
     def has_any(): return anims.has_any(id)
 
     def with(body):
@@ -676,7 +674,7 @@ var minds = minds {
     input: def(): play_reader.action(),
 }
 var bodys = bodys {}
-var anims = anims { shard: world.data }
+var anims = anims {}
 world.systems.push(minds)
 world.systems.push(bodys)
 
@@ -687,7 +685,7 @@ world.systems.push(scene)
 // TODO attach to world area
 def step_world(input:action):
     // clear all prior action animations
-    for(minds.ids): anims.clear(_) // TODO batch method
+    for(minds.ids): anims.clear(world.data, _) // TODO batch method
 
     // choose action intents
     let intents = minds.thoughts(world)
@@ -821,7 +819,7 @@ do():
     let ui = ui {}
     ui.run_forever():
         gl_clear(color_black)
-        anims.update(gl_delta_time())
+        anims.update(world.data, gl_delta_time())
         let minc, maxc = scene.bounds()
         let space_size = float(maxc - minc + 1)
         let win_size   = float(gl_window_size())
