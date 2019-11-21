@@ -698,5 +698,24 @@ let item_sprite_id = [
     127, // item_broom
 ]
 
+enum avatar_entity_id:
+    avatar_none
+
+    avatar_toadally_newtral // 🙂
+
+    avatar_cold // 🥶
+
+    avatar_hot // 🥵
+
+    avatar_poisoned // 🤢
+
+let avatar_sprite_id = [
+    -1, // avatar_none
+    128, // avatar_toadally_newtral
+    129, // avatar_cold
+    130, // avatar_hot
+    131, // avatar_poisoned
+]
+
 
 

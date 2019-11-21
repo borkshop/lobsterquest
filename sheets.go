@@ -85,6 +85,7 @@ def load_sheet():
 
 {{ template "sheet" .Tiles }}
 {{ template "sheet" .Items }}
+{{ template "sheet" .Avatars }}
 
 {{ define "sheet" }}{{ $sheet := . -}}
 
@@ -153,11 +154,13 @@ func main() {
 		ImageOut string
 		Tiles    *Sheet
 		Items    *Sheet
+		Avatars  *Sheet
 		Sprites  *Sprites
 	}{
 		outBase + ".png",
 		&tiles,
 		&items,
+		&avatars,
 		&sprites,
 	}); err != nil {
 		log.Fatalf("failed to write entity code: %v", err)
