@@ -158,11 +158,10 @@ def input_fun() -> action
 
 class mind:
     // TODO partial information sensed in, rather than direct world access
-    shard:shard
-    id:int
-    state:int = 0
+    id    : int
+    state : int = 0
 
-    def think():
+    def think(chunk):
         let m = state % 2
         let d = state / 2
         let x = m ^ d
@@ -173,7 +172,6 @@ class mind:
         else:            move_dir(xy {  0.0, -1.0 }) // up
 
 class minds : system
-    shard:shard
     input:input_fun
 
     ids   = []::int
@@ -183,7 +181,7 @@ class minds : system
     def enter(id, type):
         ids.push(id)
         types.push(type)
-        minds.push(mind { shard: shard, id: id })
+        minds.push(mind { id: id })
 
     def exit(id): while_first_index(ids, id) mind_id:
         ids.remove(mind_id, 1)
@@ -201,11 +199,11 @@ class minds : system
         types = []
         minds = []
 
-    def thoughts():
+    def thoughts(chunk):
         let input_fun = input
         return map(types) t, mind_id:
             if t & ent_input: input_fun()
-            else:             minds[mind_id].think()
+            else:             minds[mind_id].think(chunk)
 
 class bodys : system
     ids:[int] = []
@@ -675,7 +673,6 @@ let play_reader = button_action_reader {
 // TODO one for each face / level / etc
 var world = shard_system {}
 var minds = minds {
-    shard: world.data,
     input: def(): play_reader.action(),
 }
 var bodys = bodys {}
@@ -693,7 +690,7 @@ def step_world(input:action):
     for(minds.ids): anims.clear(_) // TODO batch method
 
     // choose action intents
-    let intents = minds.thoughts()
+    let intents = minds.thoughts(world)
 
     // subset of minds with intent
     let actor_mind_ids = filter_indices(minds.ids) id, mind_id:
