@@ -254,6 +254,7 @@ def draw_tween_color_grid(grid, next, prev, offset, palette, tween):
 class view:
     size: int
     neighborhoods:[[int]]
+    turns:[[int]]
     first_rule_color:color
     last_rule_color:color
 
@@ -295,18 +296,37 @@ class view:
         offset, func
     ):
         for_grid(xy_1i * size) point, i:
-            if ents[i + offset]:
-                let index = i + offset
+            let index = i + offset
+            if ents[index]:
                 let v1 = float(point)
                 let v2 = v1 + float(directions[index])
                 let a1 = float(headings[index]) * 90.0
                 let a2 = a1 + float(rotations[index]) * 90.0
                 func(index, v1, v2, a1, a2)
+        for(size) i:
+            for([
+                i, // north edge
+                size * (i + 1) - 1, // east edge
+                size * (size - 1) + i, // south edge
+                size * i, // west edge
+            ]) j, d:
+                let index = j + offset
+                let neighbor = neighborhoods[index][d]
+                if ents[neighbor]:
+                    let turn = turns[index][d]
+                    if directions[neighbor] == cardinal_directions[(6 + turn + d) % 4]:
+                        let d2 = cardinal_directions[d]
+                        let v2 = float(xy{ j % size, j / size })
+                        let v1 = v2 + float(d2)
+                        let a1 = float(headings[neighbor] - turn) * 90.0
+                        let a2 = a1 + float(rotations[neighbor]) * 90.0
+                        func(neighbor, v1, v2, a1, a2)
 
-def new_square_view(size, neighborhoods, first_rule_color, last_rule_color):
+def new_square_view(size, neighborhoods, turns, first_rule_color, last_rule_color):
     return view{
         size: size,
         neighborhoods: neighborhoods,
+        turns: turns,
         first_rule_color: first_rule_color,
         last_rule_color: last_rule_color,
     }

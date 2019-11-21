@@ -10,15 +10,15 @@ import sheets
 import topology
 
 let hz = 2
-let size = 4
+let size = 3
 let area = size * size
-let count = 6
+let count = 12
 let rules = [1, -1, 0]
 let neighborhoods, turns = new_daia_topology(size)
 let w = langton_new_world(neighborhoods, turns, count, rules)
 let first_rule_color = color{ 0.75, 0.75, 0.5, 1.0 }
 let last_rule_color = color{ 0.5, 0.3, 0.2, 1.0 }
-let v = langton_new_square_view(size, neighborhoods, first_rule_color, last_rule_color)
+let v = langton_new_square_view(size, neighborhoods, turns, first_rule_color, last_rule_color)
 
 w.tick()
 var start = gl_time()

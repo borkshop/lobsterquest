@@ -22,14 +22,14 @@ def center_unit_square():
 
 do():
     let hz = 1
-    let size = 10
-    let count = 10
+    let size = 3
+    let count = 1
     let rules = [1, -1, 0]
     let neighborhoods, turns = langton_new_round_square_topology(size)
     let w = langton_new_world(neighborhoods, turns, count, rules)
     let first_rule_color = color{ 0.75, 0.75, 0.5, 1.0 }
     let last_rule_color = color{ 0.5, 0.3, 0.2, 1.0 }
-    let v = langton_new_square_view(size, neighborhoods, first_rule_color, last_rule_color)
+    let v = langton_new_square_view(size, neighborhoods, turns, first_rule_color, last_rule_color)
 
     w.tick()
     var start = gl_time()
