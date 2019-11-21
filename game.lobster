@@ -172,8 +172,6 @@ class mind:
         else:            move_dir(xy {  0.0, -1.0 }) // up
 
 class minds : system
-    input:input_fun
-
     ids   = []::int
     types = []::entype
     minds = []::mind
@@ -199,10 +197,9 @@ class minds : system
         types = []
         minds = []
 
-    def thoughts(chunk):
-        let input_fun = input
+    def thoughts(chunk, input:input_fun):
         return map(types) t, mind_id:
-            if t & ent_input: input_fun()
+            if t & ent_input: input()
             else:             minds[mind_id].think(chunk)
 
 class bodys : system
@@ -670,9 +667,7 @@ let play_reader = button_action_reader {
 
 // TODO one for each face / level / etc
 var world = shard_system {}
-var minds = minds {
-    input: def(): play_reader.action(),
-}
+var minds = minds {}
 var bodys = bodys {}
 var anims = anims {}
 world.systems.push(minds)
@@ -688,7 +683,7 @@ def step_world(input:action):
     for(minds.ids): anims.clear(world.data, _) // TODO batch method
 
     // choose action intents
-    let intents = minds.thoughts(world)
+    let intents = minds.thoughts(world): play_reader.action()
 
     // subset of minds with intent
     let actor_mind_ids = filter_indices(minds.ids) id, mind_id:
