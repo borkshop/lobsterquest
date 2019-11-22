@@ -4,6 +4,8 @@
 
 package main
 
+//go:generate go run sheets.go
+
 import (
 	"bufio"
 	"flag"
