@@ -5,12 +5,12 @@ import vec
 var sheet_sprites = []::resource
 
 def load_sheet():
-    sheet_sprites = load_sprites("sheets.png", 72, xy { 12, 11 }, 132)
+    sheet_sprites = load_sprites("sheets.png", 72, xy { 12, 12 }, 144)
 
 enum avatar_entity_id:
     avatar_none
 
-    avatar_toadally_newtral // 🙂
+    avatar_content // 🙂
 
     avatar_cold // 🥶
 
@@ -18,12 +18,51 @@ enum avatar_entity_id:
 
     avatar_poisoned // 🤢
 
+    avatar_injured // 🤕
+
+    avatar_swimming // 🏊‍♀️
+
+    avatar_climbing // 🧗‍♀️
+
+    avatar_boating // 🚣‍♀️
+
+    avatar_woozy // 🥴
+
+    avatar_dizzy // 😵
+
+    avatar_mindblown // 🤯
+
+    avatar_confused // 😕
+
+    avatar_worried // 😟
+
+    avatar_perservering // 😣
+
+    avatar_weary // 😩
+
+    avatar_anxious // 😰
+
+    avatar_rocket // 🚀
+
 let avatar_sprite_id = [
     -1, // avatar_none
-    0, // avatar_toadally_newtral
+    0, // avatar_content
     1, // avatar_cold
     2, // avatar_hot
     3, // avatar_poisoned
+    4, // avatar_injured
+    5, // avatar_swimming
+    6, // avatar_climbing
+    7, // avatar_boating
+    8, // avatar_woozy
+    9, // avatar_dizzy
+    10, // avatar_mindblown
+    11, // avatar_confused
+    12, // avatar_worried
+    13, // avatar_perservering
+    14, // avatar_weary
+    15, // avatar_anxious
+    16, // avatar_rocket
 ]
 
 
@@ -288,76 +327,76 @@ enum item_entity_id:
 
 let item_sprite_id = [
     -1, // item_none
-    4, // item_apple
-    5, // item_pine_apple
-    6, // item_pear
-    7, // item_hardwood
-    8, // item_softwood
-    9, // item_clover
-    10, // item_mutton
-    11, // item_yarn
-    12, // item_copper
-    13, // item_silver
-    14, // item_gold
-    15, // item_link
-    16, // item_bolt
-    17, // item_gear
-    18, // item_knife
-    19, // item_shovel
-    20, // item_wrench
-    21, // item_pick_axe
-    22, // item_bicycle
-    23, // item_hook
-    24, // item_hammer
-    25, // item_shield
-    26, // item_chain
-    27, // item_scissors
-    28, // item_hammer_and_pick
-    29, // item_hammer_and_wrench
-    30, // item_sword
-    31, // item_zweihander
-    32, // item_basket
-    33, // item_cart
-    34, // item_fishing_rod
-    35, // item_barrel
-    36, // item_knitting_needles
-    37, // item_canoe
-    38, // item_coat
-    39, // item_fleur
-    40, // item_trident
-    41, // item_water
-    42, // item_coconut
-    43, // item_banana
-    44, // item_date
-    45, // item_fish
-    46, // item_sand
-    47, // item_alembic
-    48, // item_turtle
-    49, // item_snail
-    50, // item_wind
-    51, // item_light_bulb
-    52, // item_lab_coat
-    53, // item_carrot
-    54, // item_rocket
-    55, // item_fuel
-    56, // item_cactus
-    57, // item_key_to_dysia
-    58, // item_loan
-    59, // item_fire
-    60, // item_power
-    61, // item_left_lune
-    62, // item_right_lune
-    63, // item_lune
-    64, // item_mojick
-    65, // item_mushroom
-    66, // item_cake
-    67, // item_horn
-    68, // item_unicorn
-    69, // item_bay_leaves
-    52, // item_invisibility_cloak
-    70, // item_pen
-    71, // item_needle
-    72, // item_broom
+    17, // item_apple
+    18, // item_pine_apple
+    19, // item_pear
+    20, // item_hardwood
+    21, // item_softwood
+    22, // item_clover
+    23, // item_mutton
+    24, // item_yarn
+    25, // item_copper
+    26, // item_silver
+    27, // item_gold
+    28, // item_link
+    29, // item_bolt
+    30, // item_gear
+    31, // item_knife
+    32, // item_shovel
+    33, // item_wrench
+    34, // item_pick_axe
+    35, // item_bicycle
+    36, // item_hook
+    37, // item_hammer
+    38, // item_shield
+    39, // item_chain
+    40, // item_scissors
+    41, // item_hammer_and_pick
+    42, // item_hammer_and_wrench
+    43, // item_sword
+    44, // item_zweihander
+    45, // item_basket
+    46, // item_cart
+    47, // item_fishing_rod
+    48, // item_barrel
+    49, // item_knitting_needles
+    50, // item_canoe
+    51, // item_coat
+    52, // item_fleur
+    53, // item_trident
+    54, // item_water
+    55, // item_coconut
+    56, // item_banana
+    57, // item_date
+    58, // item_fish
+    59, // item_sand
+    60, // item_alembic
+    61, // item_turtle
+    62, // item_snail
+    63, // item_wind
+    64, // item_light_bulb
+    65, // item_lab_coat
+    66, // item_carrot
+    16, // item_rocket
+    67, // item_fuel
+    68, // item_cactus
+    69, // item_key_to_dysia
+    70, // item_loan
+    71, // item_fire
+    72, // item_power
+    73, // item_left_lune
+    74, // item_right_lune
+    75, // item_lune
+    76, // item_mojick
+    77, // item_mushroom
+    78, // item_cake
+    79, // item_horn
+    80, // item_unicorn
+    81, // item_bay_leaves
+    65, // item_invisibility_cloak
+    82, // item_pen
+    83, // item_needle
+    84, // item_broom
 ]
 
 
@@ -697,88 +736,88 @@ enum tile_entity_id:
 
 let tile_sprite_id = [
     -1, // tile_none
-    73, // tile_euia
-    7, // tile_apple_tree
-    8, // tile_pine_tree
-    7, // tile_pear_tree
-    9, // tile_clover
-    74, // tile_ewe
-    75, // tile_ram
-    76, // tile_castle
-    77, // tile_euia_bank
-    78, // tile_euia_forge
-    45, // tile_glub
-    79, // tile_major
-    80, // tile_captain
-    81, // tile_miner
-    82, // tile_harriet
-    83, // tile_jack
-    84, // tile_boulder
-    84, // tile_mountain
-    85, // tile_horse
-    68, // tile_unicorn
-    73, // tile_occia
-    86, // tile_mermaid
-    87, // tile_herman
-    88, // tile_merman
-    89, // tile_marco
-    90, // tile_octopus
-    45, // tile_fish
-    91, // tile_puffer_fish
-    48, // tile_turtle
-    46, // tile_island
-    92, // tile_date_palm_tree
-    92, // tile_banana_tree
-    92, // tile_coconut_tree
-    93, // tile_sponge
-    94, // tile_parrot
-    77, // tile_occia_bank
-    73, // tile_borea
-    95, // tile_steamer
-    96, // tile_north_pole
-    8, // tile_unlit_tree
-    97, // tile_lit_tree
-    98, // tile_bear
-    73, // tile_polar_bear
-    99, // tile_abdominal_snowman
-    100, // tile_abominable_snowman
-    101, // tile_caribou
-    102, // tile_whale
-    103, // tile_sal_the_snake
-    104, // tile_sal_the_mander
-    73, // tile_infernia
-    105, // tile_cheese_wizard
-    106, // tile_sand_witch
-    107, // tile_south_pole
-    73, // tile_oria
-    108, // tile_jennie
-    109, // tile_gene
-    56, // tile_cactus
-    110, // tile_bamboo
-    111, // tile_panda
-    73, // tile_dysia
-    112, // tile_sun
-    113, // tile_sol
-    114, // tile_moon
-    63, // tile_lune
-    115, // tile_asteroid
-    116, // tile_dumbledore
-    117, // tile_high_mountain
-    118, // tile_volcano
-    119, // tile_gym
-    120, // tile_observatory
-    121, // tile_justin
-    122, // tile_nick
-    78, // tile_bakery
-    123, // tile_plumber
-    124, // tile_genome
-    125, // tile_pat
-    83, // tile_kris_and_lydia
-    126, // tile_kitty
-    127, // tile_tiger
-    128, // tile_infernia_warning_sign
-    129, // tile_asia
-    130, // tile_africa
-    131, // tile_america
+    85, // tile_euia
+    20, // tile_apple_tree
+    21, // tile_pine_tree
+    20, // tile_pear_tree
+    22, // tile_clover
+    86, // tile_ewe
+    87, // tile_ram
+    88, // tile_castle
+    89, // tile_euia_bank
+    90, // tile_euia_forge
+    58, // tile_glub
+    91, // tile_major
+    92, // tile_captain
+    93, // tile_miner
+    94, // tile_harriet
+    95, // tile_jack
+    96, // tile_boulder
+    96, // tile_mountain
+    97, // tile_horse
+    80, // tile_unicorn
+    85, // tile_occia
+    98, // tile_mermaid
+    99, // tile_herman
+    100, // tile_merman
+    101, // tile_marco
+    102, // tile_octopus
+    58, // tile_fish
+    103, // tile_puffer_fish
+    61, // tile_turtle
+    59, // tile_island
+    104, // tile_date_palm_tree
+    104, // tile_banana_tree
+    104, // tile_coconut_tree
+    105, // tile_sponge
+    106, // tile_parrot
+    89, // tile_occia_bank
+    85, // tile_borea
+    107, // tile_steamer
+    108, // tile_north_pole
+    21, // tile_unlit_tree
+    109, // tile_lit_tree
+    110, // tile_bear
+    85, // tile_polar_bear
+    111, // tile_abdominal_snowman
+    112, // tile_abominable_snowman
+    113, // tile_caribou
+    114, // tile_whale
+    115, // tile_sal_the_snake
+    116, // tile_sal_the_mander
+    85, // tile_infernia
+    117, // tile_cheese_wizard
+    118, // tile_sand_witch
+    119, // tile_south_pole
+    85, // tile_oria
+    120, // tile_jennie
+    121, // tile_gene
+    68, // tile_cactus
+    122, // tile_bamboo
+    123, // tile_panda
+    85, // tile_dysia
+    124, // tile_sun
+    125, // tile_sol
+    126, // tile_moon
+    75, // tile_lune
+    127, // tile_asteroid
+    128, // tile_dumbledore
+    129, // tile_high_mountain
+    130, // tile_volcano
+    131, // tile_gym
+    132, // tile_observatory
+    133, // tile_justin
+    134, // tile_nick
+    90, // tile_bakery
+    135, // tile_plumber
+    136, // tile_genome
+    137, // tile_pat
+    95, // tile_kris_and_lydia
+    138, // tile_kitty
+    139, // tile_tiger
+    140, // tile_infernia_warning_sign
+    141, // tile_asia
+    142, // tile_africa
+    143, // tile_america
 ]
 
