@@ -8,6 +8,7 @@ import std
 import sprites
 import sheets
 import topology
+import brand
 
 let hz = 2
 let size = 3
@@ -16,8 +17,8 @@ let count = 12
 let rules = [1, -1, 0]
 let neighborhoods, turns = new_daia_topology(size)
 let w = langton_new_world(neighborhoods, turns, count, rules)
-let first_rule_color = color{ 0.75, 0.75, 0.5, 1.0 }
-let last_rule_color = color{ 0.5, 0.3, 0.2, 1.0 }
+let first_rule_color = light_brown
+let last_rule_color = dark_green
 let v = langton_new_square_view(size, neighborhoods, turns, first_rule_color, last_rule_color)
 
 w.tick()
@@ -78,7 +79,5 @@ while gl_frame() and gl_button("escape") != -1:
 
     camera_GPS_update("w", "a", "s", "d", 2.0, 4.0, 4.0)
     camera_FPS_view()
-
-    gl_light(camera_position, xy { 128.0, 0.2 })
 
     cube_draw(face_meshes, map(6): color_white, face_textures)
