@@ -17,7 +17,7 @@ let count = 12
 let rules = [1, -1, 0]
 let neighborhoods, turns = new_daia_topology(size)
 let w = langton_new_world(neighborhoods, turns, count, rules)
-let first_rule_color = light_brown
+let first_rule_color = dark_brown
 let last_rule_color = dark_green
 let v = langton_new_square_view(size, neighborhoods, turns, first_rule_color, last_rule_color)
 
