@@ -7,9 +7,9 @@ import sheets
 
 fatal(gl_window("Langton\'s Ents", 512, 512, 0))
 
-load_sheet()
+let sheet_sprites = load_sheet_sprites()
 
-let tex = sheet_sprites[tile_sprite_id[tile_pine_tree]]
+let tex = sheet_sprites.tile_texture(tile_sprite_id[tile_pine_tree])
 assert tex
 
 // center_unit_square projects a unit square coordinate system over

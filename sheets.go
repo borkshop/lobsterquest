@@ -41,10 +41,10 @@ var sheetsTemplate = template.Must(template.New("sheetsTemplate").Funcs(tmplFunc
 import sprites
 import vec
 
-var sheet_sprites = []::resource
-
-def load_sheet():
-    sheet_sprites = load_sprites("{{ .ImageOut }}", {{ .Sprites.Resolution }}, xy { {{ .Sprites.Size.X }}, {{ .Sprites.Size.Y }} }, {{ .Sprites.Paths | len }})
+def load_sheet_sprites():
+    let tex = gl_load_texture("{{ .ImageOut }}")
+    assert tex
+    return sprite_new_atlas(tex, xy_1i * {{ .Sprites.Resolution }}, xy { {{ .Sprites.Size.X }}, {{ .Sprites.Size.Y }} })
 
 {{- range .Sheets }}{{ template "sheet" . }}
 {{ end }}

@@ -2,10 +2,10 @@
 import sprites
 import vec
 
-var sheet_sprites = []::resource
-
-def load_sheet():
-    sheet_sprites = load_sprites("sheets.png", 72, xy { 12, 12 }, 144)
+def load_sheet_sprites():
+    let tex = gl_load_texture("sheets.png")
+    assert tex
+    return sprite_new_atlas(tex, xy_1i * 72, xy { 12, 12 })
 
 enum avatar_entity_id:
     avatar_none

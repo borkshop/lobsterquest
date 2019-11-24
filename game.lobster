@@ -61,44 +61,22 @@ def while_first_index(xs, x, body):
 
 */
 
-let glyph_fonts = [
-    "data/fonts/US101/US101.TTF",
-    "data/fonts/Square/square.ttf",
-    "data/fonts/unifont.ttf",
-    "data/fonts/Twemoji/TwitterColorEmoji-SVGinOT.ttf",
-    "",
-]
+let glyph_atlases = []::tile_atlas
+
+def add_glyph_tile_atlas(atlas:tile_atlas):
+    let atlas_id = glyph_atlases.length()
+    glyph_atlases.push(atlas)
+    return atlas_id
+
+def add_glyph_font_atlas(font_name:string, res:xy_i, stretch:bool):
+    return add_glyph_tile_atlas(text_atlas { res, stretch, font_name })
 
 struct glyph:
-    mode:int
-    code:int
-    stretch:bool
+    mode : int
+    code : int
 
-    def draw(c:color):
-        if glyph_fonts[mode] != "":
-            let res = 72
-            gl_set_shader("color")
-            gl_color(c):
-                gl_set_font_name(glyph_fonts[mode])
-                gl_set_font_size(res)
-                let text = unicode_to_string([code])
-                let box = float(gl_text_size(text))
-                if stretch:
-                    gl_scale(xy { 1.0 / box.x, 1.0 / box.y }):
-                        gl_text(text)
-                else: if box.y > box.x:
-                    gl_scale(xy_1 * 1.0 / box.y):
-                        gl_translate(xy { box.x / 4, 0.0 }):
-                            gl_text(text)
-                else:
-                    gl_scale(xy_1 * 1.0 / box.x):
-                        gl_translate(xy { 0.0, box.y / 4 }):
-                            gl_text(text)
-        else:
-            gl_set_shader("textured")
-            gl_color(c):
-                gl_set_primitive_texture(0, sheet_sprites[code])
-                gl_unit_square()
+    def tile_texture():
+        return glyph_atlases[mode].tile_texture(code)
 
 struct render:
     bg   : color
@@ -111,7 +89,10 @@ struct render:
             gl_color(bg):
                 gl_unit_square()
         if glyf.code != 0:
-            glyf.draw(fg)
+            gl_set_shader("textured")
+            gl_set_primitive_texture(0, glyf.tile_texture())
+            gl_color(fg):
+                gl_unit_square()
 
 struct spatial : xyzw_f
     // x, y are location   : integer part is the cell, fraction part is sub-cell offset
@@ -516,7 +497,7 @@ class stacked_scene : system
     ids = []::int
     zs  = []::float
     // TODO maybe bucket-by-z rather than full sorting
-    // TODO maybe own and pre-compute all rendering data
+    // TODO pre-computed tile
 
     def enter(shard, id):
         let z = shard.pos[id].z
@@ -564,7 +545,7 @@ class stacked_scene : system
         gl_translate(float(-minc.xy) * side_size + view_rem / 2):
             for(ids) id:
                 // TODO precomputed translation
-                // TODO precomputed render and glyph drawing data
+                // TODO prerendered tile textures
                 let p = shard.pos[id]
                 let c = p.xy - p.w / 2
                 gl_translate(c * cell_size):
@@ -575,7 +556,7 @@ class ent_scaffold:
     type  : entype
     bg    = color_clear
     fg    = color_clear
-    glyph = glyph { 0, 0, false }
+    glyph = glyph { 0, 0 }
     z     = 0.0
     size  = 1.0
 
@@ -628,18 +609,35 @@ class builder:
 
 fatal(gl_window("Mojick PoC", 1024, 768))
 
-load_sheet()
+// TODO ever change sprite resolution?
 
-for(glyph_fonts) name, i: if name != "":
-    check(gl_set_font_name(name), "cannot load gl font [" + i + "]" + name)
+for([
+    "data/fonts/Square/square.ttf",
+    "data/fonts/Twemoji/TwitterColorEmoji-SVGinOT.ttf",
+    "data/fonts/US101/US101.TTF",
+    "data/fonts/unifont.ttf",
+]): check(gl_set_font_name(_), "cannot load gl font " + _)
 
-def ascii(code:int):    return glyph { 0, code, false }
-def sqascii(code:int):  return glyph { 1, code, true  }
-def unicode(code:int):  return glyph { 2, code, false }
-def uniblock(code:int): return glyph { 2, code, true  }
-def emoji(code:int):    return glyph { 3, code, false }
-def tile_sprite(id:tile_entity_id): return glyph { 4, tile_sprite_id[id], true  }
-def item_sprite(id:item_entity_id): return glyph { 4, item_sprite_id[id], true  }
+let sheet_sprites = load_sheet_sprites()
+
+let sheet_sprite_mode   = add_glyph_tile_atlas(sheet_sprites)
+let ascii_glyph_mode    = add_glyph_font_atlas("data/fonts/US101/US101.TTF",                       sheet_sprites.res, false)
+let sqascii_glyph_mode  = add_glyph_font_atlas("data/fonts/Square/square.ttf",                     sheet_sprites.res, true)
+let unicode_glyph_mode  = add_glyph_font_atlas("data/fonts/unifont.ttf",                           sheet_sprites.res, false)
+let uniblock_glyph_mode = add_glyph_font_atlas("data/fonts/unifont.ttf",                           sheet_sprites.res, true)
+let twemoji_glyph_mode  = add_glyph_font_atlas("data/fonts/Twemoji/TwitterColorEmoji-SVGinOT.ttf", sheet_sprites.res, false)
+
+def tile_sprite(id:tile_entity_id): return glyph { sheet_sprite_mode, tile_sprite_id[id] }
+def item_sprite(id:item_entity_id): return glyph { sheet_sprite_mode, item_sprite_id[id] }
+
+def font_string(mode:int, s:string) -> int: return glyph_atlases[mode].symbolicate(s)
+def font_rune(  mode:int, code:int) -> int: return font_string(mode, unicode_to_string([code]))
+
+def ascii(code:int):    return glyph { ascii_glyph_mode,    font_rune(ascii_glyph_mode,    code) }
+def sqascii(code:int):  return glyph { sqascii_glyph_mode,  font_rune(sqascii_glyph_mode,  code) }
+def unicode(code:int):  return glyph { unicode_glyph_mode,  font_rune(unicode_glyph_mode,  code) }
+def uniblock(code:int): return glyph { uniblock_glyph_mode, font_rune(uniblock_glyph_mode, code) }
+def twemoji(code:int):  return glyph { twemoji_glyph_mode,  font_rune(twemoji_glyph_mode,  code) }
 
 enum scaffold_index:
     floor_scaffold

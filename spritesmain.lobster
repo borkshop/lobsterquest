@@ -1,11 +1,10 @@
 import sheets
-import sheets
 import gui
 import texture
 
 fatal(gl_window("Such Sprites", 400, 400))
 
-load_sheet()
+let sheet_sprites = load_sheet_sprites()
 
 var last_input = gl_time()
 def read_input(body):
@@ -18,15 +17,14 @@ def read_input(body):
             last_input = gl_time()
 
 var sprite_id = 0
-var tex = sheet_sprites[sprite_id]
 
 gl_set_font_name("data/fonts/US101/US101.TTF")
 gl_set_font_size(10)
 
 while gl_frame() and gl_button("escape") != -1:
     read_input() d:
-        sprite_id = (sprite_id + d + sheet_sprites.length) % sheet_sprites.length
-        tex = sheet_sprites[sprite_id]
+        let n = sheet_sprites.size.x * sheet_sprites.size.y
+        sprite_id = (sprite_id + d + n) % n
         var s = "sprite_id:" + sprite_id
         for(tile_sprite_id) sid, id: if sid == sprite_id: s += " " + tile_entity_id(id)
         for(item_sprite_id) sid, id: if sid == sprite_id: s += " " + item_entity_id(id)
@@ -36,7 +34,7 @@ while gl_frame() and gl_button("escape") != -1:
 
     gl_clear(color{ 0.75, 0.75, 0.5, 1.0 })
     gl_set_shader("textured")
-    gl_set_primitive_texture(0, tex)
+    gl_set_primitive_texture(0, sheet_sprites.tile_texture(sprite_id))
     gl_color(color_white)
     gl_scale(if size.x > size.y:
         xy { size.y, size.y }
