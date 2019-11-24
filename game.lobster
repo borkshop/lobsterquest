@@ -651,7 +651,7 @@ enum scaffold_index:
     element_water
     element_fire
     element_air
-    wizard
+    player
 
 let scaffolds = []::ent_scaffold
 
@@ -725,8 +725,9 @@ scaffolds[char_scaffold].with():
     _.fg = color_cyan
     scaffolds.push(_)
 
-// wizard
+// player
 scaffolds[char_scaffold].with():
+    _.type = _.type | ent_input
     _.glyph = tile_sprite(tile_cheese_wizard)
     _.fg = color_white
     scaffolds.push(_)
@@ -774,8 +775,7 @@ def build_moji_grove(shard, build:builder, size):
             xy_f {  l, -l },
             xy_f { -l, -l },
         ]): build.create(shard, scaffolds[elements[_]])
-        build.create_with(shard, scaffolds[wizard]) player:
-            player.type = player.type | ent_input
+        build.create(shard, scaffolds[player])
 
 class button_action_reader:
     buttons:[string] = []
