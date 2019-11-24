@@ -141,6 +141,7 @@ class shard:
     type = []::entype
     pos  = []::spatial
     ren  = []::render
+    tex  = []::resource?
 
     systems = []::system
 
@@ -149,6 +150,7 @@ class shard:
         type.push(t)
         pos.push(p)
         ren.push(r)
+        tex.push(nil)
         notify_type(id, ent_none, t)
         return id
 
@@ -549,8 +551,16 @@ class stacked_scene : system
                 let p = shard.pos[id]
                 let c = p.xy - p.w / 2
                 gl_translate(c * cell_size):
-                    gl_scale(cell_size * p.w):
-                        shard.ren[id].draw()
+                    let size = cell_size * p.w
+                    gl_scale(size):
+                        let tex = shard.tex[id]
+                        if tex:
+                            gl_set_shader("textured")
+                            gl_set_primitive_texture(0, tex)
+                            gl_color(color_white):
+                                gl_unit_square()
+                        else:
+                            shard.ren[id].draw()
 
 class ent_scaffold:
     type  : entype
