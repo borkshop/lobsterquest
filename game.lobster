@@ -626,8 +626,11 @@ let unicode_glyph_mode  = add_glyph_font_atlas("data/fonts/unifont.ttf",        
 let uniblock_glyph_mode = add_glyph_font_atlas("data/fonts/unifont.ttf",                           sheet_sprites.res, true)
 let twemoji_glyph_mode  = add_glyph_font_atlas("data/fonts/Twemoji/TwitterColorEmoji-SVGinOT.ttf", sheet_sprites.res, false)
 
-def tile_sprite(id:tile_entity_id): return glyph { sheet_sprite_mode, tile_sprite_id[id] }
-def item_sprite(id:item_entity_id): return glyph { sheet_sprite_mode, item_sprite_id[id] }
+def sprite(id:int):                     return glyph { sheet_sprite_mode, id }
+def ui_sprite(id:ui_entity_id):         return sprite(    ui_sprite_id[id])
+def tile_sprite(id:tile_entity_id):     return sprite(  tile_sprite_id[id])
+def item_sprite(id:item_entity_id):     return sprite(  item_sprite_id[id])
+def avatar_sprite(id:avatar_entity_id): return sprite(avatar_sprite_id[id])
 
 def font_string(mode:int, s:string) -> int: return glyph_atlases[mode].symbolicate(s)
 def font_rune(  mode:int, code:int) -> int: return font_string(mode, unicode_to_string([code]))
