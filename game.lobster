@@ -93,13 +93,14 @@ struct glyph:
         return ""
 
     def draw(size:xy_f, c:color):
-        with_mode(c, size):
-            if font_name() != "":
-                with_transform(size):
-                    gl_text(text())
-            else:
-                gl_scale(size):
-                    gl_unit_square()
+        with_mode(size):
+            gl_color(c):
+                if font_name() != "":
+                    with_transform(size):
+                        gl_text(text())
+                else:
+                    gl_scale(size):
+                        gl_unit_square()
 
     def bounds(size:xy_f):
         if font_name() != "":
@@ -109,7 +110,7 @@ struct glyph:
         else:
             return xy { size.x, size.x }
 
-    def with_mode(c:color, size:xy_f, body):
+    def with_mode(size:xy_f, body):
         // TODO work with scene to group by mode
         gl_set_shader(glyph_shaders[mode])
         if font_name() != "":
@@ -117,10 +118,7 @@ struct glyph:
             gl_set_font_size(int(size.y))
         else:
             gl_set_primitive_texture(0, sheet_sprites[code])
-        if c != color_clear:
-            gl_color(c): body()
-        else:
-            body()
+        body()
 
     def with_transform(size:xy_f, body):
         // TODO work with scene to pre-compute these
