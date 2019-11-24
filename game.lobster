@@ -98,34 +98,21 @@ struct glyph:
             if font_name() != "":
                 gl_set_font_name(font_name())
                 gl_set_font_size(int(size.y))
-                with_transform(size):
-                    gl_text(text())
+                let box = clamp(float(gl_text_size(text())), xy_0, size)
+                if stretch:
+                    gl_scale(xyz_f {
+                        if box.x < size.x: size.x / box.x else: 1,
+                        if box.y < size.y: size.y / box.y else: 1,
+                        1,
+                    }):
+                        gl_text(text())
+                else:
+                    gl_translate((size - box) / 2):
+                        gl_text(text())
             else:
                 gl_set_primitive_texture(0, sheet_sprites[code])
                 gl_scale(size):
                     gl_unit_square()
-
-    def bounds(size:xy_f):
-        if font_name() != "":
-            return clamp(float(gl_text_size(text())), xy_0, size)
-        else: if size.x > size.y:
-            return xy { size.y, size.y }
-        else:
-            return xy { size.x, size.x }
-
-    def with_transform(size:xy_f, body):
-        // TODO work with scene to pre-compute these
-        let box = bounds(size)
-        if stretch:
-            gl_scale(xyz_f {
-                if box.x < size.x: size.x / box.x else: 1,
-                if box.y < size.y: size.y / box.y else: 1,
-                1,
-            }):
-                body()
-        else:
-            gl_translate((size - box) / 2):
-                body()
 
 struct render:
     bg:color
