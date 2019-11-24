@@ -114,12 +114,12 @@ struct render:
     fg   : color
     glyf : glyph
 
-    def draw(cell_size:xy_f, size:xy_f):
+    def draw():
         if bg != color_clear:
-            gl_color(bg): gl_scale(cell_size): gl_unit_square()
+            gl_color(bg):
+                gl_unit_square()
         if glyf.code != 0:
-            gl_scale(size):
-                glyf.draw(fg)
+            glyf.draw(fg)
 
 struct spatial : xyzw_f
     // x, y are location   : integer part is the cell, fraction part is sub-cell offset
@@ -576,7 +576,8 @@ class stacked_scene : system
                 let p = shard.pos[id]
                 let c = p.xy - p.w / 2
                 gl_translate(c * cell_size):
-                    shard.ren[id].draw(cell_size, cell_size * p.w)
+                    gl_scale(cell_size * p.w):
+                        shard.ren[id].draw()
 
 class ent_scaffold:
     type  : entype
