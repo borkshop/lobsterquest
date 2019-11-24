@@ -586,6 +586,13 @@ class builder:
 
 //// specialization
 
+fatal(gl_window("Mojick PoC", 1024, 768))
+
+load_sheet()
+
+for(glyph_fonts) name, i: if name != "":
+    check(gl_set_font_name(name), "cannot load gl font [" + i + "]" + name)
+
 enum scaffold_index:
     floor_scaffold
     object_scaffold
@@ -810,13 +817,6 @@ do():
         shard: world,
     }
     build_twemoji_grove(build, 12)
-
-    fatal(gl_window("Twemoji PoC", 1024, 768))
-
-    load_sheet()
-
-    for(glyph_fonts) name, i: if name != "":
-        check(gl_set_font_name(name), "cannot load gl font [" + i + "]" + name)
 
     // setup imgui for menu and debug overlay
     let im_font = "data/fonts/Inconsolata/Inconsolata-Bold.ttf"
