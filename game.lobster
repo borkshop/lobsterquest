@@ -72,24 +72,16 @@ let glyph_fonts = [
     "",
 ]
 
-let glyph_shaders = [
-    "color",
-    "color",
-    "color",
-    "color",
-    "textured",
-]
-
 struct glyph:
     mode:int
     code:int
     stretch:bool
 
     def draw(c:color):
-        let res = 72
-        gl_set_shader(glyph_shaders[mode])
-        gl_color(c):
-            if glyph_fonts[mode] != "":
+        if glyph_fonts[mode] != "":
+            let res = 72
+            gl_set_shader("color")
+            gl_color(c):
                 gl_set_font_name(glyph_fonts[mode])
                 gl_set_font_size(res)
                 let text = unicode_to_string([code])
@@ -105,7 +97,9 @@ struct glyph:
                     gl_scale(xy_1 * 1.0 / box.x):
                         gl_translate(xy { 0.0, box.y / 4 }):
                             gl_text(text)
-            else:
+        else:
+            gl_set_shader("textured")
+            gl_color(c):
                 gl_set_primitive_texture(0, sheet_sprites[code])
                 gl_unit_square()
 
@@ -116,6 +110,7 @@ struct render:
 
     def draw():
         if bg != color_clear:
+            gl_set_shader("color")
             gl_color(bg):
                 gl_unit_square()
         if glyf.code != 0:
