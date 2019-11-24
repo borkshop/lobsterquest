@@ -180,7 +180,7 @@ func loadSheet(filename string) (sheet Sheet, _ error) {
 	}
 
 	if sheet.EntityType != sheetName {
-		return sheet, warn("file sheet name and first header cell type name:%q mismatch", sheetName, sheet.EntityType)
+		return sheet, warn("file sheet name %q and first header cell type name %q mismatch", sheetName, sheet.EntityType)
 	}
 
 	if verbose {
@@ -573,7 +573,7 @@ func (sc *tsvScanner) Scan() bool {
 	}
 	fields := strings.Split(sc.Text(), "\t")
 
-	for i := len(fields)-1; i >= 0 && fields[i] == ""; i-- {
+	for i := len(fields) - 1; i >= 0 && fields[i] == ""; i-- {
 		fields = fields[:i]
 	}
 

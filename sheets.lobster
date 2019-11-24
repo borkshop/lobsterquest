@@ -5,7 +5,7 @@ import vec
 def load_sheet_sprites():
     let tex = gl_load_texture("sheets.png")
     assert tex
-    return sprite_new_atlas(tex, xy_1i * 72, xy { 12, 12 })
+    return sprite_new_atlas(tex, xy_1i * 72, xy { 13, 12 })
 
 enum avatar_entity_id:
     avatar_none
@@ -400,6 +400,47 @@ let item_sprite_id = [
 ]
 
 
+enum sprite_entity_id:
+    sprite_none
+
+    sprite_north // ⬆️
+
+    sprite_east // ➡️
+
+    sprite_south // ⬇️
+
+    sprite_west // ⬅️
+
+    sprite_rest // 💤
+
+    sprite_health // ❤️
+
+    sprite_stamina // 💛
+
+    sprite_cure // 💜
+
+    sprite_discard // 🚮
+
+    sprite_left // ✋
+
+    sprite_right // 🤚
+
+let sprite_sprite_id = [
+    -1, // sprite_none
+    85, // sprite_north
+    86, // sprite_east
+    87, // sprite_south
+    88, // sprite_west
+    89, // sprite_rest
+    90, // sprite_health
+    91, // sprite_stamina
+    92, // sprite_cure
+    93, // sprite_discard
+    94, // sprite_left
+    95, // sprite_right
+]
+
+
 enum tile_entity_id:
     tile_none
 
@@ -736,88 +777,88 @@ enum tile_entity_id:
 
 let tile_sprite_id = [
     -1, // tile_none
-    85, // tile_euia
+    96, // tile_euia
     20, // tile_apple_tree
     21, // tile_pine_tree
     20, // tile_pear_tree
     22, // tile_clover
-    86, // tile_ewe
-    87, // tile_ram
-    88, // tile_castle
-    89, // tile_euia_bank
-    90, // tile_euia_forge
+    97, // tile_ewe
+    98, // tile_ram
+    99, // tile_castle
+    100, // tile_euia_bank
+    101, // tile_euia_forge
     58, // tile_glub
-    91, // tile_major
-    92, // tile_captain
-    93, // tile_miner
-    94, // tile_harriet
-    95, // tile_jack
-    96, // tile_boulder
-    96, // tile_mountain
-    97, // tile_horse
+    102, // tile_major
+    103, // tile_captain
+    104, // tile_miner
+    105, // tile_harriet
+    106, // tile_jack
+    107, // tile_boulder
+    107, // tile_mountain
+    108, // tile_horse
     80, // tile_unicorn
-    85, // tile_occia
-    98, // tile_mermaid
-    99, // tile_herman
-    100, // tile_merman
-    101, // tile_marco
-    102, // tile_octopus
+    96, // tile_occia
+    109, // tile_mermaid
+    110, // tile_herman
+    111, // tile_merman
+    112, // tile_marco
+    113, // tile_octopus
     58, // tile_fish
-    103, // tile_puffer_fish
+    114, // tile_puffer_fish
     61, // tile_turtle
     59, // tile_island
-    104, // tile_date_palm_tree
-    104, // tile_banana_tree
-    104, // tile_coconut_tree
-    105, // tile_sponge
-    106, // tile_parrot
-    89, // tile_occia_bank
-    85, // tile_borea
-    107, // tile_steamer
-    108, // tile_north_pole
+    115, // tile_date_palm_tree
+    115, // tile_banana_tree
+    115, // tile_coconut_tree
+    116, // tile_sponge
+    117, // tile_parrot
+    100, // tile_occia_bank
+    96, // tile_borea
+    118, // tile_steamer
+    119, // tile_north_pole
     21, // tile_unlit_tree
-    109, // tile_lit_tree
-    110, // tile_bear
-    85, // tile_polar_bear
-    111, // tile_abdominal_snowman
-    112, // tile_abominable_snowman
-    113, // tile_caribou
-    114, // tile_whale
-    115, // tile_sal_the_snake
-    116, // tile_sal_the_mander
-    85, // tile_infernia
-    117, // tile_cheese_wizard
-    118, // tile_sand_witch
-    119, // tile_south_pole
-    85, // tile_oria
-    120, // tile_jennie
-    121, // tile_gene
+    120, // tile_lit_tree
+    121, // tile_bear
+    96, // tile_polar_bear
+    122, // tile_abdominal_snowman
+    123, // tile_abominable_snowman
+    124, // tile_caribou
+    125, // tile_whale
+    126, // tile_sal_the_snake
+    127, // tile_sal_the_mander
+    96, // tile_infernia
+    128, // tile_cheese_wizard
+    129, // tile_sand_witch
+    130, // tile_south_pole
+    96, // tile_oria
+    131, // tile_jennie
+    132, // tile_gene
     68, // tile_cactus
-    122, // tile_bamboo
-    123, // tile_panda
-    85, // tile_dysia
-    124, // tile_sun
-    125, // tile_sol
-    126, // tile_moon
+    133, // tile_bamboo
+    134, // tile_panda
+    96, // tile_dysia
+    135, // tile_sun
+    136, // tile_sol
+    137, // tile_moon
     75, // tile_lune
-    127, // tile_asteroid
-    128, // tile_dumbledore
-    129, // tile_high_mountain
-    130, // tile_volcano
-    131, // tile_gym
-    132, // tile_observatory
-    133, // tile_justin
-    134, // tile_nick
-    90, // tile_bakery
-    135, // tile_plumber
-    136, // tile_genome
-    137, // tile_pat
-    95, // tile_kris_and_lydia
-    138, // tile_kitty
-    139, // tile_tiger
-    140, // tile_infernia_warning_sign
-    141, // tile_asia
-    142, // tile_africa
-    143, // tile_america
+    138, // tile_asteroid
+    139, // tile_dumbledore
+    140, // tile_high_mountain
+    141, // tile_volcano
+    142, // tile_gym
+    143, // tile_observatory
+    144, // tile_justin
+    145, // tile_nick
+    101, // tile_bakery
+    146, // tile_plumber
+    147, // tile_genome
+    148, // tile_pat
+    106, // tile_kris_and_lydia
+    149, // tile_kitty
+    150, // tile_tiger
+    151, // tile_infernia_warning_sign
+    152, // tile_asia
+    153, // tile_africa
+    154, // tile_america
 ]
 
