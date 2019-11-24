@@ -33,9 +33,6 @@ def while_first_index(xs, x, body):
   - tracks progress and abilities, e.g. elemental essences, status of mojick
   - quest tracking
 
-- pivot all render data into an internally owned system in glyphs.lobster...
-- ...what even is shard then: type and position only?
-
 - spatial
   - super-cell entities
   - shape control
