@@ -572,14 +572,13 @@ class ent_scaffold:
         return shard.create(type, pos, ren)
 
 class builder:
-    shard:shard
     loc = xy_0
 
-    def create(es:ent_scaffold):
+    def create(shard, es:ent_scaffold):
         return es.create(shard, loc)
 
-    def create_with(es:ent_scaffold, body):
-        return this.create(es.with(body))
+    def create_with(shard, es:ent_scaffold, body):
+        return this.create(shard, es.with(body))
 
     def at(l:xy_f, body):
         let base = loc
@@ -732,7 +731,7 @@ scaffolds[char_scaffold].with():
     _.fg = color_white
     scaffolds.push(_)
 
-def build_moji_grove(build:builder, size):
+def build_moji_grove(shard, build:builder, size):
     let dirt = [
         floor_scaffold, floor_scaffold, dirt_1,
         floor_scaffold, floor_scaffold, dirt_2,
@@ -760,11 +759,11 @@ def build_moji_grove(build:builder, size):
     let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
     build.fill_rect(size) x, y:
-        build.create_with(scaffolds[dirt.rnd_pick()]) tile:
+        build.create_with(shard, scaffolds[dirt.rnd_pick()]) tile:
             tile.bg = floor_bg_base + floor_bg_variance * rnd_float()
             if tile.glyph.code != 0: tile.fg = tile.bg + floor_fg_lift
         if x == 0 || y == 0 || x == size-1 || y == size-1:
-            build.create_with(scaffolds[trees.rnd_pick()]) tree:
+            build.create_with(shard, scaffolds[trees.rnd_pick()]) tree:
                 tree.fg = tree_fg_base + tree_fg_variance * rnd_float()
     let mid = float(floor(size / 2))
     build.translate(xy_f { mid, mid }):
@@ -774,8 +773,8 @@ def build_moji_grove(build:builder, size):
             xy_f {  l,  l },
             xy_f {  l, -l },
             xy_f { -l, -l },
-        ]): build.create(scaffolds[elements[_]])
-        build.create_with(scaffolds[wizard]) player:
+        ]): build.create(shard, scaffolds[elements[_]])
+        build.create_with(shard, scaffolds[wizard]) player:
             player.type = player.type | ent_input
 
 class button_action_reader:
@@ -859,10 +858,8 @@ do():
     var scene = stacked_scene {}
     world.systems.push(scene)
 
-    let build = builder {
-        shard: world,
-    }
-    build_moji_grove(build, 12)
+    let build = builder {}
+    build_moji_grove(world, build, 12)
 
     // setup imgui for menu and debug overlay
     let im_font = "data/fonts/Inconsolata/Inconsolata-Bold.ttf"
