@@ -85,28 +85,29 @@ struct glyph:
     code:int
     stretch:bool
 
-    def draw(size:xy_f, c:color):
+    def draw(c:color):
+        let res = 72
         gl_set_shader(glyph_shaders[mode])
         gl_color(c):
             if glyph_fonts[mode] != "":
                 gl_set_font_name(glyph_fonts[mode])
-                gl_set_font_size(int(size.y))
+                gl_set_font_size(res)
                 let text = unicode_to_string([code])
-                let box = clamp(float(gl_text_size(text)), xy_0, size)
+                let box = float(gl_text_size(text))
                 if stretch:
-                    gl_scale(xyz_f {
-                        if box.x < size.x: size.x / box.x else: 1,
-                        if box.y < size.y: size.y / box.y else: 1,
-                        1,
-                    }):
+                    gl_scale(xy { 1.0 / box.x, 1.0 / box.y }):
                         gl_text(text)
+                else: if box.y > box.x:
+                    gl_scale(xy_1 * 1.0 / box.y):
+                        gl_translate(xy { box.x / 4, 0.0 }):
+                            gl_text(text)
                 else:
-                    gl_translate((size - box) / 2):
-                        gl_text(text)
+                    gl_scale(xy_1 * 1.0 / box.x):
+                        gl_translate(xy { 0.0, box.y / 4 }):
+                            gl_text(text)
             else:
                 gl_set_primitive_texture(0, sheet_sprites[code])
-                gl_scale(size):
-                    gl_unit_square()
+                gl_unit_square()
 
 struct render:
     bg:color
@@ -117,7 +118,8 @@ struct render:
         if bg != color_clear:
             gl_color(bg): gl_scale(cell_size): gl_unit_square()
         if ch.code != 0:
-            ch.draw(size, fg)
+            gl_scale(size):
+                ch.draw(fg)
 
 struct spatial : xyzw_f
     // x, y are location   : integer part is the cell, fraction part is sub-cell offset
