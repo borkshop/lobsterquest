@@ -85,30 +85,24 @@ struct glyph:
     code:int
     stretch:bool
 
-    def font_name(): return glyph_fonts[mode]
-
-    def text():
-        if font_name() != "":
-            return unicode_to_string([code])
-        return ""
-
     def draw(size:xy_f, c:color):
         gl_set_shader(glyph_shaders[mode])
         gl_color(c):
-            if font_name() != "":
-                gl_set_font_name(font_name())
+            if glyph_fonts[mode] != "":
+                gl_set_font_name(glyph_fonts[mode])
                 gl_set_font_size(int(size.y))
-                let box = clamp(float(gl_text_size(text())), xy_0, size)
+                let text = unicode_to_string([code])
+                let box = clamp(float(gl_text_size(text)), xy_0, size)
                 if stretch:
                     gl_scale(xyz_f {
                         if box.x < size.x: size.x / box.x else: 1,
                         if box.y < size.y: size.y / box.y else: 1,
                         1,
                     }):
-                        gl_text(text())
+                        gl_text(text)
                 else:
                     gl_translate((size - box) / 2):
-                        gl_text(text())
+                        gl_text(text)
             else:
                 gl_set_primitive_texture(0, sheet_sprites[code])
                 gl_scale(size):
