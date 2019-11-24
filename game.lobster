@@ -686,7 +686,7 @@ scaffolds[char_scaffold].with():
     _.fg = color_white
     scaffolds.push(_)
 
-def build_twemoji_grove(build:builder, size):
+def build_moji_grove(build:builder, size):
     let dirt = [
         floor_scaffold, floor_scaffold, dirt_1,
         floor_scaffold, floor_scaffold, dirt_2,
@@ -816,7 +816,7 @@ do():
     let build = builder {
         shard: world,
     }
-    build_twemoji_grove(build, 12)
+    build_moji_grove(build, 12)
 
     // setup imgui for menu and debug overlay
     let im_font = "data/fonts/Inconsolata/Inconsolata-Bold.ttf"
