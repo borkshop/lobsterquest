@@ -110,16 +110,16 @@ struct glyph:
                 gl_unit_square()
 
 struct render:
-    bg:color
-    fg:color
-    ch:glyph
+    bg   : color
+    fg   : color
+    glyf : glyph
 
     def draw(cell_size:xy_f, size:xy_f):
         if bg != color_clear:
             gl_color(bg): gl_scale(cell_size): gl_unit_square()
-        if ch.code != 0:
+        if glyf.code != 0:
             gl_scale(size):
-                ch.draw(fg)
+                glyf.draw(fg)
 
 struct spatial : xyzw_f
     // x, y are location   : integer part is the cell, fraction part is sub-cell offset
