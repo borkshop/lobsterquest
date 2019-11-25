@@ -86,12 +86,14 @@ class sprite_atlas : tile_atlas
 
     // TODO implement symbolicate, here or in a subclass
 
-def sprite_new_atlas(tex, res:xy_i, size:xy_i): return sprite_atlas {
-    size: size,
-    res:  res,
-    tex:  tex,
-    kash: map(size.x * size.y): nil, // TODO pre-kash
-}
+def sprite_new_atlas(tex, res:xy_i, size:xy_i):
+    let kash = map(size.x * size.y): nil // TODO pre-kash
+    return sprite_atlas {
+        size: size,
+        res:  res,
+        tex:  tex,
+        kash: kash,
+    }
 
 // similar to modules/util3d.lobster's, but different choices on API, and
 // without the rest of the "util3d" jungle.
