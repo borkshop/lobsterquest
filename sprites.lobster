@@ -53,6 +53,8 @@ class text_atlas : tile_atlas
         gl_color(c):
             let t = text[id]
             let box = float(gl_text_size(t))
+            if box.y == 0 or box.x == 0:
+                fatal_exit("empty box:" + box + " for codes:" + string_to_unicode(t) + " in font:" + font_name)
             if stretch:
                 gl_scale(float(res) / box):
                     gl_text(t)
