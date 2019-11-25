@@ -5,7 +5,7 @@ import vec
 class tile_atlas:
     res : xy_i
 
-    kash = []::resource?
+    kash = []::resource
 
     def symbolicate(s:string) -> int:
         fatal_exit("unimplemented: " + this + ".symbolicate()")
@@ -14,15 +14,12 @@ class tile_atlas:
     def draw_tile(id:int, c:color):
         fatal_exit("unimplemented: " + this + ".draw_tile()")
 
+    def render_tile(id:int, c:color) -> resource:
+        return sprite_render(xy_1i * res): draw_tile(id, c)
+
     def tile_texture(id:int) -> resource:
         assert id >= 0 and id < kash.length
-        var tile = kash[id]
-        if tile:
-            return tile
-        tile = sprite_render(xy_1i * res):
-            draw_tile(id, color_white)
-        kash[id] = tile
-        return tile
+        return kash[id]
 
 class text_atlas : tile_atlas
     stretch   : bool
@@ -35,7 +32,7 @@ class text_atlas : tile_atlas
 
     def symbolicate(s:string) -> int:
         if not text.length():
-            kash.push(nil)
+            kash.push(sprite_render(xy_1i * res): nil) // TODO error pattern?
             text.push("")
             biText.push("")
             ids.push(0)
@@ -43,8 +40,8 @@ class text_atlas : tile_atlas
         if n:
             return ids[i]
         let id = text.length()
-        kash.push(nil) // TODO pre-kash
         text.push(s)
+        kash.push(this.render_tile(id, color_white))
         biText.insert(i, s)
         ids.insert(i, id)
         return id
@@ -87,7 +84,15 @@ class sprite_atlas : tile_atlas
     // TODO implement symbolicate, here or in a subclass
 
 def sprite_new_atlas(tex, res:xy_i, size:xy_i):
-    let kash = map(size.x * size.y): nil // TODO pre-kash
+    let kash = map(size.x * size.y) id: sprite_render(res): if id != 0:
+        let i = id - 1
+        let at = xy { i % size.x, i / size.x }
+        gl_set_shader("textured")
+        gl_set_primitive_texture(0, tex)
+        gl_color(color_white):
+            gl_scale(float(res)):
+                gl_translate(-float(at)):
+                    gl_rect(float(size), 0)
     return sprite_atlas {
         size: size,
         res:  res,
