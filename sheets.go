@@ -361,7 +361,7 @@ type Sprites struct {
 func (sprites *Sprites) PathSprite(path string) int {
 	id, ok := sprites.PathID[path]
 	if !ok {
-		id = len(sprites.Paths)
+		id = len(sprites.Paths) + 1
 		if sprites.PathID == nil {
 			sprites.PathID = make(map[string]int)
 		}

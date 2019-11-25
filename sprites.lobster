@@ -73,7 +73,8 @@ class sprite_atlas : tile_atlas
     tex  : resource
 
     def coord(id:int):
-        return xy { id % size.x, id / size.x }
+        let i = id - 1
+        return xy { i % size.x, i / size.x }
 
     def draw_tile(id:int, c:color):
         gl_set_shader("textured")
