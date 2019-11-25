@@ -841,7 +841,7 @@ enum ui_entity_id:
 
     ui_cure_heart // 💜
 
-    ui_empty_heard // 🖤
+    ui_empty_heart // 🖤
 
     ui_discard // 🚮
 
@@ -869,7 +869,7 @@ let ui_sprite_id = [
     149, // ui_health_heart
     150, // ui_stamina_heart
     151, // ui_cure_heart
-    152, // ui_empty_heard
+    152, // ui_empty_heart
     153, // ui_discard
     154, // ui_left_hand
     155, // ui_right_hand
