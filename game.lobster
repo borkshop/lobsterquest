@@ -21,10 +21,6 @@ def while_first_index(xs, x, body):
 /* TODO
 - viewport control (zoom and pan)
 
-- bodys
-  - stats and statuses like hearts, stamina, duress, poisoned, etc
-  - graph-oriented components for item holding, equipment, etc
-
 - action
   - item usage: in hand, in cell, neighbor cell...
   - support resolving "far moves" ( affecting other than adjacent cell )
@@ -238,6 +234,103 @@ class bodys : system
     def ent_reset():
         ids = []
 
+class avatar:
+    state      = avatar_state_content
+    sprite_id  = 0
+    helf       = xy { 3, 3 } // ❤️
+    stam       = xy { 0, 0 } // 💛
+    left_hand  = item_none
+    right_hand = item_none
+    draw_test  = false
+    // TODO worn item
+    // TODO back item
+
+    def faces(each):
+        var i = 0
+        if sprite_id != 0:
+            each(sprite(sprite_id), i++)
+        if state == avatar_state_content:
+            each(avatar_sprite(avatar_state_entity_ids[0]), i++) // 🙂
+            return
+        for(avatar_state_entity_ids) aeid, j: if j:
+            let q_state = avatar_state(1 << (j - 1))
+            if state & q_state:
+                each(avatar_sprite(aeid), i++)
+
+    def hearts(each):
+        let e = ui_sprite(ui_empty_heart)
+        let h = ui_sprite(ui_health_heart)
+        let s = ui_sprite(ui_stamina_heart)
+        var i = 0
+        for(         helf.x): each(h, i++, 0)
+        for(helf.y - helf.x): each(e, i++, 0)
+        i = 0
+        for(         stam.x): each(h, i++, 1)
+        for(stam.y - stam.x): each(e, i++, 1)
+
+    def draw_tile():
+        let face = xy_1 * 2.0 / 3.0
+        let icon = xy_1 * 1.0 / 5.0
+        let hand = xy_1 * 1.0 / 3.0
+
+        gl_set_shader("textured")
+        def unit(glyf):
+            gl_set_primitive_texture(0, glyf.tile_texture())
+            gl_unit_square()
+        faces() moji, i:
+            if i == 0:
+                // face
+                gl_translate(xy_1 / 6): gl_scale(face):
+                    unit(moji)
+            else:
+                // status
+                gl_scale(icon):
+                    gl_translate(xy_f { 4 - (i - 1) / 3, (i - 1) % 3 }):
+                        unit(moji)
+
+        // hearts
+        hearts() heart, x, y:
+            gl_scale(icon):
+                gl_translate(xy_f { y, x }):
+                    unit(heart)
+
+        // hands
+        gl_scale(hand): gl_translate(xy_f { 0, 2 }):
+            unit(if left_hand: item_sprite(left_hand)
+                 else:         ui_sprite(ui_left_hand))
+        gl_scale(hand): gl_translate(xy_f { 2, 2 }):
+            unit(if right_hand: item_sprite(right_hand)
+                 else:          ui_sprite(ui_right_hand))
+
+class avatars : system
+    ids     = []::int
+    avatars = []::avatar
+
+    res = xy_i { 144, 144 }
+
+    def with(shard, id:int, body):
+        let n, avatar_id = ids.binary_search(id)
+        if not n:
+            let av = avatar {}
+            ids.insert(avatar_id, id)
+            avatars.insert(avatar_id, av)
+        else: assert n == 1
+        let av = avatars[avatar_id]
+        body(av)
+        shard.tex[id] = sprite_render(res):
+            gl_scale(float(res)):
+                av.draw_tile()
+
+    def clear(id:int):
+        let n, avatar_id = ids.binary_search(id)
+        if n:
+            ids.remove(avatar_id, n)
+            avatars.remove(avatar_id, n)
+
+    def ent_reset():
+        ids     = []
+        avatars = []
+
 enum_flags anim_flags:
     anim_base  = 0
     anim_block = 1
@@ -397,9 +490,10 @@ def animate(anims::anims, id:int, over:float, body):
     }.with(body)
 
 class chunk : shard
-    minds = minds {}
-    bodys = bodys {}
-    anims = anims {}
+    minds   = minds {}
+    bodys   = bodys {}
+    avatars = avatars {}
+    anims   = anims {}
 
     movement_time = 1.0 / 6
 
@@ -493,6 +587,7 @@ def new_chunk():
     let ch = chunk {}
     ch.systems.push(ch.minds)
     ch.systems.push(ch.bodys)
+    ch.systems.push(ch.avatars)
     return ch
 
 class stacked_scene : system
@@ -788,7 +883,14 @@ def build_moji_grove(shard, build:builder, size):
             xy_f {  l, -l },
             xy_f { -l, -l },
         ]): build.create(shard, scaffolds[elements[_]])
-        build.create(shard, scaffolds[player])
+        let player_id = build.create(shard, scaffolds[player])
+        shard.avatars.with(shard, player_id) avatar:
+            // avatar.draw_test = true
+            avatar.state = avatar_state_rocket | avatar_state_cold | avatar_state_hot | avatar_state_dizzy
+            avatar.helf = xy { 2, 3 }
+            avatar.stam = xy { 1, 2 }
+            avatar.left_hand = item_apple // 🍎
+            // avatar.right_hand = item_knife // 🔪
 
 class button_action_reader:
     buttons:[string] = []
