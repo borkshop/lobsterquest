@@ -67,7 +67,25 @@ enum {{ $sheet.EntityType }}_entity_id:
 {{-   end }}
 {{- end }}
 
-{{-    if $hasMoji }}
+{{- with $sheet.Meta.enum_flags }}
+{{-   $enum_name := (index . 0) }}
+
+enum_flags {{ $enum_name }}:
+    {{ $enum_name }}_{{ (index $sheet.Name 0) }} = 0
+    {{ $enum_name }}_{{ (index $sheet.Name 1) }} = 1
+{{-   range $id, $name := (slice $sheet.Name 2) }}
+    {{ $enum_name }}_{{ $name }}
+{{-   end }}
+
+let {{ $enum_name }}_entity_ids = [
+{{-   range $id, $name := $sheet.Name }}
+    {{ $sheet.EntityType }}_{{ $name }},
+{{-   end }}
+]
+
+{{- end }}
+
+{{- if $hasMoji }}
 
 let {{ $sheet.EntityType }}_sprite_id = [
     -1, // {{ $sheet.EntityType }}_none

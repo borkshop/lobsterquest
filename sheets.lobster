@@ -34,6 +34,35 @@ enum avatar_entity_id:
 
     avatar_woozy // 🥴
 
+enum_flags avatar_state:
+    avatar_state_content = 0
+    avatar_state_rocket = 1
+    avatar_state_boating
+    avatar_state_climbing
+    avatar_state_swimming
+    avatar_state_poisoned
+    avatar_state_injured
+    avatar_state_weary
+    avatar_state_cold
+    avatar_state_hot
+    avatar_state_dizzy
+    avatar_state_woozy
+
+let avatar_state_entity_ids = [
+    avatar_content,
+    avatar_rocket,
+    avatar_boating,
+    avatar_climbing,
+    avatar_swimming,
+    avatar_poisoned,
+    avatar_injured,
+    avatar_weary,
+    avatar_cold,
+    avatar_hot,
+    avatar_dizzy,
+    avatar_woozy,
+]
+
 let avatar_sprite_id = [
     -1, // avatar_none
     1, // avatar_content
