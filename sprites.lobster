@@ -96,7 +96,9 @@ def sprite_new_atlas(tex, res:xy_i, size:xy_i): return sprite_atlas {
 // similar to modules/util3d.lobster's, but different choices on API, and
 // without the rest of the "util3d" jungle.
 def sprite_render(size:xy_i, body):
-    let tex = gl_create_blank_texture(size, color_clear, 0)
+    return render_into(gl_create_blank_texture(size, color_clear, 0), body)
+
+def render_into(tex, body):
     assert gl_switch_to_framebuffer(tex, false, texture_format_none, nil, nil)
     body()
     assert gl_switch_to_framebuffer(nil)
