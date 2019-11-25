@@ -207,6 +207,7 @@ func loadSheet(filename string) (sheet Sheet, _ error) {
 type Sheet struct {
 	EntityType string
 	Fields     []string
+	Meta       map[string][]string
 	Name       []string
 	Info       []map[string]interface{}
 }
@@ -251,6 +252,13 @@ func (sheet *Sheet) Read(r io.Reader) error {
 		sheet.Fields = []string{}
 	}
 	sheet.Fields = append(sheet.Fields, fields...)
+
+	if len(sc.Meta) > 0 {
+		sheet.Meta = make(map[string][]string, len(sc.Meta))
+		for _, meta := range sc.Meta {
+			sheet.Meta[meta[0]] = meta[1:]
+		}
+	}
 
 	for sc.Expect(1) {
 		name, _ := sc.Field(0)
@@ -538,14 +546,20 @@ func newTSVScanner(r io.Reader) tsvScanner {
 	sc := tsvScanner{
 		Scanner: bufio.NewScanner(r),
 	}
-	if sc.Scan() {
-		sc.Header = sc.Fields
+	for sc.Scan() {
+		if len(sc.Fields) > 1 && sc.Fields[0] == "#meta" {
+			sc.Meta = append(sc.Meta, sc.Fields[1:])
+		} else {
+			sc.Header = sc.Fields
+			break
+		}
 	}
 	return sc
 }
 
 type tsvScanner struct {
 	*bufio.Scanner
+	Meta   [][]string
 	Header []string
 	Fields []string
 }
