@@ -110,4 +110,4 @@ def with_framebuffer(size:xy_i, fmt:texture_format, body):
     return tex
 
 def sprite_render(size:xy_i, body):
-    return with_framebuffer(size, texture_format_none, body)
+    return with_framebuffer(size, texture_format_nomipmap, body)
