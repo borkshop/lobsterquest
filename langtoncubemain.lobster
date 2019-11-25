@@ -2,7 +2,6 @@ import langton
 import vec
 import color
 import cube
-import util3d
 import texture
 import std
 import sprites
