@@ -311,8 +311,10 @@ func (sheet *Sheet) Read(r io.Reader) error {
 			info[flagsField] = flags
 		}
 		for i, field := range fields {
-			if val, defined := sc.Field(i + 1); defined {
-				info[field] = val
+			if field != "" {
+				if val, defined := sc.Field(i + 1); defined {
+					info[field] = val
+				}
 			}
 		}
 
