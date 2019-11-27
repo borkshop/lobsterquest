@@ -353,6 +353,15 @@ class anims : system
     // TODO size animation
     // TODO animation of other spatial attributes as added, e.g. heading or other transforms
 
+    def drop(live, dead): if dead.length:
+        ids     = map(live): ids[_]
+        flags   = map(live): flags[_]
+        blocked = flags.fold(false): if (_a | _b) & anim_block: true else: false
+        time    = map(live): time[_]
+        elapsed = map(live): elapsed[_]
+        as      = map(live): as[_]
+        bs      = map(live): bs[_]
+
     def update(shard:shard, update_dt:float):
         let left = map(shard.type.length()): update_dt
 
@@ -394,16 +403,7 @@ class anims : system
                 if resets.first_index(id) >= 0:
                     elapsed[anim_id] = 0
 
-        drop(live, dead)
-
-    def drop(live, dead): if dead.length:
-        ids     = map(live): ids[_]
-        flags   = map(live): flags[_]
-        blocked = flags.fold(false): if (_a | _b) & anim_block: true else: false
-        time    = map(live): time[_]
-        elapsed = map(live): elapsed[_]
-        as      = map(live): as[_]
-        bs      = map(live): bs[_]
+        this.drop(live, dead)
 
     def has_any(id):
         let anim_id = ids.first_index(id)
@@ -422,7 +422,7 @@ class anims : system
         if prior.length:
             let anim_id = prior[prior.length - 1]
             shard.pos[id] = bs[anim_id]
-        drop(rest, prior)
+        this.drop(rest, prior)
 
     def add(
         id : int,
