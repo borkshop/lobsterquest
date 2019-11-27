@@ -241,6 +241,7 @@ class bodys : system
         ids = []
 
 class avatar:
+    retex      = false
     state      = avatar_state_content
     moji       = glyph { 0, 0 }
     helf       = xy { 3, 3 } // ❤️
@@ -306,18 +307,27 @@ class avatars : system
 
     res = xy_i { 144, 144 }
 
-    def with(shard, id:int, body):
-        let n, avatar_id = ids.binary_search(id)
-        if not n:
-            let av = avatar {}
-            ids.insert(avatar_id, id)
-            avatars.insert(avatar_id, av)
-        else: assert n == 1
-        let av = avatars[avatar_id]
-        body(av)
+    def update_tex(shard, av, id):
         shard.tex[id] = sprite_render(res):
             gl_scale(float(res)):
                 av.draw_tile()
+        av.retex = false
+
+    def update_any(shard):
+        for(avatars) av, avatar_id: if av.retex:
+            update_tex(shard, av, ids[avatar_id])
+
+    def with(shard, id:int, body):
+        let n, avatar_id = ids.binary_search(id)
+        if not n:
+            ids.insert(avatar_id, id)
+            avatars.insert(avatar_id, avatar {
+                retex: true,
+            })
+        else: assert n == 1
+        let av = avatars[avatar_id]
+        body(av)
+        av.retex = true
 
     def clear(id:int):
         let n, avatar_id = ids.binary_search(id)
@@ -500,6 +510,7 @@ class chunk : shard
 
     def update(dt:float):
         anims.update(this, dt)
+        avatars.update_any(this)
 
     def step(input:input_fun):
         // clear all prior action animations
