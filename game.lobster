@@ -157,8 +157,9 @@ class shard:
 
     def set_type(id:int, t:entype):
         let old = type[id]
-        type[id] = t
-        notify_type(id, old, t)
+        if old != t:
+            type[id] = t
+            notify_type(id, old, t)
 
     def notify_type(id, old, new):
         for(systems):
