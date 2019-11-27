@@ -369,7 +369,7 @@ class anims : system
 
         // TODO maybe decompose loop into stages
         for(ids) id, anim_id:
-            def advance(dt):
+            def anims_advance(dt):
                 if dt <= 0:
                     return 0.0
 
@@ -391,7 +391,7 @@ class anims : system
 
                 elapsed[anim_id] = t
                 return dt - spent
-            left[id] = advance(left[id])
+            left[id] = anims_advance(left[id])
 
         // prune all expired animations (that aren't flagged to keep)
         let live, dead = elapsed.partition_indices() t, anim_id:
