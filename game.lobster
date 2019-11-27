@@ -716,7 +716,7 @@ class builder:
 
 //// specialization
 
-fatal(gl_window("Mojick PoC", 1024, 768))
+fatal(gl_window("Mojick PoC", 768, 768))
 
 // TODO ever change sprite resolution?
 
