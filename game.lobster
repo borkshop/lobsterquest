@@ -533,6 +533,11 @@ class chunk : shard
 
     movement_time = 1.0 / 6
 
+    actor_ids = []::int
+    actions   = []::action
+    actor_pos = []::spatial
+    targets   = []::xy_i
+
     def can_step():
         return !anims.blocked
 
@@ -540,32 +545,49 @@ class chunk : shard
         anims.update(this, dt)
         avatars.update_any(this)
 
-    def step(input:input_fun):
-        // clear all prior action animations
-        for(minds.ids): anims.clear(this, _) // TODO batch method
-
+    def choose_actions(input:input_fun):
         // choose action intents
         let intents = minds.thoughts(this, input)
 
         // subset of minds with intent
         let actor_mind_ids = filter_indices(minds.ids) id, mind_id:
             intents[mind_id].act != action_none
-        let actor_ids = map(actor_mind_ids): minds.ids[_]
-        let actions = filter(intents): _.act != action_none
+        actor_ids = map(actor_mind_ids): minds.ids[_]
+        actions = filter(intents): _.act != action_none
 
         // track current actor location
-        let actor_locs = map(actor_ids): pos[_]
-        def actor_loc(mind_id):
-            let n_minds, actor_id = actor_mind_ids.binary_search(mind_id)
-            if n_minds > 0:
-                return actor_locs[actor_id]
-            else:
-                let id = minds.ids[mind_id]
-                return pos[id]
+        actor_pos = map(actor_ids): pos[_]
 
         // compute action targets
-        let targets = map(actions) a, actor_id:
-            a.target(actor_locs[actor_id])
+        targets = map(actions) a, actor_id: a.target(actor_pos[actor_id])
+
+    def move_actor(actor_id, full):
+        // animate actor movement, updating actor_pos if full
+        let id = actor_ids[actor_id]
+        let a = pos[id]
+        let t = targets[actor_id]
+        let d = t - a.cell()
+        let b = spatial {
+            x: a.x + float(d.x),
+            y: a.y + float(d.y),
+            z: a.z,
+            w: a.w,
+        }
+        anims.animate(id, movement_time) anim:
+            anim.blocking = true
+            anim.after(0): anim.pos = a
+            if full:
+                anim.after(1): anim.pos = b
+                actor_pos[actor_id] = b
+            else:
+                anim.after(1): anim.pos = lerp(a, b, 0.5)
+                anim.after(1): anim.pos = a
+
+    def step(input:input_fun):
+        // clear all prior action animations
+        for(minds.ids): anims.clear(this, _) // TODO batch method
+
+        choose_actions(input)
 
         // compute hit bodies, grouping actions by shared interest
         let group_ids = map(targets): -1
@@ -588,37 +610,19 @@ class chunk : shard
                 groups.push(actors)
                 group_ids[actor_id] = group_id
 
-        // animate actor movement, updating actor_locs if full
-        def move_actor(actor_id, full):
-            let id = actor_ids[actor_id]
-            let a = pos[id]
-            let t = targets[actor_id]
-            let d = t - a.cell()
-            let b = spatial {
-                x: a.x + float(d.x),
-                y: a.y + float(d.y),
-                z: a.z,
-                w: a.w,
-            }
-            anims.animate(id, movement_time) anim:
-                anim.blocking = true
-                anim.after(0): anim.pos = a
-                if full:
-                    anim.after(1): anim.pos = b
-                    actor_locs[actor_id] = b
-                else:
-                    anim.after(1): anim.pos = lerp(a, b, 0.5)
-                    anim.after(1): anim.pos = a
-
         // resolve action groups
-        for(groups) actors, group_id:
-            let at = hits[group_id]
-            if actors.length() > 1:
-                for(actors): move_actor(_, false) // half-animate all conflicts
-            else: if at.length() > 0:
-                move_actor(actors[0], false) // half-animate hits
-            else:
-                move_actor(actors[0], true) // full animate unfettered move
+        for(groups) actors, group_id: resolve_action(actors, hits[group_id])
+
+    def resolve_action(actors, at):
+        if   actors.length > 1: congress(actors, at)
+        else: if at.length > 0: boop(actors[0], at)
+        else:                   move_actor(actors[0], true) // full move animation
+
+    def congress(actors, at):
+        for(actors): move_actor(_, false) // half-animate all conflicts
+
+    def boop(actor_id, at):
+        move_actor(actor_id, false) // half-animate hits
 
 def new_chunk():
     let ch = chunk {}
