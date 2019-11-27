@@ -264,6 +264,7 @@ class avatar:
     helf       = xy { 3, 3 } // ❤️
     stam       = xy { 0, 0 } // 💛
     initiative = 0
+    gives      = false
     left_hand  = item_none
     right_hand = item_none
     // TODO worn item
@@ -271,6 +272,21 @@ class avatar:
 
     show_hearts = false
     show_status = false
+
+    def offer() -> item_entity_id:
+        if not gives:
+            return item_none
+        if right_hand != item_none: return right_hand
+        if  left_hand != item_none: return left_hand
+        return item_none
+
+    def offer_taken():
+        if gives:
+            if right_hand != item_none:
+                right_hand = left_hand
+                left_hand = item_none
+            else: if  left_hand != item_none:
+                left_hand = item_none
 
     def take(id:item_entity_id) -> bool:
         if id == item_none:
@@ -760,7 +776,15 @@ class chunk : shard
     def interact(actor_id, other_id):
         avatars.with(this, actor_ids[actor_id]) av:
             avatars.with(this, other_id) other_av:
-                nil // TODO
+                // TODO could open all other offers as modal
+                let offered = other_av.offer()
+                if not offered:
+                    print("nothing offered")
+                else: if av.take(offered):
+                    other_av.offer_taken()
+                    print("took offered " + offered)
+                else:
+                    print("decline offered " + offered)
 
     def perform(id, act): avatars.with(this, id) av:
         switch act.act:
@@ -861,6 +885,7 @@ class ent_scaffold:
     avatar_helf       = xy_0i
     avatar_stam       = xy_0i
     avatar_initiative = 0
+    avatar_gives      = false
     avatar_left_hand  = item_none
     avatar_right_hand = item_none
 
@@ -892,6 +917,7 @@ class ent_scaffold:
             if avatar_helf.y     != 0:         av.helf       = avatar_helf
             if avatar_stam.y     != 0:         av.stam       = avatar_stam
             if avatar_initiative != 0:         av.initiative = avatar_initiative
+            if avatar_gives:                   av.gives      = avatar_gives
             if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
             if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
 
@@ -1038,6 +1064,7 @@ scaffolds[floor_scaffold].with():
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_clover)
     _.fg = color_dark_green
+    _.avatar_gives = true
     _.avatar_initiative = 3
     _.avatar_left_hand = item_clover
     _.avatar_right_hand = item_clover
@@ -1047,6 +1074,7 @@ scaffolds[char_scaffold].with():
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_water)
     _.fg = color_teal
+    _.avatar_gives = true
     _.avatar_initiative = 4
     _.avatar_left_hand = item_water
     _.avatar_right_hand = item_water
@@ -1056,6 +1084,7 @@ scaffolds[char_scaffold].with():
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_fire)
     _.fg = color_orange
+    _.avatar_gives = true
     _.avatar_initiative = 6
     _.avatar_left_hand = item_fire
     _.avatar_right_hand = item_fire
@@ -1065,6 +1094,7 @@ scaffolds[char_scaffold].with():
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_wind)
     _.fg = color_cyan
+    _.avatar_gives = true
     _.avatar_initiative = 5
     _.avatar_left_hand = item_wind
     _.avatar_right_hand = item_wind
