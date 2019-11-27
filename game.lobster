@@ -247,7 +247,6 @@ class avatar:
     stam       = xy { 0, 0 } // 💛
     left_hand  = item_none
     right_hand = item_none
-    draw_test  = false
     // TODO worn item
     // TODO back item
 
@@ -891,7 +890,6 @@ def build_moji_grove(shard, build:builder, size):
         ]): build.create(shard, scaffolds[elements[_]])
         let player_id = build.create(shard, scaffolds[player])
         shard.avatars.with(shard, player_id) avatar:
-            // avatar.draw_test = true
             avatar.state = avatar_state_rocket | avatar_state_cold | avatar_state_hot | avatar_state_dizzy
             avatar.helf = xy { 2, 3 }
             avatar.stam = xy { 1, 2 }
