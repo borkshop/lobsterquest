@@ -339,6 +339,7 @@ class avatars : system
             let show = if shard.type[id] & ent_input: true else: false
             ids.insert(avatar_id, id)
             avatars.insert(avatar_id, avatar {
+                moji:        shard.ren[id].glyf,
                 retex:       true,
                 show_hearts: show,
                 show_status: show,
