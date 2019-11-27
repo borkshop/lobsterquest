@@ -18,6 +18,11 @@ def while_first_index(xs, x, body):
             return
         body(i)
 
+def for_from(xs, i, body):
+    while i < xs.length():
+        body(xs[i], i)
+        i++
+
 /* TODO
 - viewport control (zoom and pan)
 
@@ -990,8 +995,3 @@ do():
     step:
         if world.can_step() and play_reader.read_input():
             world.step(): play_reader.action()
-
-def for_from(xs, i, body):
-    while i < xs.length():
-        body(xs[i], i)
-        i++
