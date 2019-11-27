@@ -108,6 +108,10 @@ let spatial_0 = spatial { 0, 0, 0, 0 }
 enum_flags actiontype:
     action_none = 0
     action_move = 1
+    action_hand_drop
+    action_hand_swap
+    action_hand_use
+    action_hand_combine
 
 struct action:
     act:actiontype
@@ -121,7 +125,8 @@ struct action:
 
 let action_0 = action { action_none, xy_0 }
 
-def move_dir(d:xy_f): return action { action_move, d }
+def move_dir(d:xy_f):   return action { action_move, d }
+def act(at:actiontype): return action { at, xy_0 }
 
 enum_flags entype:
     ent_none = 0    // free entity slot (if no other bits)
@@ -257,6 +262,39 @@ class avatar:
 
     show_hearts = false
     show_status = false
+
+    def drop() -> item_entity_id:
+        if right_hand != item_none:
+            let r = right_hand
+            right_hand = item_none
+            print("dropped right hand " + r)
+            return r
+        if left_hand != item_none:
+            let r = left_hand
+            left_hand = item_none
+            print("dropped left hand " + r)
+            return r
+        return item_none
+
+    def swap():
+        let tmp = right_hand
+        right_hand = left_hand
+        left_hand = tmp
+
+    def use_hand():
+        if right_hand != item_none:
+            print("TODO use " + right_hand) // TODO implement
+            return
+        if left_hand != item_none:
+            right_hand = left_hand
+            left_hand = item_none
+            print("use fault swap")
+            return
+
+    def combine_hands():
+        if right_hand == item_none: return
+        if  left_hand == item_none: return
+        print("TODO combine " + right_hand + " + " + left_hand) // TODO implement
 
     def faces(each):
         var i = 0
@@ -660,6 +698,10 @@ class chunk : shard
         switch act.act:
             case action_none:         print("???")
             case action_move:         print("rest...")
+            case action_hand_drop:    av.drop()
+            case action_hand_swap:    av.swap()
+            case action_hand_use:     av.use_hand()
+            case action_hand_combine: av.combine_hands()
 
 def new_chunk():
     let ch = chunk {}
@@ -1008,11 +1050,15 @@ class button_action_reader:
 let play_reader = button_action_reader {
     // arrow keys with "." to stay idiom
     buttons: [
-        "up",
-        "down",
-        "left",
-        "right",
-        ".",
+        "w",
+        "s",
+        "a",
+        "d",
+        "z",
+        "x",
+        "q",
+        "e",
+        "c",
     ],
     actions: [
         move_dir(xy {  0.0, -1.0 }),
@@ -1020,6 +1066,10 @@ let play_reader = button_action_reader {
         move_dir(xy { -1.0,  0.0 }),
         move_dir(xy {  1.0,  0.0 }),
         move_dir(xy_0),
+        act(action_hand_drop),
+        act(action_hand_swap),
+        act(action_hand_use),
+        act(action_hand_combine),
     ],
 }
 
