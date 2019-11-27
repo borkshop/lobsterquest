@@ -242,7 +242,7 @@ class bodys : system
 
 class avatar:
     state      = avatar_state_content
-    sprite_id  = 0
+    moji       = glyph { 0, 0 }
     helf       = xy { 3, 3 } // ❤️
     stam       = xy { 0, 0 } // 💛
     left_hand  = item_none
@@ -252,8 +252,8 @@ class avatar:
 
     def faces(each):
         var i = 0
-        if sprite_id != 0:
-            each(sprite(sprite_id), i++)
+        if moji.code != 0:
+            each(moji, i++)
         if state == avatar_state_content:
             each(avatar_sprite(avatar_state_entity_ids[0]), i++) // 🙂
             return
@@ -277,29 +277,22 @@ class avatar:
         let face = xy_1 * 2.0 / 3.0
         let icon = xy_1 * 1.0 / 5.0
         let hand = xy_1 * 1.0 / 3.0
-
         gl_set_shader("textured")
         def unit(glyf):
             gl_set_primitive_texture(0, glyf.tile_texture())
             gl_unit_square()
-        faces() moji, i:
+        faces() glyf, i:
             if i == 0:
-                // face
                 gl_translate(xy_1 / 6): gl_scale(face):
-                    unit(moji)
+                    unit(glyf)
             else:
-                // status
                 gl_scale(icon):
                     gl_translate(xy_f { 4 - (i - 1) / 3, (i - 1) % 3 }):
-                        unit(moji)
-
-        // hearts
+                        unit(glyf)
         hearts() heart, x, y:
             gl_scale(icon):
                 gl_translate(xy_f { y, x }):
                     unit(heart)
-
-        // hands
         gl_scale(hand): gl_translate(xy_f { 0, 2 }):
             unit(if left_hand: item_sprite(left_hand)
                  else:         ui_sprite(ui_left_hand))
