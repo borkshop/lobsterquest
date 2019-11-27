@@ -702,6 +702,11 @@ class ent_scaffold:
     z     = 0.0
     size  = 1.0
 
+    avatar_helf       = xy_0i
+    avatar_stam       = xy_0i
+    avatar_left_hand  = item_none
+    avatar_right_hand = item_none
+
     def with(body):
         let co = copy(this)
         body(co)
@@ -712,7 +717,15 @@ class ent_scaffold:
         let pos = spatial { loc.x, loc.y, z, size }
         let ren = render { bg, fg, glyph }
         let id = chunk.create(type, pos, ren)
+        set_ancillary(chunk, id)
         return id
+
+    def set_ancillary(chunk, id):
+        if type & ent_avatar: chunk.avatars.with(chunk, id) av:
+            if avatar_helf.y     != 0:         av.helf       = avatar_helf
+            if avatar_stam.y     != 0:         av.stam       = avatar_stam
+            if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
+            if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
 
 class builder:
     loc = xy_0
