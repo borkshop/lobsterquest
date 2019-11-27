@@ -637,9 +637,9 @@ class stacked_scene : system
                 maxc = max(maxc, c)
         return minc, maxc
 
-    def draw(shard, screen_size, dt):
-        shard.update(dt)
-        let minc, maxc = bounds(shard)
+    def draw(chunk, screen_size, dt):
+        chunk.update(dt)
+        let minc, maxc = bounds(chunk)
         let space_size = float(maxc - minc + 1)
         let side_size  = float(max(1, min(floor(screen_size / space_size))))
         let cell_size  = xy_f { side_size, side_size }
@@ -648,19 +648,19 @@ class stacked_scene : system
             for(ids) id:
                 // TODO precomputed translation
                 // TODO prerendered tile textures
-                let p = shard.pos[id]
+                let p = chunk.pos[id]
                 let c = p.xy - p.w / 2
                 gl_translate(c * cell_size):
                     let size = cell_size * p.w
                     gl_scale(size):
-                        let tex = shard.tex[id]
+                        let tex = chunk.tex[id]
                         if tex:
                             gl_set_shader("textured")
                             gl_set_primitive_texture(0, tex)
                             gl_color(color_white):
                                 gl_unit_square()
                         else:
-                            shard.ren[id].draw()
+                            chunk.ren[id].draw()
 
 class ent_scaffold:
     type  : entype
