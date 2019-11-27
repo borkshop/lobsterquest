@@ -130,6 +130,7 @@ enum_flags entype:
     ent_body        // has a collide-able body
     ent_mind        // participates in the action system
     ent_input       // receives player input
+    ent_avatar      // has avatar
 
 class system:
     def ent_reset():
@@ -321,22 +322,33 @@ class avatars : system
             update_tex(shard, av, ids[avatar_id])
 
     def with(shard, id:int, body):
+        shard.add_type(id, ent_avatar)
+        let n, avatar_id = ids.binary_search(id)
+        assert n
+        let av = avatars[avatar_id]
+        body(av)
+        av.retex = true
+
+    def enter(shard, id, type):
         let n, avatar_id = ids.binary_search(id)
         if not n:
             ids.insert(avatar_id, id)
             avatars.insert(avatar_id, avatar {
                 retex: true,
             })
-        else: assert n == 1
-        let av = avatars[avatar_id]
-        body(av)
-        av.retex = true
 
-    def clear(id:int):
+    def exit(shard, id):
         let n, avatar_id = ids.binary_search(id)
         if n:
             ids.remove(avatar_id, n)
             avatars.remove(avatar_id, n)
+            shard.tex[id] = nil
+
+    def ent_changed(shard, id:int, old:entype, new:entype):
+        if (old ^ new) & ent_avatar:
+            if       new & ent_avatar: this.enter(shard, id, new)
+            else: if old & ent_avatar: this.exit(shard, id)
+        return new
 
     def ent_reset():
         ids     = []
@@ -848,7 +860,7 @@ scaffolds[char_scaffold].with():
 
 // player
 scaffolds[char_scaffold].with():
-    _.type = _.type | ent_input
+    _.type = _.type | ent_input | ent_avatar
     _.glyph = tile_sprite(tile_cheese_wizard)
     _.fg = color_white
     scaffolds.push(_)
@@ -896,13 +908,7 @@ def build_moji_grove(shard, build:builder, size):
             xy_f {  l, -l },
             xy_f { -l, -l },
         ]): build.create(shard, scaffolds[elements[_]])
-        let player_id = build.create(shard, scaffolds[player])
-        shard.avatars.with(shard, player_id) avatar:
-            avatar.state = avatar_state_rocket | avatar_state_cold | avatar_state_hot | avatar_state_dizzy
-            avatar.helf = xy { 2, 3 }
-            avatar.stam = xy { 1, 2 }
-            avatar.left_hand = item_apple // 🍎
-            // avatar.right_hand = item_knife // 🔪
+        build.create(shard, scaffolds[player])
 
 class button_action_reader:
     buttons:[string] = []
