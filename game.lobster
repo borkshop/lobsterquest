@@ -622,7 +622,44 @@ class chunk : shard
         for(actors): move_actor(_, false) // half-animate all conflicts
 
     def boop(actor_id, at):
-        move_actor(actor_id, false) // half-animate hits
+        let t = type[actor_ids[actor_id]]
+        if t & ent_avatar: at = use(actor_id, at)
+        else:              move_actor(actor_id, false) // half-animate
+        return at
+
+    def use_one(actor_id, object_id) -> bool:
+        let id = actor_ids[actor_id]
+        let object_t = type[object_id]
+        var consumed = false
+        avatars.with(this, id) av:
+            print("shrug t:" + object_t)
+        return consumed
+
+    def use(actor_id, at):
+        at = at.filter() id:
+            if id == actor_ids[actor_id]:
+                perform(id, actions[actor_id])
+                true
+            else: if type[id] & ent_avatar:
+                interact(actor_id, id)
+                true
+            else:
+                !this.use_one(actor_id, id)
+        if at.length:
+            move_actor(actor_id, false) // half-animate
+        else:
+            move_actor(actor_id, true) // took, full-animate
+        return at
+
+    def interact(actor_id, other_id):
+        avatars.with(this, actor_ids[actor_id]) av:
+            avatars.with(this, other_id) other_av:
+                nil // TODO
+
+    def perform(id, act): avatars.with(this, id) av:
+        switch act.act:
+            case action_none:         print("???")
+            case action_move:         print("rest...")
 
 def new_chunk():
     let ch = chunk {}
