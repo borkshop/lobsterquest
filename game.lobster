@@ -1038,8 +1038,6 @@ scaffolds[char_scaffold].with():
 // player
 scaffolds[char_scaffold].with():
     _.type = _.type | ent_input
-    _.glyph = tile_sprite(tile_cheese_wizard)
-    _.fg = color_white
     scaffolds.push(_)
 
 def build_moji_grove(shard, build:builder, size):
