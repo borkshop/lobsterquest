@@ -684,11 +684,11 @@ class ent_scaffold:
 class builder:
     loc = xy_0
 
-    def create(shard, es:ent_scaffold):
-        return es.create(shard, loc)
+    def create(chunk, es:ent_scaffold):
+        return es.create(chunk, loc)
 
-    def create_with(shard, es:ent_scaffold, body):
-        return this.create(shard, es.with(body))
+    def create_with(chunk, es:ent_scaffold, body):
+        return this.create(chunk, es.with(body))
 
     def at(l:xy_f, body):
         let base = loc
