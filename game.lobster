@@ -263,6 +263,7 @@ class avatar:
     moji       = glyph { 0, 0 }
     helf       = xy { 3, 3 } // ❤️
     stam       = xy { 0, 0 } // 💛
+    initiative = 0
     left_hand  = item_none
     right_hand = item_none
     // TODO worn item
@@ -380,6 +381,10 @@ class avatars : system
     def update_any(shard):
         for(avatars) av, avatar_id: if av.retex:
             update_tex(shard, av, ids[avatar_id])
+
+    def get(id:int) -> avatar?:
+        let n, avatar_id = ids.binary_search(id)
+        return if n: avatars[avatar_id] else: nil
 
     def with(shard, id:int, body):
         shard.add_type(id, ent_avatar)
@@ -675,7 +680,31 @@ class chunk : shard
         else:                   move_actor(actors[0], true) // full move animation
 
     def congress(actors, at):
-        for(actors): move_actor(_, false) // half-animate all conflicts
+        let init     = []::int
+        let init_act = []::int
+        let rest     = []::int
+        for(actors) actor_id:
+            let id = actor_ids[actor_id]
+            if type[id] & ent_avatar:
+                let av = avatars.get(id)
+                assert av
+                let n, i = init.binary_search(av.initiative)
+                init.insert(i, av.initiative)
+                init_act.insert(i, actor_id)
+            else:
+                rest.push(actor_id)
+
+        // highest initiative first
+        reverse(init_act) actor_id:
+            let others = init_act.filter(): _ != actor_id
+            if at.length: at = boop(actor_id, at)
+            else:         shake(actor_id, others)
+
+        for(rest): move_actor(_, false) // half-animate all other non-avatar movers
+
+    def shake(actor_id, others):
+        for(others): interact(actor_id, actor_ids[_])
+        move_actor(actor_id, false) // half-animate
 
     def boop(actor_id, at):
         let t = type[actor_ids[actor_id]]
@@ -831,6 +860,7 @@ class ent_scaffold:
 
     avatar_helf       = xy_0i
     avatar_stam       = xy_0i
+    avatar_initiative = 0
     avatar_left_hand  = item_none
     avatar_right_hand = item_none
 
@@ -861,6 +891,7 @@ class ent_scaffold:
         if type & ent_avatar: chunk.avatars.with(chunk, id) av:
             if avatar_helf.y     != 0:         av.helf       = avatar_helf
             if avatar_stam.y     != 0:         av.stam       = avatar_stam
+            if avatar_initiative != 0:         av.initiative = avatar_initiative
             if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
             if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
 
@@ -1007,6 +1038,7 @@ scaffolds[floor_scaffold].with():
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_clover)
     _.fg = color_dark_green
+    _.avatar_initiative = 3
     _.avatar_left_hand = item_clover
     _.avatar_right_hand = item_clover
     scaffolds.push(_)
@@ -1015,6 +1047,7 @@ scaffolds[char_scaffold].with():
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_water)
     _.fg = color_teal
+    _.avatar_initiative = 4
     _.avatar_left_hand = item_water
     _.avatar_right_hand = item_water
     scaffolds.push(_)
@@ -1023,6 +1056,7 @@ scaffolds[char_scaffold].with():
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_fire)
     _.fg = color_orange
+    _.avatar_initiative = 6
     _.avatar_left_hand = item_fire
     _.avatar_right_hand = item_fire
     scaffolds.push(_)
@@ -1031,6 +1065,7 @@ scaffolds[char_scaffold].with():
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_wind)
     _.fg = color_cyan
+    _.avatar_initiative = 5
     _.avatar_left_hand = item_wind
     _.avatar_right_hand = item_wind
     scaffolds.push(_)
@@ -1038,6 +1073,7 @@ scaffolds[char_scaffold].with():
 // player
 scaffolds[char_scaffold].with():
     _.type = _.type | ent_input
+    _.avatar_initiative = 10
     scaffolds.push(_)
 
 def build_moji_grove(shard, build:builder, size):
