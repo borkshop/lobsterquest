@@ -830,7 +830,7 @@ scaffolds.push(ent_scaffold {
 
 // char_scaffold
 scaffolds.push(ent_scaffold {
-    type : ent_body | ent_mind | ent_visible,
+    type : ent_avatar | ent_body | ent_mind | ent_visible,
     z    : 1.0,
     size : 1.0,
 })
@@ -864,29 +864,37 @@ scaffolds[floor_scaffold].with():
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_clover)
     _.fg = color_dark_green
+    _.avatar_left_hand = item_clover
+    _.avatar_right_hand = item_clover
     scaffolds.push(_)
 
 // element_water
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_water)
     _.fg = color_teal
+    _.avatar_left_hand = item_water
+    _.avatar_right_hand = item_water
     scaffolds.push(_)
 
 // element_fire
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_fire)
     _.fg = color_orange
+    _.avatar_left_hand = item_fire
+    _.avatar_right_hand = item_fire
     scaffolds.push(_)
 
 // element_air
 scaffolds[char_scaffold].with():
     _.glyph = item_sprite(item_wind)
     _.fg = color_cyan
+    _.avatar_left_hand = item_wind
+    _.avatar_right_hand = item_wind
     scaffolds.push(_)
 
 // player
 scaffolds[char_scaffold].with():
-    _.type = _.type | ent_input | ent_avatar
+    _.type = _.type | ent_input
     _.glyph = tile_sprite(tile_cheese_wizard)
     _.fg = color_white
     scaffolds.push(_)
