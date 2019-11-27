@@ -675,11 +675,12 @@ class ent_scaffold:
         body(co)
         return co
 
-    def create(shard:shard, loc:xy_f):
+    def create(chunk:chunk, loc:xy_f):
         loc = loc + xy { 0.5, 0.5 }
         let pos = spatial { loc.x, loc.y, z, size }
         let ren = render { bg, fg, glyph }
-        return shard.create(type, pos, ren)
+        let id = chunk.create(type, pos, ren)
+        return id
 
 class builder:
     loc = xy_0
