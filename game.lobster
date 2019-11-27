@@ -255,6 +255,9 @@ class avatar:
     // TODO worn item
     // TODO back item
 
+    show_hearts = false
+    show_status = false
+
     def faces(each):
         var i = 0
         if moji.code != 0:
@@ -290,14 +293,15 @@ class avatar:
             if i == 0:
                 gl_translate(xy_1 / 6): gl_scale(face):
                     unit(glyf)
-            else:
+            else: if show_status:
                 gl_scale(icon):
                     gl_translate(xy_f { 4 - (i - 1) / 3, (i - 1) % 3 }):
                         unit(glyf)
-        hearts() heart, x, y:
-            gl_scale(icon):
-                gl_translate(xy_f { y, x }):
-                    unit(heart)
+        if show_hearts:
+            hearts() heart, x, y:
+                gl_scale(icon):
+                    gl_translate(xy_f { y, x }):
+                        unit(heart)
         gl_scale(hand): gl_translate(xy_f { 0, 2 }):
             unit(if left_hand: item_sprite(left_hand)
                  else:         ui_sprite(ui_left_hand))
@@ -332,9 +336,12 @@ class avatars : system
     def enter(shard, id, type):
         let n, avatar_id = ids.binary_search(id)
         if not n:
+            let show = if shard.type[id] & ent_input: true else: false
             ids.insert(avatar_id, id)
             avatars.insert(avatar_id, avatar {
-                retex: true,
+                retex:       true,
+                show_hearts: show,
+                show_status: show,
             })
 
     def exit(shard, id):
@@ -348,6 +355,11 @@ class avatars : system
         if (old ^ new) & ent_avatar:
             if       new & ent_avatar: this.enter(shard, id, new)
             else: if old & ent_avatar: this.exit(shard, id)
+        else: if (old ^ new) & ent_input:
+            let show = if new & ent_input: true else: false
+            with(shard, id) av:
+                av.show_hearts = show
+                av.show_status = show
         return new
 
     def ent_reset():
