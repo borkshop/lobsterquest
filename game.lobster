@@ -136,6 +136,8 @@ enum_flags entype:
     ent_mind        // participates in the action system
     ent_input       // receives player input
     ent_avatar      // has avatar
+    ent_gives       // offers items to be taken
+    ent_takeable    // item that can be taken
 
 class system:
     def ent_reset():
@@ -150,6 +152,10 @@ class shard:
     ren  = []::render
     tex  = []::resource?
 
+    // taken or given
+    item       = []::item_entity_id
+    item_count = []::int
+
     systems = []::system
 
     def create(t:entype, p:spatial, r:render):
@@ -158,6 +164,8 @@ class shard:
         pos.push(p)
         ren.push(r)
         tex.push(nil)
+        item.push(item_none)
+        item_count.push(0)
         notify_type(id, ent_none, t)
         return id
 
@@ -262,6 +270,16 @@ class avatar:
 
     show_hearts = false
     show_status = false
+
+    def take(id:item_entity_id) -> bool:
+        if id == item_none:
+            return false
+        if right_hand != item_none:
+            if left_hand != item_none:
+                return false
+            left_hand = right_hand
+        right_hand = id
+        return true
 
     def drop() -> item_entity_id:
         if right_hand != item_none:
@@ -670,7 +688,28 @@ class chunk : shard
         let object_t = type[object_id]
         var consumed = false
         avatars.with(this, id) av:
-            print("shrug t:" + object_t)
+            if object_t & ent_gives:
+                var n = item_count[object_id]
+                if n != 0: if av.take(item[object_id]):
+                    if --n == 0:
+                        this.set_type(object_id, ent_none)
+                        print("take given " + item[object_id])
+                        consumed = true
+                else:
+                    print("pass given " + item[object_id])
+
+            else: if object_t & ent_takeable:
+                if av.take(item[object_id]):
+                    this.set_type(object_id, ent_none)
+                    print("take " + item[object_id])
+                    consumed = true
+                else:
+                    print("pass " + item[object_id])
+
+            else:
+                // TODO avatar state (hand items) X object
+                print("shrug t:" + object_t + " item:" + item[object_id])
+
         return consumed
 
     def use(actor_id, at):
@@ -785,6 +824,11 @@ class ent_scaffold:
     z     = 0.0
     size  = 1.0
 
+    item       = item_none
+    item_take  = false
+    item_give  = false
+    item_count = 0
+
     avatar_helf       = xy_0i
     avatar_stam       = xy_0i
     avatar_left_hand  = item_none
@@ -795,15 +839,25 @@ class ent_scaffold:
         body(co)
         return co
 
+    def make_type() -> entype:
+        var t = type
+        if item != item_none:
+            if item_take: t = t | ent_takeable
+            if item_give: t = t | ent_gives
+        return t
+
     def create(chunk:chunk, loc:xy_f):
         loc = loc + xy { 0.5, 0.5 }
         let pos = spatial { loc.x, loc.y, z, size }
         let ren = render { bg, fg, glyph }
-        let id = chunk.create(type, pos, ren)
+        let id = chunk.create(make_type(), pos, ren)
         set_ancillary(chunk, id)
         return id
 
     def set_ancillary(chunk, id):
+        if item != item_none:
+            chunk.item[id]       = item
+            chunk.item_count[id] = item_count
         if type & ent_avatar: chunk.avatars.with(chunk, id) av:
             if avatar_helf.y     != 0:         av.helf       = avatar_helf
             if avatar_stam.y     != 0:         av.stam       = avatar_stam
@@ -921,11 +975,17 @@ scaffolds.push(ent_scaffold {
 // tree_evergreen
 scaffolds[object_scaffold].with():
     _.glyph = tile_sprite(tile_pine_tree)
+    _.item       = item_pine_apple
+    _.item_give  = true
+    _.item_count = -1
     scaffolds.push(_)
 
 // tree_deciduous
 scaffolds[object_scaffold].with():
     _.glyph = tile_sprite(tile_apple_tree)
+    _.item       = item_apple
+    _.item_give  = true
+    _.item_count = -1
     scaffolds.push(_)
 
 // dirt_1
