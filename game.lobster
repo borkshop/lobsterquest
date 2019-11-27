@@ -934,9 +934,6 @@ let play_reader = button_action_reader {
     ],
 }
 
-// TODO one for each face / level / etc
-var world = new_chunk()
-
 class ui:
     paused      = false
     show_menu   = false
@@ -944,34 +941,45 @@ class ui:
     show_editor = false
     build_size  = 13
 
-    def run_forever(draw, step):
-        while gl_frame(): im_frame():
-            if gl_button("escape") == 1:
-                show_menu = !show_menu
-                paused = show_menu
-            if not paused:
-                step()
-            draw()
+    def run_forever(draw, step, edit):
+        var done = false
+        forever():
+            if done: return
 
-            if show_menu: im_window("Menu", im_window_always_autoresize):
-                im_button("Hide Menu"):
-                    show_menu = false
-                    paused = false
+            if not gl_frame(): return from program
 
-                show_engine = im_checkbox("Engine Info", show_engine)
-                show_editor = im_checkbox("Edit Everything", show_editor)
+            im_frame():
+                if gl_button("escape") == 1:
+                    show_menu = !show_menu
+                    paused = show_menu
+                if not paused:
+                    step()
 
-                im_separator()
-                im_button("Quit"):
-                    return
+                draw()
 
-            if show_engine: im_window("engine", im_window_always_autoresize):
-                im_show_engine_stats()
+                if show_menu: im_window("Menu", im_window_always_autoresize):
+                    im_button("Hide Menu"):
+                        show_menu = false
+                        paused = false
 
-            if show_editor: im_window("editor", im_window_always_autoresize):
-                im_show_vars()
+                    im_separator()
+                    show_engine = im_checkbox("Engine Info", show_engine)
+                    if show_engine: im_show_engine_stats()
 
-do():
+                    im_separator()
+                    show_editor = im_checkbox("Edit Everything", show_editor)
+                    if show_editor: edit()
+
+                    im_separator()
+                    im_button("Reboot"): done = true
+
+                    im_separator()
+                    im_button("Halt"): return from program
+
+def run_a_world():
+    // TODO one for each face / level / etc
+    var world = new_chunk()
+
     // TODO one for each visible chunk
     // TODO support dynamic attach/detach
     var scene = stacked_scene {}
@@ -979,12 +987,6 @@ do():
 
     let build = builder {}
     build_moji_grove(world, build, 12)
-
-    // setup imgui for menu and debug overlay
-    let im_font = "data/fonts/Inconsolata/Inconsolata-Bold.ttf"
-    let im_fontsize = 32
-    im_init(true)
-    check(im_add_font(im_font, im_fontsize), "cannot load imgui font")
 
     let ui = ui {}
     ui.run_forever():
@@ -994,3 +996,18 @@ do():
     step:
         if world.can_step() and play_reader.read_input():
             world.step(): play_reader.action()
+    edit:
+        im_edit_anything(world, "World")
+        im_edit_anything(scene, "Scene")
+        im_edit_anything(build, "Build")
+        im_edit_anything(ui, "UI")
+
+do():
+    // setup imgui for menu and debug overlay
+    let im_font = "data/fonts/Inconsolata/Inconsolata-Bold.ttf"
+    let im_fontsize = 32
+    im_init(true)
+    check(im_add_font(im_font, im_fontsize), "cannot load imgui font")
+
+    forever():
+        run_a_world()
