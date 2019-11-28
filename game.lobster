@@ -87,13 +87,11 @@ struct render:
     def draw():
         if bg != color_clear:
             gl_set_shader("color")
-            gl_color(bg):
-                gl_unit_square()
+            gl_color(bg): gl_unit_square()
         if glyf.code != 0:
             gl_set_shader("textured")
             gl_set_primitive_texture(0, glyf.tile_texture())
-            gl_color(fg):
-                gl_unit_square()
+            gl_color(fg): gl_unit_square()
 
 struct spatial : xyzw_f
     // x, y are location   : integer part is the cell, fraction part is sub-cell offset
@@ -864,8 +862,7 @@ class stacked_scene : system
                         if tex:
                             gl_set_shader("textured")
                             gl_set_primitive_texture(0, tex)
-                            gl_color(color_white):
-                                gl_unit_square()
+                            gl_color(color_white): gl_unit_square()
                         else:
                             chunk.ren[id].draw()
 
