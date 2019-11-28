@@ -620,6 +620,10 @@ class chunk : shard
         anims.update(this, dt)
         avatars.update_any(this)
 
+    def set_item_count(id:int, item_id:item_entity_id, n:int):
+        item[id]       = item_id
+        item_count[id] = n
+
     def choose_actions(input:input_fun):
         // choose action intents
         let intents = minds.thoughts(this, input)
@@ -732,12 +736,11 @@ class chunk : shard
         var consumed = false
         avatars.with(this, id) av:
             if object_t & ent_gives:
-                var n = item_count[object_id]
-                if n != 0: if av.take(item[object_id]):
-                    if --n == 0:
-                        this.set_type(object_id, ent_none)
-                        print("take given " + item[object_id])
-                        consumed = true
+                let n = item_count[object_id]
+                let item_id = item[object_id]
+                if n != 0: if av.take(item_id):
+                    set_item_count(object_id, item_id, n - 1)
+                    print("take given " + item_id)
                 else:
                     print("pass given " + item[object_id])
 
@@ -908,8 +911,7 @@ class ent_scaffold:
 
     def set_ancillary(chunk, id):
         if item != item_none:
-            chunk.item[id]       = item
-            chunk.item_count[id] = item_count
+            chunk.set_item_count(id, item, item_count)
         if type & ent_avatar: chunk.avatars.with(chunk, id) av:
             if avatar_helf.y     != 0:         av.helf       = avatar_helf
             if avatar_stam.y     != 0:         av.stam       = avatar_stam
