@@ -102,12 +102,5 @@ def sprite_new_atlas(tex, res:xy_i, size:xy_i):
         kash: kash,
     }
 
-def with_framebuffer(size:xy_i, fmt:texture_format, body):
-    let tex = gl_create_blank_texture(size, color_clear, fmt)
-    assert gl_switch_to_framebuffer(tex, false, fmt, nil, nil)
-    body(size)
-    assert gl_switch_to_framebuffer(nil)
-    return tex
-
 def sprite_render(size:xy_i, body):
-    return with_framebuffer(size, texture_format_clamp | texture_format_nomipmap, body)
+    return render_to_texture(nil, size, false, nil, texture_format_clamp | texture_format_nomipmap, body)
