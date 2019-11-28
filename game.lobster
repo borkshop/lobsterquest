@@ -84,14 +84,19 @@ struct render:
     fg   : color
     glyf : glyph
 
-    def draw():
+    def draw(with_tex:resource?):
         if bg != color_clear:
             gl_set_shader("color")
             gl_color(bg): gl_unit_square()
+        if with_tex or glyf.code != 0: gl_set_shader("textured")
         if glyf.code != 0:
-            gl_set_shader("textured")
             gl_set_primitive_texture(0, glyf.tile_texture())
             gl_color(fg): gl_unit_square()
+        if with_tex:
+            gl_set_primitive_texture(0, with_tex)
+            // TODO better placement within glyf
+            gl_translate(xy_1 / 3.0): gl_scale(1.0 / 3.0):
+                gl_color(color_white): gl_unit_square()
 
 struct spatial : xyzw_f
     // x, y are location   : integer part is the cell, fraction part is sub-cell offset
@@ -620,6 +625,18 @@ class chunk : shard
         anims.update(this, dt)
         avatars.update_any(this)
 
+    def item_texture(id:int):
+        let item_id  = item[id]
+        let n        = item_count[id]
+        if item_id == item_none or n == 0: return nil
+
+        let rend      = ren[id]
+        let item_moji = item_sprite(item_id)
+        if item_moji == rend.glyf: return nil
+
+        // TODO multiply by n
+        return item_moji.tile_texture()
+
     def set_item_count(id:int, item_id:item_entity_id, n:int):
         item[id]       = item_id
         item_count[id] = n
@@ -867,7 +884,7 @@ class stacked_scene : system
                             gl_set_primitive_texture(0, tex)
                             gl_color(color_white): gl_unit_square()
                         else:
-                            chunk.ren[id].draw()
+                            chunk.ren[id].draw(chunk.item_texture(id))
 
 class ent_scaffold:
     type  : entype
