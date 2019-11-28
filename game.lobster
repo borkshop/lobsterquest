@@ -158,6 +158,7 @@ class shard:
     // taken or given
     item       = []::item_entity_id
     item_count = []::int
+    item_spawn = []::xy_i
 
     systems = []::system
 
@@ -169,6 +170,7 @@ class shard:
         tex.push(nil)
         item.push(item_none)
         item_count.push(0)
+        item_spawn.push(xy_0i)
         notify_type(id, ent_none, t)
         return id
 
@@ -679,6 +681,11 @@ class chunk : shard
                 anim.after(1): anim.pos = lerp(a, b, 0.5)
                 anim.after(1): anim.pos = a
 
+    def spawn_items():
+        for(item_spawn) rate, id:
+            if not item_count[id] and rate.y and rnd(rate.y) <= rate.x:
+                item_count[id]++
+
     def step(input:input_fun):
         // clear all prior action animations
         for(minds.ids): anims.clear(this, _) // TODO batch method
@@ -708,6 +715,8 @@ class chunk : shard
 
         // resolve action groups
         for(groups) actors, group_id: resolve_action(actors, hits[group_id])
+
+        spawn_items()
 
     def resolve_action(actors, at):
         if   actors.length > 1: congress(actors, at)
@@ -898,6 +907,7 @@ class ent_scaffold:
     item_take  = false
     item_give  = false
     item_count = 0
+    item_spawn = xy_0i
 
     avatar_helf       = xy_0i
     avatar_stam       = xy_0i
@@ -929,6 +939,7 @@ class ent_scaffold:
     def set_ancillary(chunk, id):
         if item != item_none:
             chunk.set_item_count(id, item, item_count)
+            chunk.item_spawn[id] = item_spawn
         if type & ent_avatar: chunk.avatars.with(chunk, id) av:
             if avatar_helf.y     != 0:         av.helf       = avatar_helf
             if avatar_stam.y     != 0:         av.stam       = avatar_stam
@@ -1050,7 +1061,8 @@ scaffolds[object_scaffold].with():
     _.glyph = tile_sprite(tile_pine_tree)
     _.item       = item_pine_apple
     _.item_give  = true
-    _.item_count = -1
+    _.item_count = 0
+    _.item_spawn = xy_i { 5, 1000 }
     scaffolds.push(_)
 
 // tree_deciduous
@@ -1058,7 +1070,8 @@ scaffolds[object_scaffold].with():
     _.glyph = tile_sprite(tile_apple_tree)
     _.item       = item_apple
     _.item_give  = true
-    _.item_count = -1
+    _.item_count = 0
+    _.item_spawn = xy_i { 5, 1000 }
     scaffolds.push(_)
 
 // dirt_1
@@ -1266,6 +1279,8 @@ def run_a_world():
 
     let build = builder {}
     build_moji_grove(world, build, 12)
+
+    world.spawn_items()
 
     let ui = ui {}
     ui.run_forever():
