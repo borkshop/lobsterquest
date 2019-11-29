@@ -798,10 +798,8 @@ class chunk : shard
                 true
             else:
                 !this.use_one(actor_id, id)
-        if at.length:
-            move_actor(actor_id, false) // half-animate
-        else:
-            move_actor(actor_id, true) // took, full-animate
+        if at.length: move_actor(actor_id, false) // half-animate
+        else:         move_actor(actor_id, true)  // took, full-animate
         return at
 
     def interact(actor_id, other_id):
