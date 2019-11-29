@@ -681,6 +681,10 @@ class chunk : shard
                 anim.after(1): anim.pos = lerp(a, b, 0.5)
                 anim.after(1): anim.pos = a
 
+    def bodys_at(loc):
+        // TODO spatial query
+        return filter(bodys.ids) id: pos[id].cell() == loc
+
     def spawn_items():
         for(item_spawn) rate, id:
             if not item_count[id] and rate.y and rnd(rate.y) <= rate.x:
@@ -700,7 +704,7 @@ class chunk : shard
             if group_ids[actor_id] < 0:
                 let group_id = groups.length()
                 let actors = [actor_id]
-                let at = filter(bodys.ids) id: pos[id].cell() == t
+                let at = bodys_at(t)
                 for_from(targets, actor_id + 1) ot, other_actor_id:
                     if targets[other_actor_id] == t:
                         if group_ids[other_actor_id] < 0:
