@@ -766,29 +766,28 @@ class chunk : shard
 
     def use_one(actor_id, object_id) -> bool:
         let id = actor_ids[actor_id]
-        let object_t = type[object_id]
+        let item_id = item[object_id]
         var consumed = false
         avatars.with(this, id) av:
-            if object_t & ent_gives:
+            if type[object_id] & ent_gives:
                 let n = item_count[object_id]
-                let item_id = item[object_id]
                 if n != 0: if av.take(item_id):
                     set_item_count(object_id, item_id, n - 1)
                     print("take given " + item_id)
                 else:
-                    print("pass given " + item[object_id])
+                    print("pass given " + item_id)
 
-            else: if object_t & ent_takeable:
-                if av.take(item[object_id]):
+            else: if type[object_id] & ent_takeable:
+                if av.take(item_id):
                     this.set_type(object_id, ent_none)
-                    print("take " + item[object_id])
+                    print("take " + item_id)
                     consumed = true
                 else:
-                    print("pass " + item[object_id])
+                    print("pass " + item_id)
 
             else:
                 // TODO avatar state (hand items) X object
-                print("shrug t:" + object_t + " item:" + item[object_id])
+                print("shrug t:" + type[object_id] + " item:" + item_id)
 
         return consumed
 
