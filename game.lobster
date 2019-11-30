@@ -150,7 +150,6 @@ enum_flags entype:
     ent_input       // receives player input
     ent_avatar      // has avatar
     ent_gives       // offers items to be taken
-    ent_takeable    // item that can be taken
 
 class system:
     def ent_reset():
@@ -812,14 +811,6 @@ class chunk : shard
                 else:
                     print("pass given " + item_id)
 
-            else: if type[object_id] & ent_takeable:
-                if av.take(item_id):
-                    this.set_type(object_id, ent_none)
-                    print("take " + item_id)
-                    consumed = true
-                else:
-                    print("pass " + item_id)
-
             else:
                 // TODO avatar state (hand items) X object
                 print("shrug t:" + type[object_id] + " item:" + item_id)
@@ -945,7 +936,6 @@ class ent_scaffold:
 
     item = item_none
 
-    item_take  = false
     item_give  = false
     item_count = 0
     item_spawn = xy_0i
@@ -963,11 +953,7 @@ class ent_scaffold:
         return co
 
     def create(chunk:chunk, loc:xy_f):
-        var t = type
-        if item != item_none:
-            if item_take: t = t | ent_takeable
-            if item_give: t = t | ent_gives
-        chunk.create(t) id:
+        chunk.create(if item != item_none and item_give: type | ent_gives else: type) id:
             chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size }
             init(chunk, id)
         post id:
