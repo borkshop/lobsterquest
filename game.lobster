@@ -100,6 +100,12 @@ struct render:
             gl_translate(xy_1 / 3.0): gl_scale(1.0 / 3.0):
                 gl_color(color_white): gl_unit_square()
 
+    def with_glyph(g:glyph):
+        if g.code != 0 and fg == color_clear:
+            return render { bg, color_white, g }
+        else:
+            return render { bg, color_clear, glyph_0 }
+
 let render_0 = render { color_clear, color_clear, glyph_0 }
 
 struct spatial : xyzw_f
@@ -183,6 +189,10 @@ class shard:
         init(id)
         t = notify_type(id, ent_none, t)
         if post: post(id)
+        let r = ren[id]
+        if r.glyf == glyph_0:
+            let item_id = item[id]
+            if item_id != item_none: ren[id] = r.with_glyph(item_sprite(item_id))
 
     def add_type(id:int, t:entype): set_type(id, type[id] |  t)
     def del_type(id:int, t:entype): set_type(id, type[id] & ~t)
