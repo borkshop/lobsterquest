@@ -36,9 +36,6 @@ while gl_frame() and gl_button("escape") != -1:
     gl_set_shader("textured")
     gl_set_primitive_texture(0, sheet_sprites.tile_texture(sprite_id))
     gl_color(color_white)
-    gl_scale(if size.x > size.y:
-        xy { size.y, size.y }
-    else:
-        xy { size.x, size.x })
+    gl_scale(xy_1 * min(size))
 
     gl_unit_square()
