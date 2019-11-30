@@ -177,13 +177,12 @@ class shard:
         item_spawn.push(xy_0i)
         return id
 
-    def create(t:entype, p:spatial, r:render):
+    def create(t:entype, init, post):
         let id = alloc()
         type[id] = t
-        pos[id] = p
-        ren[id] = r
+        init(id)
         notify_type(id, ent_none, t)
-        return id
+        if post: post(id)
 
     def add_type(id:int, t:entype): set_type(id, type[id] |  t)
     def del_type(id:int, t:entype): set_type(id, type[id] & ~t)
@@ -937,20 +936,22 @@ class ent_scaffold:
         body(co)
         return co
 
-    def make_type() -> entype:
+    def create(chunk:chunk, loc:xy_f):
         var t = type
         if item != item_none:
             if item_take: t = t | ent_takeable
             if item_give: t = t | ent_gives
-        return t
+        chunk.create(t) id:
+            chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size }
+            init(chunk, id)
+        post id:
+            set_ancillary(chunk, id)
 
-    def create(chunk:chunk, loc:xy_f):
-        loc = loc + xy { 0.5, 0.5 }
-        let pos = spatial { loc.x, loc.y, z, size }
-        let ren = render { bg, fg, glyph }
-        let id = chunk.create(make_type(), pos, ren)
-        set_ancillary(chunk, id)
-        return id
+    def init(chunk, id):
+        if glyph != glyph_0:
+            chunk.ren[id] = render { bg, fg, glyph }
+        else:
+            chunk.ren[id] = render { bg, color_clear, glyph_0 }
 
     def set_ancillary(chunk, id):
         if item != item_none:
