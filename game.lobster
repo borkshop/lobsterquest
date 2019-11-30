@@ -79,6 +79,8 @@ struct glyph:
     def tile_texture():
         return glyph_atlases[mode].tile_texture(code)
 
+let glyph_0 = glyph { 0, 0 }
+
 struct render:
     bg   : color
     fg   : color
@@ -269,7 +271,7 @@ class bodys : system
 class avatar:
     retex      = false
     state      = avatar_state_content
-    moji       = glyph { 0, 0 }
+    moji       = glyph_0
     helf       = xy { 3, 3 } // ❤️
     stam       = xy { 0, 0 } // 💛
     initiative = 0
@@ -904,7 +906,7 @@ class ent_scaffold:
     type  : entype
     bg    = color_clear
     fg    = color_clear
-    glyph = glyph { 0, 0 }
+    glyph = glyph_0
     z     = 0.0
     size  = 1.0
 
