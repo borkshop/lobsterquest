@@ -172,16 +172,29 @@ class shard:
 
     systems = []::system
 
+    free_ids = []::int
+
     def alloc() -> int:
-        let id = type.length()
-        type.push(ent_none)
-        pos.push(spatial_0)
-        ren.push(render_0)
-        tex.push(nil)
-        item.push(item_none)
-        item_count.push(0)
-        item_spawn.push(xy_0i)
-        return id
+        if free_ids.length:
+            let id = free_ids.pop()
+            type[id] = ent_none
+            pos[id] = spatial_0
+            ren[id] = render_0
+            tex[id] = nil
+            item[id] = item_none
+            item_count[id] = 0
+            item_spawn[id] = xy_0i
+            return id
+        else:
+            let id = type.length()
+            type.push(ent_none)
+            pos.push(spatial_0)
+            ren.push(render_0)
+            tex.push(nil)
+            item.push(item_none)
+            item_count.push(0)
+            item_spawn.push(xy_0i)
+            return id
 
     def create(t:entype, init, post):
         let id = alloc()
@@ -202,6 +215,8 @@ class shard:
         if old != t:
             type[id] = t
             t = notify_type(id, old, t)
+        if t == ent_none:
+            free_ids.push(id)
 
     def notify_type(id:int, old:entype, new:entype) -> entype:
         for(systems):
