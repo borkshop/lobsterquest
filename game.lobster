@@ -164,9 +164,9 @@ class shard:
     pos  = []::spatial
     ren  = []::render
     tex  = []::resource?
+    item = []::item_entity_id
 
     // taken or given
-    item       = []::item_entity_id
     item_count = []::int
     item_spawn = []::xy_i
 
@@ -679,8 +679,7 @@ class chunk : shard
         // TODO multiply by n
         return item_moji.tile_texture()
 
-    def set_item_count(id:int, item_id:item_entity_id, n:int):
-        item[id]       = item_id
+    def set_item_count(id:int, n:int):
         item_count[id] = n
 
     def choose_actions(input:input_fun):
@@ -808,7 +807,7 @@ class chunk : shard
             if type[object_id] & ent_gives:
                 let n = item_count[object_id]
                 if n != 0: if av.take(item_id):
-                    set_item_count(object_id, item_id, n - 1)
+                    set_item_count(object_id, n - 1)
                     print("take given " + item_id)
                 else:
                     print("pass given " + item_id)
@@ -944,7 +943,8 @@ class ent_scaffold:
     z     = 0.0
     size  = 1.0
 
-    item       = item_none
+    item = item_none
+
     item_take  = false
     item_give  = false
     item_count = 0
@@ -978,10 +978,11 @@ class ent_scaffold:
             chunk.ren[id] = render { bg, fg, glyph }
         else:
             chunk.ren[id] = render { bg, color_clear, glyph_0 }
+        if item != item_none: chunk.item[id] = item
 
     def set_ancillary(chunk, id):
         if item != item_none:
-            chunk.set_item_count(id, item, item_count)
+            chunk.set_item_count(id, item_count)
             chunk.item_spawn[id] = item_spawn
         if type & ent_avatar: chunk.avatars.with(chunk, id) av:
             if avatar_helf.y     != 0:         av.helf       = avatar_helf
