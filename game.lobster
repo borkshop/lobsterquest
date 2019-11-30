@@ -195,6 +195,10 @@ class shard:
         type = []
         pos  = []
         ren  = []
+        tex  = []
+        item = []
+        item_count = []
+        item_spawn = []
 
 def input_fun() -> action
 
