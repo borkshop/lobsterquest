@@ -100,6 +100,8 @@ struct render:
             gl_translate(xy_1 / 3.0): gl_scale(1.0 / 3.0):
                 gl_color(color_white): gl_unit_square()
 
+let render_0 = render { color_clear, color_clear, glyph_0 }
+
 struct spatial : xyzw_f
     // x, y are location   : integer part is the cell, fraction part is sub-cell offset
     // z is stacking order : drawn back-to-front, lowest z first
@@ -164,15 +166,22 @@ class shard:
 
     systems = []::system
 
-    def create(t:entype, p:spatial, r:render):
+    def alloc() -> int:
         let id = type.length()
-        type.push(t)
-        pos.push(p)
-        ren.push(r)
+        type.push(ent_none)
+        pos.push(spatial_0)
+        ren.push(render_0)
         tex.push(nil)
         item.push(item_none)
         item_count.push(0)
         item_spawn.push(xy_0i)
+        return id
+
+    def create(t:entype, p:spatial, r:render):
+        let id = alloc()
+        type[id] = t
+        pos[id] = p
+        ren[id] = r
         notify_type(id, ent_none, t)
         return id
 
