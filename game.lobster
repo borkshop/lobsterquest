@@ -181,7 +181,7 @@ class shard:
         let id = alloc()
         type[id] = t
         init(id)
-        notify_type(id, ent_none, t)
+        t = notify_type(id, ent_none, t)
         if post: post(id)
 
     def add_type(id:int, t:entype): set_type(id, type[id] |  t)
@@ -191,14 +191,15 @@ class shard:
         let old = type[id]
         if old != t:
             type[id] = t
-            notify_type(id, old, t)
+            t = notify_type(id, old, t)
 
-    def notify_type(id, old, new):
+    def notify_type(id:int, old:entype, new:entype) -> entype:
         for(systems):
             let prior = new
             new = _.ent_changed(this, id, old, new)
             if new != prior:
                 type[id] = new
+        return new
 
     def reset():
         for(systems): _.ent_reset()
