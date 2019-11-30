@@ -24,6 +24,8 @@ def for_from(xs, i, body):
         i++
 
 /* TODO
+- better trace logging facility
+
 - viewport control (zoom and pan)
 
 - action
@@ -86,19 +88,14 @@ struct render:
     fg   : color
     glyf : glyph
 
-    def draw(with_tex:resource?):
+    def draw():
         if bg != color_clear:
             gl_set_shader("color")
             gl_color(bg): gl_unit_square()
-        if with_tex or glyf.code != 0: gl_set_shader("textured")
         if glyf.code != 0:
+            gl_set_shader("textured")
             gl_set_primitive_texture(0, glyf.tile_texture())
             gl_color(fg): gl_unit_square()
-        if with_tex:
-            gl_set_primitive_texture(0, with_tex)
-            // TODO better placement within glyf
-            gl_translate(xy_1 / 3.0): gl_scale(1.0 / 3.0):
-                gl_color(color_white): gl_unit_square()
 
     def with_glyph(g:glyph):
         if g.code != 0 and fg == color_clear:
@@ -115,6 +112,9 @@ struct spatial : xyzw_f
 
     def cell():
         return xy_i { int(x), int(y) }
+
+    def cell_rel(off:xyz_f, size:float):
+        return spatial { int(x) + off.x, int(y) + off.y, z + off.z, size }
 
 let spatial_0 = spatial { 0, 0, 0, 0 }
 
@@ -149,7 +149,6 @@ enum_flags entype:
     ent_mind        // participates in the action system
     ent_input       // receives player input
     ent_avatar      // has avatar
-    ent_gives       // offers items to be taken
 
 class system:
     def ent_reset():
@@ -165,10 +164,6 @@ class shard:
     tex  = []::resource?
     item = []::item_entity_id
 
-    // taken or given
-    item_count = []::int
-    item_spawn = []::xy_i
-
     systems = []::system
 
     free_ids = []::int
@@ -181,8 +176,6 @@ class shard:
             ren[id] = render_0
             tex[id] = nil
             item[id] = item_none
-            item_count[id] = 0
-            item_spawn[id] = xy_0i
             return id
         else:
             let id = type.length()
@@ -191,8 +184,6 @@ class shard:
             ren.push(render_0)
             tex.push(nil)
             item.push(item_none)
-            item_count.push(0)
-            item_spawn.push(xy_0i)
             return id
 
     def create(t:entype, init, post):
@@ -232,8 +223,66 @@ class shard:
         ren  = []
         tex  = []
         item = []
-        item_count = []
-        item_spawn = []
+
+enum spawn_kind:
+    // TODO spawn_tile
+    spawn_item
+
+class spawner : system
+    ids  = []::int
+    prob = []::xy_i
+    kind = []::spawn_kind
+    kid  = []::int
+
+    def ent_reset():
+        ids  = []
+        prob = []
+        kind = []
+        kid  = []
+
+    def ent_changed(shard, id:int, old:entype, new:entype):
+        if new == ent_none:
+            let n, i = ids.binary_search(id)
+            if n:
+                ids.remove(i, n)
+                prob.remove(i, n)
+                kind.remove(i, n)
+                kid.remove(i, n)
+        return new
+
+    def clear_spawn(id:int):
+        let n, i = ids.binary_search(id)
+        if n:
+            ids.remove(i, n)
+            prob.remove(i, n)
+            kind.remove(i, n)
+            kid.remove(i, n)
+
+class spawn_scaffold:
+    spawner:spawner
+    id: int
+    next_spawn_id: int
+
+    p = xy_0i
+
+    def prob(x:int, y:int): p = xy_i { x,     y }
+    def odds(x:int, y:int): p = xy_i { x, x + y }
+
+    def add_item_spawn(item_id:item_entity_id):
+        if item_id != item_none and p.x and p.y:
+            spawner.ids.insert(next_spawn_id, id)
+            spawner.prob.insert(next_spawn_id, p)
+            spawner.kind.insert(next_spawn_id, spawn_item)
+            spawner.kid.insert(next_spawn_id, int(item_id))
+            next_spawn_id++
+
+def add_spawn(this::spawner, chunk, id:int, body):
+    let n, spawn_id = ids.binary_search(id)
+    body(spawn_scaffold {
+        spawner: this,
+        id: id,
+        next_spawn_id: spawn_id,
+    })
 
 def input_fun() -> action
 
@@ -647,6 +696,7 @@ def animate(anims::anims, id:int, over:float, body):
     }.with(body)
 
 class chunk : shard
+    spawner = spawner{}
     minds   = minds {}
     bodys   = bodys {}
     avatars = avatars {}
@@ -665,21 +715,6 @@ class chunk : shard
     def update(dt:float):
         anims.update(this, dt)
         avatars.update_any(this)
-
-    def item_texture(id:int):
-        let item_id  = item[id]
-        let n        = item_count[id]
-        if item_id == item_none or n == 0: return nil
-
-        let rend      = ren[id]
-        let item_moji = item_sprite(item_id)
-        if item_moji == rend.glyf: return nil
-
-        // TODO multiply by n
-        return item_moji.tile_texture()
-
-    def set_item_count(id:int, n:int):
-        item_count[id] = n
 
     def choose_actions(input:input_fun):
         // choose action intents
@@ -722,11 +757,6 @@ class chunk : shard
     def bodys_at(loc):
         // TODO spatial query
         return filter(bodys.ids) id: pos[id].cell() == loc
-
-    def spawn_items():
-        for(item_spawn) rate, id:
-            if not item_count[id] and rate.y and rnd(rate.y) <= rate.x:
-                item_count[id]++
 
     def step(input:input_fun):
         // clear all prior action animations
@@ -803,13 +833,13 @@ class chunk : shard
         let item_id = item[object_id]
         var consumed = false
         avatars.with(this, id) av:
-            if type[object_id] & ent_gives:
-                let n = item_count[object_id]
-                if n != 0: if av.take(item_id):
-                    set_item_count(object_id, n - 1)
-                    print("take given " + item_id)
+            if item_id != item_none:
+                if av.take(item_id):
+                    this.set_type(object_id, ent_none)
+                    print("take " + item_id)
+                    consumed = true
                 else:
-                    print("pass given " + item_id)
+                    print("pass " + item_id)
 
             else:
                 // TODO avatar state (hand items) X object
@@ -853,11 +883,46 @@ class chunk : shard
             case action_hand_use:     av.use_hand()
             case action_hand_combine: av.combine_hands()
 
+def spawn(this::spawner, chunk):
+    var last_id = -1
+    var at = spatial_0
+    var did = false
+
+    def should_spawn(spawn_id) -> bool:
+        // TODO other trigger modes or distributions?
+        let p = prob[spawn_id]
+        return rnd(p.y) <= p.x
+
+    def once_each(body):
+        for(ids) id, spawn_id:
+            if id != last_id:
+                last_id = id
+                at = chunk.pos[id]
+                did = false
+            if not did: body(id, spawn_id)
+
+    once_each() id, spawn_id: switch kind[spawn_id]:
+        case spawn_item:
+            // items are unique-per-cell
+            let item_id = item_entity_id(kid[spawn_id])
+            let already_exsits = exists(chunk.bodys_at(at.cell())): chunk.item[_] == item_id
+            // TODO other constraints
+            if !already_exsits and should_spawn(spawn_id):
+                chunk.create(ent_visible | ent_body) new_id:
+                    chunk.pos[new_id] = at.cell_rel(xyz { 0.5, 0.5, 0.1 }, 1.0 / 3.0) // TODO better placement
+                    chunk.item[new_id] = item_id
+                post new_id:
+                    print("[" + id + " : " + spawn_id + "] spawned " + item_id + " #" + new_id)
+                    did = true
+
+def spawn_items(this::chunk): spawner.spawn(this)
+
 def new_chunk():
     let ch = chunk {}
     ch.systems.push(ch.minds)
     ch.systems.push(ch.bodys)
     ch.systems.push(ch.avatars)
+    ch.systems.push(ch.spawner)
     return ch
 
 class stacked_scene : system
@@ -924,7 +989,7 @@ class stacked_scene : system
                             gl_set_primitive_texture(0, tex)
                             gl_color(color_white): gl_unit_square()
                         else:
-                            chunk.ren[id].draw(chunk.item_texture(id))
+                            chunk.ren[id].draw()
 
 class ent_scaffold:
     type  : entype
@@ -936,9 +1001,8 @@ class ent_scaffold:
 
     item = item_none
 
-    item_give  = false
-    item_count = 0
-    item_spawn = xy_0i
+    spawn_prob = xy_0i
+    spawn_item = item_none
 
     avatar_helf       = xy_0i
     avatar_stam       = xy_0i
@@ -953,7 +1017,7 @@ class ent_scaffold:
         return co
 
     def create(chunk:chunk, loc:xy_f):
-        chunk.create(if item != item_none and item_give: type | ent_gives else: type) id:
+        chunk.create(type) id:
             chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size }
             init(chunk, id)
         post id:
@@ -967,9 +1031,6 @@ class ent_scaffold:
         if item != item_none: chunk.item[id] = item
 
     def set_ancillary(chunk, id):
-        if item != item_none:
-            chunk.set_item_count(id, item_count)
-            chunk.item_spawn[id] = item_spawn
         if type & ent_avatar: chunk.avatars.with(chunk, id) av:
             if avatar_helf.y     != 0:         av.helf       = avatar_helf
             if avatar_stam.y     != 0:         av.stam       = avatar_stam
@@ -977,6 +1038,10 @@ class ent_scaffold:
             if avatar_gives:                   av.gives      = avatar_gives
             if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
             if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
+        if this.spawn_prob != xy_0i:
+            chunk.spawner.add_spawn(chunk, id) sp:
+                sp.prob(spawn_prob.x, spawn_prob.y)
+                sp.add_item_spawn(this.spawn_item)
 
 class builder:
     loc = xy_0
@@ -1089,19 +1154,15 @@ scaffolds.push(ent_scaffold {
 // tree_evergreen
 scaffolds[object_scaffold].with():
     _.glyph = tile_sprite(tile_pine_tree)
-    _.item       = item_pine_apple
-    _.item_give  = true
-    _.item_count = 0
-    _.item_spawn = xy_i { 5, 1000 }
+    _.spawn_prob = xy_i { 5, 1000 }
+    _.spawn_item = item_pine_apple
     scaffolds.push(_)
 
 // tree_deciduous
 scaffolds[object_scaffold].with():
     _.glyph = tile_sprite(tile_apple_tree)
-    _.item       = item_apple
-    _.item_give  = true
-    _.item_count = 0
-    _.item_spawn = xy_i { 5, 1000 }
+    _.spawn_prob = xy_i { 5, 1000 }
+    _.spawn_item = item_apple
     scaffolds.push(_)
 
 // dirt_1
