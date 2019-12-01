@@ -63,29 +63,33 @@ let yaw_transitions = [
     [90, 90, -90, -90],
 ]
 
-// Rotate the camera to place the origin vertex of the cube in the center of
-// the view.
-camera_pitch = 0
-camera_yaw = -90
-
-struct loc:
-    index:int
+struct camera_location:
+    position:xyz_f
     elevation:float
     yaw:float
     pitch:float
 
-class pov:
+    def camera_lerp(that:camera_location, ratio:float):
+        return camera_location{
+            position: lerp(this.position, that.position, ratio),
+            elevation: lerp(this.elevation, that.elevation, ratio),
+            yaw: lerp(this.yaw, that.yaw, ratio),
+            pitch: lerp(this.pitch, that.pitch, ratio),
+        }
+
+class point_of_view:
     size:int
     area:int
     neighbors:[[int]]
-    start:float
-    duration:float
-    prev:loc
-    next:loc
 
-    def camera_go(dir, elevation, dur):
-        let index1 = next.index
-        let index2 = neighbors[next.index][dir]
+    index:int
+    prev:camera_location
+    next:camera_location
+
+    def camera_go(dir, elevation):
+        let index1 = index
+        let index2 = neighbors[index1][dir]
+        index = index2
 
         let face1 = index1 / area
         let face2 = index2 / area
@@ -96,45 +100,43 @@ class pov:
         let pitch = next.pitch + if face1 == face2: 0
         else: pitch_transitions[face1][dir]
 
-        let temp = loc{
-            index: index2,
+        let within = index2 % area
+        let center = float(xy_i{ within % size, within / size }) + xy_1/2
+        let major = camera_majors[face2]
+        let minor = camera_minors[face2]
+        let position = camera_origins[face2] -
+            xyz_1/2 +
+            (major * center.x + minor * center.y) / size
+
+        next = camera_location{
+            position: position,
             elevation: elevation,
             yaw: yaw,
             pitch: pitch,
         }
-        prev = next
-        next = temp
-        start = gl_time()
-        duration = dur
-
-    def in_transit():
-        return start + duration > gl_time()
 
     def camera_position(location):
-        let face = location.index / area
-        let within = location.index % area
-        let at = float(xy_i{ within % size, within / size }) + xy_1/2
-        let major = camera_majors[face]
-        let minor = camera_minors[face]
-        let origin = camera_origins[face] - xyz_1/2 + (major * at.x + minor * at.y) / size
-        return origin + vecfromyawpitch(location.yaw, location.pitch, -location.elevation, 0.0)
+        return location.position + vecfromyawpitch(location.yaw, location.pitch, -location.elevation, 0.0)
 
     def update_camera():
-        let tween = clamp(0, 1, (gl_time() - start)/duration)
-        let position1 = camera_position(prev)
-        let position2 = camera_position(next)
-        camera_position = lerp(position1, position2, tween)
-        camera_yaw = lerp(prev.yaw, next.yaw, tween)
-        camera_pitch = lerp(prev.pitch, next.pitch, tween)
+        prev = camera_lerp(prev, next, 1 - pow(0.05, gl_delta_time()))
+        camera_position = camera_position(prev)
+        camera_yaw = prev.yaw
+        camera_pitch = prev.pitch
 
 def camera_init(size, area, index, elevation):
     let face = index / area
     let within = index % area
-    let at = float(xy_i{ within % size, within / size }) + xy_1/2
+    let center = float(xy_i{ within % size, within / size }) + xy_1/2
     let pitch = camera_pitches[face]
     let yaw = camera_yaws[face]
-    return loc{
-        index: index,
+    let major = camera_majors[face]
+    let minor = camera_minors[face]
+    let position = camera_origins[face] -
+        xyz_1/2 +
+        (major * center.x + minor * center.y) / size
+    return camera_location{
+        position: position,
         elevation: elevation,
         yaw: yaw,
         pitch: pitch,
@@ -143,35 +145,35 @@ def camera_init(size, area, index, elevation):
 def new_pov(size, neighbors, index, elevation):
     let area = size * size
     let at = camera_init(size, area, index, elevation)
-    return pov{
+    let p = point_of_view{
         size: size,
         area: area,
+        index: index,
         prev: at,
         next: at,
-        start: gl_time(),
-        duration: 1,
         neighbors: neighbors,
     }
+    return p
 
 do():
     let size = 3
     let neighbors = new_daia_topology(size)
     let camera_pov = new_pov(size, neighbors, 0, 1)
 
-    while gl_frame() and gl_button("escape") != -1:
+    while gl_frame():
         gl_clear(color_dark_grey)
         gl_cursor(false)
         gl_perspective(60, 0.1, 1000)
 
         def go(dir):
-            if camera_pov.in_transit():
-                return
-            camera_pov.camera_go(dir, 1, 0.5)
+            camera_pov.camera_go(dir, 1)
 
-        if gl_button("k") >= 1: go(0)
-        if gl_button("l") >= 1: go(1)
-        if gl_button("j") >= 1: go(2)
-        if gl_button("h") >= 1: go(3)
+        if gl_button("k") == 1: go(0)
+        if gl_button("l") == 1: go(1)
+        if gl_button("j") == 1: go(2)
+        if gl_button("h") == 1: go(3)
+        if gl_button("escape") == 1: return from program
+        if gl_button("q") == 1: return from program
 
         camera_pov.update_camera()
         camera_FPS_view()
