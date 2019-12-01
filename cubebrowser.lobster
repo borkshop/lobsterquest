@@ -1,13 +1,18 @@
 import vec
 import util3d
+import game_draw
 
-// cube vertices
-let cv = map(8) c: xyz_v(map(3) i: float(c & (1 << (2 - i)) != 0))
+let cube_vertices = map(8) c: xyz_v(map(3) i: float(c & (1 << (2 - i)) != 0))
+
+def cube_vertex(i):
+    if i < 0: return -cube_vertices[-i]
+    return cube_vertices[i]
+
 let camera_pitches = [0, 0, 90, -90, 0, 0]
 let camera_yaws = [-90, 0, 0, 180, 180, 90]
-let camera_origins = [cv[3], cv[1], cv[0], cv[5], cv[7], cv[5]]
-let camera_majors = [-cv[2], cv[4], cv[4], -cv[4], -cv[4], cv[2]]
-let camera_minors = [-cv[1], -cv[1], cv[2], cv[2], -cv[1], -cv[1]]
+let camera_origins = map([3, 1, 0, 5, 7, 5]): cube_vertex(_)
+let camera_majors = map([-2, 4, 4, -4, -4, 2]): cube_vertex(_)
+let camera_minors = map([-1, -1, 2, 2, -1, -1]): cube_vertex(_)
 
 let pitch_transitions = [
     [-90, 0, 90, 0],
@@ -41,7 +46,7 @@ struct camera_location:
             pitch: lerp(this.pitch, that.pitch, ratio),
         }
 
-class point_of_view:
+class daia_vantage:
     size:int
     area:int
     neighbors:[[int]]
@@ -49,6 +54,10 @@ class point_of_view:
     index:int
     prev:camera_location
     next:camera_location
+
+    cursor_prev:xy_f
+    cursor_next:xy_f
+    cursor_face:int
 
     def camera_go(dir, elevation):
         let index1 = index
@@ -63,12 +72,19 @@ class point_of_view:
         let pitch = next.pitch + pitch_transitions[face1][dir] * pivot
 
         let within = index2 % area
-        let center = float(xy_i{ within % size, within / size }) + xy_1/2
+        let cursor = float(xy_i{ within % size, within / size })
+        let center = cursor + xy_1/2
         let major = camera_majors[face2]
         let minor = camera_minors[face2]
         let position = camera_origins[face2] -
             xyz_1/2 +
             (major * center.x + minor * center.y) / size
+
+        cursor_next = cursor
+        if pivot:
+            // TODO translate neighbor coordinates
+            cursor_prev = cursor_next
+            cursor_face = face2
 
         next = camera_location{
             position: position,
@@ -80,16 +96,24 @@ class point_of_view:
     def camera_position(location):
         return location.position + vecfromyawpitch(location.yaw, location.pitch, -location.elevation, 0.0)
 
-    def update_camera():
+    def update():
         prev = camera_lerp(prev, next, 1 - pow(0.05, gl_delta_time()))
+        cursor_prev = lerp(cursor_prev, cursor_next, 1 - pow(0.05, gl_delta_time()))
         camera_position = camera_position(prev)
         camera_yaw = prev.yaw
         camera_pitch = prev.pitch
 
-def camera_init(size, area, index, elevation):
+    def draw_cursor_on_face(face, thickness):
+        if face == cursor_face:
+            gl_scale(xy_1 / size)
+            gl_translate(cursor_prev)
+            unit_box(thickness)
+
+def init_daia_camera_location(size, area, index, elevation):
     let face = index / area
     let within = index % area
-    let center = float(xy_i{ within % size, within / size }) + xy_1/2
+    let cursor = float(xy_i{ within % size, within / size })
+    let center = cursor + xy_1/2
     let pitch = camera_pitches[face]
     let yaw = camera_yaws[face]
     let major = camera_majors[face]
@@ -102,18 +126,20 @@ def camera_init(size, area, index, elevation):
         elevation: elevation,
         yaw: yaw,
         pitch: pitch,
-    }
+    }, cursor, face
 
-def new_pov(size, neighbors, index, elevation):
+def new_daia_vantage(size, neighbors, index, elevation):
     let area = size * size
-    let at = camera_init(size, area, index, elevation)
-    let p = point_of_view{
+    let camera, cursor, face = init_daia_camera_location(size, area, index, elevation)
+    return daia_vantage{
         size: size,
         area: area,
         index: index,
-        prev: at,
-        next: at,
+        prev: camera,
+        next: camera,
+        cursor_prev: cursor,
+        cursor_next: cursor,
+        cursor_face: face,
         neighbors: neighbors,
     }
-    return p
 

@@ -2,6 +2,7 @@ import color
 import vec
 import sheets
 import sprites
+import game_draw
 
 def power_of_two(n):
     return n > 0 and ~(n - 1) & n == n
@@ -9,12 +10,6 @@ def power_of_two(n):
 def mod(n, m):
     if power_of_two(m): return n & m
     return (n % m + m) % m
-
-let corners = [xy_0, xy_x, xy_1, xy_y]
-def unit_box(thickness):
-    for(4) start:
-        let end = (start + 1) & 3
-        gl_line(corners[start], corners[end], thickness)
 
 class point_of_view:
     cursor: xy_i
