@@ -1036,10 +1036,7 @@ class ent_scaffold:
             set_ancillary(chunk, id)
 
     def init(chunk, id):
-        if glyph != glyph_0:
-            chunk.ren[id] = render { bg, fg, glyph }
-        else:
-            chunk.ren[id] = render { bg, color_clear, glyph_0 }
+        chunk.ren[id] = render { bg, fg, glyph }
         // may have associated tile or item sheet data, but not both
         assert tile == tile_none or item == item_none
         if tile != tile_none: chunk.tile[id] = tile
