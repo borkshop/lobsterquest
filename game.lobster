@@ -162,6 +162,7 @@ class shard:
     pos  = []::spatial
     ren  = []::render
     tex  = []::resource?
+    tile = []::tile_entity_id
     item = []::item_entity_id
 
     systems = []::system
@@ -175,6 +176,7 @@ class shard:
             pos[id] = spatial_0
             ren[id] = render_0
             tex[id] = nil
+            tile[id] = tile_none
             item[id] = item_none
             return id
         else:
@@ -183,6 +185,7 @@ class shard:
             pos.push(spatial_0)
             ren.push(render_0)
             tex.push(nil)
+            tile.push(tile_none)
             item.push(item_none)
             return id
 
@@ -194,8 +197,10 @@ class shard:
         if post: post(id)
         let r = ren[id]
         if r.glyf == glyph_0:
+            let tile_id = tile[id]
             let item_id = item[id]
-            if item_id != item_none: ren[id] = r.with_glyph(item_sprite(item_id))
+            if       tile_id != tile_none: ren[id] = r.with_glyph(tile_sprite(tile_id))
+            else: if item_id != item_none: ren[id] = r.with_glyph(item_sprite(item_id))
 
     def add_type(id:int, t:entype): set_type(id, type[id] |  t)
     def del_type(id:int, t:entype): set_type(id, type[id] & ~t)
@@ -222,6 +227,7 @@ class shard:
         pos  = []
         ren  = []
         tex  = []
+        tile = []
         item = []
 
 enum spawn_kind:
@@ -830,6 +836,7 @@ class chunk : shard
 
     def use_one(actor_id, object_id) -> bool:
         let id = actor_ids[actor_id]
+        let tile_id = tile[object_id]
         let item_id = item[object_id]
         var consumed = false
         avatars.with(this, id) av:
@@ -840,6 +847,10 @@ class chunk : shard
                     consumed = true
                 else:
                     print("pass " + item_id)
+
+            else: if tile_id != tile_none:
+                // TODO gathering from tiles
+                print("TODO gather from " + tile_id)
 
             else:
                 // TODO avatar state (hand items) X object
@@ -999,6 +1010,7 @@ class ent_scaffold:
     z     = 0.0
     size  = 1.0
 
+    tile = tile_none
     item = item_none
 
     spawn_prob = xy_0i
@@ -1028,6 +1040,9 @@ class ent_scaffold:
             chunk.ren[id] = render { bg, fg, glyph }
         else:
             chunk.ren[id] = render { bg, color_clear, glyph_0 }
+        // may have associated tile or item sheet data, but not both
+        assert tile == tile_none or item == item_none
+        if tile != tile_none: chunk.tile[id] = tile
         if item != item_none: chunk.item[id] = item
 
     def set_ancillary(chunk, id):
@@ -1153,14 +1168,14 @@ scaffolds.push(ent_scaffold {
 
 // tree_evergreen
 scaffolds[object_scaffold].with():
-    _.glyph = tile_sprite(tile_pine_tree)
+    _.tile = tile_pine_tree
     _.spawn_prob = xy_i { 5, 1000 }
     _.spawn_item = item_pine_apple
     scaffolds.push(_)
 
 // tree_deciduous
 scaffolds[object_scaffold].with():
-    _.glyph = tile_sprite(tile_apple_tree)
+    _.tile = tile_apple_tree
     _.spawn_prob = xy_i { 5, 1000 }
     _.spawn_item = item_apple
     scaffolds.push(_)
