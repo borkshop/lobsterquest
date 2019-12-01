@@ -93,12 +93,10 @@ class point_of_view:
 
         let face1 = index1 / area
         let face2 = index2 / area
+        let pivot = face1 != face2
 
-        let yaw = next.yaw + if face1 == face2: 0
-        else: yaw_transitions[face1][dir]
-
-        let pitch = next.pitch + if face1 == face2: 0
-        else: pitch_transitions[face1][dir]
+        let yaw = next.yaw + yaw_transitions[face1][dir] * pivot
+        let pitch = next.pitch + pitch_transitions[face1][dir] * pivot
 
         let within = index2 % area
         let center = float(xy_i{ within % size, within / size }) + xy_1/2
