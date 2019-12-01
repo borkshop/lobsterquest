@@ -98,8 +98,8 @@ struct render:
             gl_color(fg): gl_unit_square()
 
     def with_glyph(g:glyph):
-        if g.code != 0 and fg == color_clear:
-            return render { bg, color_white, g }
+        if g.code != 0:
+            return render { bg, if fg == color_clear: color_white else: fg, g }
         else:
             return render { bg, color_clear, glyph_0 }
 
