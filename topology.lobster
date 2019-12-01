@@ -12,6 +12,14 @@ enum direction_index:
     southward
     westward
 
+def new_round_square_topology(size):
+    let grid = xy_1i * size
+    let points = flatten(mapxy(grid) v: v)
+    def index_of_point(v): return v.y * size + v.x
+    let neighborhoods = map(points) v: map(cardinal_directions) d: index_of_point((v + d + grid) % grid)
+    let turns = map(points): map(cardinal_directions): 0
+    return neighborhoods, turns
+
 def new_daia_topology(size):
     // $ for(new_daia_topology(1)): print _
     // [3, 1, 2, 4]
@@ -76,3 +84,5 @@ def new_daia_topology(size):
     stitch(area*1, area*3+size-1, 1, -1, northward, northward, about) // L 1-3
 
     return neighborhoods, turns
+
+let daia_unit_neighborhoods, daia_unit_turns = new_daia_topology(1)

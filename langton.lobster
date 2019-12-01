@@ -87,8 +87,6 @@ def move(len, dst, src, fun):
     for(len) i:
         dst[i] = fun(src[i])
 
-def index_of_point(v, size): return v.y * size + v.x
-
 // world captures all allocations necessary to run the langton’s ents
 // cellular automaton.
 // The automaton uses columns of data organized by their respective point in
@@ -177,13 +175,6 @@ class world:
                 turn[found]
         // Rotate in place if cannot proceed.
         return i, xy_0i, 1, langton, 0
-
-def new_round_square_topology(size):
-    let grid = xy_1i * size
-    let points = flatten(mapxy(grid) v: v)
-    let neighborhoods = map(points) v: map(cardinal_directions) d: index_of_point((v + d + grid) % grid, size)
-    let turns = map(points): map(cardinal_directions): 0
-    return neighborhoods, turns
 
 def new_world(neighborhoods, turns, count, rules):
     let len = length(neighborhoods)

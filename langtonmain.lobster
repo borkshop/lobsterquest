@@ -1,7 +1,8 @@
-import langton
 import color
 import vec
 import std
+import langton
+import topology
 import sprites
 import sheets
 import brand
@@ -26,7 +27,7 @@ do():
     let size = 16
     let count = 4
     let rules = [1, -1, 0]
-    let neighborhoods, turns = langton_new_round_square_topology(size)
+    let neighborhoods, turns = new_round_square_topology(size)
     let w = langton_new_world(neighborhoods, turns, count, rules)
     let first_rule_color = dark_brown
     let last_rule_color = dark_green
