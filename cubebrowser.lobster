@@ -1,6 +1,7 @@
 import vec
 import util3d
 import game_draw
+import topology
 
 let cube_vertices = map(8) c: xyz_v(map(3) i: float(c & (1 << (2 - i)) != 0))
 
@@ -76,14 +77,16 @@ class daia_vantage:
         let center = cursor + xy_1/2
         let major = camera_majors[face2]
         let minor = camera_minors[face2]
-        let position = camera_origins[face2] -
-            xyz_1/2 +
+        let position = camera_origins[face2] - xyz_1/2 +
             (major * center.x + minor * center.y) / size
 
         cursor_next = cursor
         if pivot:
-            // TODO translate neighbor coordinates
-            cursor_prev = cursor_next
+            let neighbor = daia_unit_neighborhoods[face2].find() face: face == face1
+            let offset = float(cardinal_directions[neighbor])
+            let turn = daia_unit_turns[face2][neighbor]
+            cursor_prev = offset * size +
+                rotate2D(cursor_prev - size/2, turn * -90) + size/2
             cursor_face = face2
 
         next = camera_location{
@@ -97,17 +100,24 @@ class daia_vantage:
         return location.position + vecfromyawpitch(location.yaw, location.pitch, -location.elevation, 0.0)
 
     def update():
-        prev = camera_lerp(prev, next, 1 - pow(0.05, gl_delta_time()))
-        cursor_prev = lerp(cursor_prev, cursor_next, 1 - pow(0.05, gl_delta_time()))
+        prev = camera_lerp(prev, next, 1 - pow(0.1, gl_delta_time()))
+        cursor_prev = lerp(cursor_prev, cursor_next, 1 - pow(0.01, gl_delta_time()))
         camera_position = camera_position(prev)
         camera_yaw = prev.yaw
         camera_pitch = prev.pitch
 
-    def draw_cursor_on_face(face, thickness):
+    def draw_cursor_on_face(face, fun):
         if face == cursor_face:
             gl_scale(xy_1 / size)
             gl_translate(cursor_prev)
-            unit_box(thickness)
+            fun()
+        else: if face + cursor_face != 5:
+            let neighbor = daia_unit_neighborhoods[cursor_face].find(): face == _
+            let offset = float(cardinal_directions[neighbor])
+            let turn = daia_unit_turns[cursor_face][neighbor]
+            gl_scale(xy_1 / size)
+            gl_translate(rotate2D(cursor_prev - xy_1/2 - size/2, turn * 90) + xy_1/2 + size/2 - offset * size)
+            fun()
 
 def init_daia_camera_location(size, area, index, elevation):
     let face = index / area

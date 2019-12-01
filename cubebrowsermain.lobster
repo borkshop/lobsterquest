@@ -33,7 +33,7 @@ let pov = new_daia_vantage(size, neighbors, 0, 1)
 
 while gl_frame():
     def go(dir):
-        pov.camera_go(dir, 1)
+        pov.camera_go(dir, 1.5)
 
     if gl_button("k") == 1: go(0)
     if gl_button("l") == 1: go(1)
@@ -47,10 +47,11 @@ while gl_frame():
             gl_clear(color_grey)
             gl_color(color_white)
             gl_scale(xy_1 * detail)
-            // gl_translate(xy_1/2)
-            // gl_scale(1.25)
-            // gl_translate(xy_1/-2)
-            pov.draw_cursor_on_face(i, 0.05)
+            pov.draw_cursor_on_face(i):
+                // gl_translate(xy_1/2)
+                // gl_scale(1.25)
+                // gl_translate(xy_1/-2)
+                unit_box(0.05)
 
     gl_clear(color_dark_grey)
     gl_cursor(false)
