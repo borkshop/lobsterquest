@@ -229,10 +229,3 @@ class map_mode<world_type>:
                 gl_translate(pov.retical - pov.camera):
                     gl_translate(xy_x*-1.5 - xy_y/2)
                     gl_unit_square()
-
-enum mode:
-    mode_navigating
-    mode_selecting_tile
-
-class world_map_mode : map_mode<world>
-class tile_menu_mode : map_mode<tile_menu_world>

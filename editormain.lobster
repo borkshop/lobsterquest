@@ -1,5 +1,12 @@
 import editor
 
+class world_map_mode : map_mode<world>
+class tile_menu_mode : map_mode<tile_menu_world>
+
+enum mode:
+    mode_navigating
+    mode_selecting_tile
+
 class root_mode:
     mode: mode
     map_mode: world_map_mode
