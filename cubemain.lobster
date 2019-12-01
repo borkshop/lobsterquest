@@ -2,6 +2,7 @@ import vec
 import color
 import cube
 import texture
+import util3d
 
 fatal(gl_window("Lobster Cube", 515, 515))
 check(gl_set_font_name("data/fonts/Droid_Sans/DroidSans.ttf"), "can\'t load font")
