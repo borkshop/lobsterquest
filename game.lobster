@@ -150,6 +150,16 @@ enum_flags entype:
     ent_input       // receives player input
     ent_avatar      // has avatar
 
+def entype_str(t:entype):
+    var s = ""
+    if t & ent_visible: s += " ent_visible"
+    if t & ent_cell:    s += " ent_cell"
+    if t & ent_body:    s += " ent_body"
+    if t & ent_mind:    s += " ent_mind"
+    if t & ent_input:   s += " ent_input"
+    if t & ent_avatar:  s += " ent_avatar"
+    return s
+
 class system:
     def ent_reset():
         nil
@@ -845,7 +855,7 @@ class chunk : shard
                     print("#" + id + " TODO " + tile_id + " from #" + object_id)
                 else:
                     // TODO avatar state (hand items) X object
-                    print("#" + id + " booped an unknown type:" + t + " from #" + object_id)
+                    print("#" + id + " booped an unknown type:" + entype_str(t) + " from #" + object_id)
                 return false
 
             switch act.act:
