@@ -714,6 +714,9 @@ class chunk : shard
     actions   = []::action
     actor_pos = []::spatial
     targets   = []::xy_i
+    group_ids = []::int
+    groups    = []::[int]
+    hits      = []::[int]
 
     def can_step():
         return !anims.blocked
@@ -765,15 +768,16 @@ class chunk : shard
         return filter(bodys.ids) id: pos[id].cell() == loc
 
     def step(input:input_fun):
-        // clear all prior action animations
         for(minds.ids): anims.clear(this, _) // TODO batch method
+        run_minds(input)
+        spawn_items()
 
+    def run_minds(input:input_fun):
         choose_actions(input)
-
-        // compute hit bodies, grouping actions by shared interest
-        let group_ids = map(targets): -1
-        let groups    = vector_reserve(typeof [[int]], targets.length())
-        let hits      = vector_reserve(typeof [[int]], targets.length())
+        group_ids = map(targets): -1
+        groups    = vector_reserve(typeof [[int]], targets.length())
+        hits      = vector_reserve(typeof [[int]], targets.length())
+        // compute hit, resolving in groups of shared interest
         for(targets) t, actor_id:
             if group_ids[actor_id] < 0:
                 let group_id = groups.length()
@@ -790,11 +794,8 @@ class chunk : shard
                 hits.push(at)
                 groups.push(actors)
                 group_ids[actor_id] = group_id
-
-        // resolve action groups
-        for(groups) actors, group_id: resolve_action(actors, hits[group_id])
-
-        spawn_items()
+        for(groups) actors, group_id:
+            resolve_action(actors, hits[group_id])
 
     def resolve_action(actors, at):
         if   actors.length > 1: congress(actors, at)
