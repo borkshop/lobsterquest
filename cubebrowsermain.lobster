@@ -27,13 +27,14 @@ let face_textures = map(6):
 
 let face_meshes = cube_new_face_meshes(cube_new_face_vertices())
 
-let size = 5
+let size = 9
+let elevation = 1
 let neighbors = new_daia_topology(size)
 let pov = new_daia_vantage(size, neighbors, 0, 1)
 
 while gl_frame():
     def go(dir):
-        pov.camera_go(dir, 1.5)
+        pov.camera_go(dir, elevation)
 
     if gl_button("k") == 1: go(0)
     if gl_button("l") == 1: go(1)
@@ -44,13 +45,13 @@ while gl_frame():
 
     for(6) i:
         render_to_texture(face_textures[i], xy_1i * detail, false, nil, 0):
-            gl_clear(color_grey)
-            gl_color(color_white)
+            gl_clear(color_white * 0.9)
+            gl_color(face_colors[i])
             gl_scale(xy_1 * detail)
             pov.draw_cursor_on_face(i):
-                // gl_translate(xy_1/2)
-                // gl_scale(1.25)
-                // gl_translate(xy_1/-2)
+                gl_translate(xy_1/2)
+                gl_scale(1.25)
+                gl_translate(xy_1/-2)
                 unit_box(0.05)
 
     gl_clear(color_dark_grey)
@@ -68,6 +69,6 @@ while gl_frame():
         // The texture colors are multiplied by the color in context.
         // Since the texture on our mesh is white on black, we can change the
         // white to a unique color for each face of the world.
-        gl_color(face_colors[i])
+        gl_color(color_white)
         gl_set_primitive_texture(0, face_textures[i])
         gl_render_mesh(face_meshes[i])
