@@ -824,32 +824,37 @@ class chunk : shard
         timers.record_time(0):
             timers.record_time(1): for(minds.ids): anims.clear(this, _)
             timers.record_time(2): run_minds(input)
-            timers.record_time(3): spawn_items()
+            timers.record_time(6): spawn_items()
 
     def run_minds(input:input_fun):
-        choose_actions(input)
-        group_ids = map(targets): -1
-        groups    = vector_reserve(typeof [[int]], targets.length())
-        hits      = vector_reserve(typeof [[int]], targets.length())
-        // compute hit, resolving in groups of shared interest
-        for(targets) t, actor_id:
-            if group_ids[actor_id] < 0:
-                let group_id = groups.length()
-                let actors = [actor_id]
-                let at = bodys_at(t)
-                for_from(targets, actor_id + 1) ot, other_actor_id:
-                    if targets[other_actor_id] == t:
-                        if group_ids[other_actor_id] < 0:
-                            group_ids[other_actor_id] = group_id
-                            actors.push(other_actor_id)
-                        // NOTE should not be possible unless we introduce
-                        // second-order consequences (e.g. pushing):
-                        // else: if other_actor_id != group_id:
-                hits.push(at)
-                groups.push(actors)
-                group_ids[actor_id] = group_id
-        for(groups) actors:
-            resolve_action_group(actors)
+        timers.record_time(3): choose_actions(input)
+
+        timers.record_time(4):
+            group_ids = map(targets): -1
+            groups    = vector_reserve(typeof [[int]], targets.length())
+            hits      = vector_reserve(typeof [[int]], targets.length())
+
+            // compute hit, resolving in groups of shared interest
+            for(targets) t, actor_id:
+                if group_ids[actor_id] < 0:
+                    let group_id = groups.length()
+                    let actors = [actor_id]
+                    let at = bodys_at(t)
+                    for_from(targets, actor_id + 1) ot, other_actor_id:
+                        if targets[other_actor_id] == t:
+                            if group_ids[other_actor_id] < 0:
+                                group_ids[other_actor_id] = group_id
+                                actors.push(other_actor_id)
+                            // NOTE should not be possible unless we introduce
+                            // second-order consequences (e.g. pushing):
+                            // else: if other_actor_id != group_id:
+                    hits.push(at)
+                    groups.push(actors)
+                    group_ids[actor_id] = group_id
+
+        timers.record_time(5):
+            for(groups) actors:
+                resolve_action_group(actors)
 
     def avatar_move(actor_id):
         let id = actor_ids[actor_id]
@@ -962,10 +967,13 @@ def new_chunk():
     ch.systems.push(ch.avatars)
     ch.systems.push(ch.spawner)
 
-    ch.timers.add("step", 64)       // 0
-    ch.timers.add("step.prep", 64)  // 1
-    ch.timers.add("step.minds", 64) // 2
-    ch.timers.add("step.spawn", 64) // 3
+    ch.timers.add("step", 64)             // 0
+    ch.timers.add("step.prep", 64)        // 1
+    ch.timers.add("step.minds", 64)       // 2
+    ch.timers.add("...minds.think", 64)   // 3
+    ch.timers.add("...minds.hits", 64)    // 4
+    ch.timers.add("...minds.resolve", 64) // 5
+    ch.timers.add("step.spawn", 64)       // 6
 
     return ch
 
