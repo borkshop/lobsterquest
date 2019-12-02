@@ -23,6 +23,34 @@ def for_from(xs, i, body):
         body(xs[i], i)
         i++
 
+class timers:
+    labels = []::string
+    values = []::[float]
+    capn   = []::int
+
+    def im_show():
+        for(labels) label, id:
+            im_graph(label, values[id], false)
+
+    def add(label:string, cap:int) -> int:
+        let id = labels.length
+        labels.push(label)
+        values.push([])
+        capn.push(cap)
+        return id
+
+    def record(id:int, value:float):
+        let vals = values[id]
+        vals.push(value)
+        let over = vals.length - capn[id]
+        if over > 0: vals.remove(0, over)
+
+    def record_time(id:int, fun):
+        let t0 = seconds_elapsed()
+        fun()
+        let t1 = seconds_elapsed()
+        record(id, t1 - t0)
+
 /* TODO
 - better trace logging facility
 
@@ -712,6 +740,8 @@ def animate(anims::anims, id:int, over:float, body):
     }.with(body)
 
 class chunk : shard
+    timers = timers{}
+
     spawner = spawner{}
     minds   = minds {}
     bodys   = bodys {}
@@ -791,9 +821,10 @@ class chunk : shard
         return filter(bodys.ids) id: pos[id].cell() == loc
 
     def step(input:input_fun):
-        for(minds.ids): anims.clear(this, _) // TODO batch method
-        run_minds(input)
-        spawn_items()
+        timers.record_time(0):
+            timers.record_time(1): for(minds.ids): anims.clear(this, _)
+            timers.record_time(2): run_minds(input)
+            timers.record_time(3): spawn_items()
 
     def run_minds(input:input_fun):
         choose_actions(input)
@@ -930,6 +961,12 @@ def new_chunk():
     ch.systems.push(ch.bodys)
     ch.systems.push(ch.avatars)
     ch.systems.push(ch.spawner)
+
+    ch.timers.add("step", 64)       // 0
+    ch.timers.add("step.prep", 64)  // 1
+    ch.timers.add("step.minds", 64) // 2
+    ch.timers.add("step.spawn", 64) // 3
+
     return ch
 
 class stacked_scene : system
@@ -1332,7 +1369,7 @@ class ui:
     show_editor = false
     build_size  = 13
 
-    def run_forever(draw, step, edit):
+    def run_forever(draw, step, stats, edit):
         var done = false
         forever():
             if done: return
@@ -1355,7 +1392,9 @@ class ui:
 
                     im_separator()
                     show_engine = im_checkbox("Engine Info", show_engine)
-                    if show_engine: im_show_engine_stats()
+                    if show_engine:
+                        im_show_engine_stats()
+                        stats()
 
                     im_separator()
                     show_editor = im_checkbox("Edit Everything", show_editor)
@@ -1389,6 +1428,8 @@ def run_a_world():
     step:
         if world.can_step() and play_reader.read_input():
             world.step(): play_reader.action()
+    stats:
+        world.timers.im_show()
     edit:
         im_edit_anything(world, "World")
         im_edit_anything(scene, "Scene")
