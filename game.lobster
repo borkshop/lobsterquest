@@ -741,8 +741,10 @@ class chunk : shard
         // compute action targets
         targets = map(actions) a, actor_id: a.target(actor_pos[actor_id])
 
-    def move_actor(actor_id, full):
-        // animate actor movement, updating actor_pos if full
+    def actor_move(actor_id):
+        // animate actor movement, updating actor_pos if not blocked
+        let group_id = group_ids[actor_id]
+        let at = hits[group_id]
         let id = actor_ids[actor_id]
         let a = pos[id]
         let t = targets[actor_id]
@@ -753,15 +755,18 @@ class chunk : shard
             z: a.z,
             w: a.w,
         }
+
         anims.animate(id, movement_time) anim:
             anim.blocking = true
             anim.after(0): anim.pos = a
-            if full:
-                anim.after(1): anim.pos = b
-                actor_pos[actor_id] = b
-            else:
+            if at.length: // blocked, half-animate
                 anim.after(1): anim.pos = lerp(a, b, 0.5)
                 anim.after(1): anim.pos = a
+            else: // unblocked, full-animate
+                anim.after(1): anim.pos = b
+        if not at.length: // unblocked, update actor state
+            actor_pos[actor_id] = b
+            at.push(id) // ...am here now, have at me!
 
     def bodys_at(loc):
         // TODO spatial query
@@ -800,7 +805,7 @@ class chunk : shard
     def resolve_action(actors, at):
         if   actors.length > 1: congress(actors, at)
         else: if at.length > 0: boop(actors[0], at)
-        else:                   move_actor(actors[0], true) // full move animation
+        else:                   actor_move(actors[0])
 
     def congress(actors, at):
         let init     = []::int
@@ -823,16 +828,16 @@ class chunk : shard
             if at.length: at = boop(actor_id, at)
             else:         shake(actor_id, others)
 
-        for(rest): move_actor(_, false) // half-animate all other non-avatar movers
+        for(rest): actor_move(_)
 
     def shake(actor_id, others):
         for(others): interact(actor_id, actor_ids[_])
-        move_actor(actor_id, false) // half-animate
+        actor_move(actor_id)
 
     def boop(actor_id, at):
         let t = type[actor_ids[actor_id]]
         if t & ent_avatar: at = use(actor_id, at)
-        else:              move_actor(actor_id, false) // half-animate
+        else:              actor_move(actor_id)
         return at
 
     def use_one(actor_id, object_id) -> bool:
@@ -869,8 +874,7 @@ class chunk : shard
                 true
             else:
                 !this.use_one(actor_id, id)
-        if at.length: move_actor(actor_id, false) // half-animate
-        else:         move_actor(actor_id, true)  // took, full-animate
+        actor_move(actor_id)
         return at
 
     def interact(actor_id, other_id):
