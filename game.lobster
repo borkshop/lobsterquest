@@ -1391,6 +1391,9 @@ class ui:
                         paused = false
 
                     im_separator()
+                    paused = im_checkbox("Paused", paused)
+
+                    im_separator()
                     show_engine = im_checkbox("Engine Info", show_engine)
                     if show_engine:
                         im_show_engine_stats()
