@@ -748,7 +748,7 @@ class chunk : shard
     avatars = avatars {}
     anims   = anims {}
 
-    movement_time = 1.0 / 6
+    movement_time = 1.0 / 4
 
     actor_ids = []::int
     actions   = []::action
