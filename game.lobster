@@ -768,6 +768,14 @@ class chunk : shard
             actor_pos[actor_id] = b
             at.push(id) // ...am here now, have at me!
 
+    def actor_find_at(actor_id, want):
+        let group_id = group_ids[actor_id]
+        let at = hits[group_id]
+        for(at) id, i: if want(id):
+            if type[id] == ent_none:
+                at.remove(i, 1)
+                return
+
     def bodys_at(loc):
         // TODO spatial query
         return filter(bodys.ids) id: pos[id].cell() == loc
@@ -799,18 +807,65 @@ class chunk : shard
                 hits.push(at)
                 groups.push(actors)
                 group_ids[actor_id] = group_id
-        for(groups) actors, group_id:
-            resolve_action(actors, hits[group_id])
+        for(groups) actors:
+            resolve_action_group(actors)
 
-    def resolve_action(actors, at):
-        if   actors.length > 1: congress(actors, at)
-        else: if at.length > 0: boop(actors[0], at)
-        else:                   actor_move(actors[0])
+    def avatar_move(actor_id):
+        let id = actor_ids[actor_id]
+        let act = actions[actor_id]
+        avatars.with(this, id) av:
+            def boop(object_id) -> bool:
+                // TODO take av.right_hand into account? combat? digging? crafting-at?
+                let t = type[object_id]
+                if t & ent_avatar: avatars.with(this, object_id) other_av:
+                    let offered = other_av.offer()
+                    if offered:
+                        // TODO could open offered modal
+                        if av.take(offered):
+                            other_av.offer_taken()
+                            print("#" + id + " took offered " + offered + " from #" + object_id)
+                            return true
+                        else:
+                            print("#" + id + " decline offered " + offered + " from #" + object_id)
+                    else:
+                        print("#" + id + " shrug at #" + object_id)
+                    return false
+                let tile_id = tile[object_id]
+                let item_id = item[object_id]
+                if item_id != item_none:
+                    if av.take(item_id):
+                        this.set_type(object_id, ent_none)
+                        print("#" + id + " took " + item_id + " from #" + object_id)
+                        return true
+                    else:
+                        print("#" + id + " pass " + item_id + " from #" + object_id)
+                else: if tile_id != tile_none:
+                    // TODO gathering from tiles, climbing onto tiles, entering
+                    // vehicle tiles, enter any inner space, ...
+                    print("#" + id + " TODO " + tile_id + " from #" + object_id)
+                else:
+                    // TODO avatar state (hand items) X object
+                    print("#" + id + " booped an unknown type:" + t + " from #" + object_id)
+                return false
 
-    def congress(actors, at):
-        let init     = []::int
-        let init_act = []::int
-        let rest     = []::int
+            switch act.act:
+                case action_none:         nil
+                case action_hand_drop:    av.drop()
+                case action_hand_swap:    av.swap()
+                case action_hand_use:     av.use_hand()
+                case action_hand_combine: av.combine_hands()
+                case action_move:
+                    if act.dir == xy_0:
+                        print("#" + id + " rest...") // TODO and then...
+                    else:
+                        actor_find_at(actor_id) object_id: boop(object_id)
+                        actor_move(actor_id)
+
+    def resolve_action_group(actors):
+        // partition actors into...
+        let vtrs = []::int // ...avatar actors
+        let init = []::int //  , sorted by initiative
+        let rest = []::int //  ; and non-avatar actors
         for(actors) actor_id:
             let id = actor_ids[actor_id]
             if type[id] & ent_avatar:
@@ -818,86 +873,12 @@ class chunk : shard
                 assert av
                 let n, i = init.binary_search(av.initiative)
                 init.insert(i, av.initiative)
-                init_act.insert(i, actor_id)
+                vtrs.insert(i, actor_id)
             else:
                 rest.push(actor_id)
-
-        // highest initiative first
-        reverse(init_act) actor_id:
-            let others = init_act.filter(): _ != actor_id
-            if at.length: at = boop(actor_id, at)
-            else:         shake(actor_id, others)
-
-        for(rest): actor_move(_)
-
-    def shake(actor_id, others):
-        for(others): interact(actor_id, actor_ids[_])
-        actor_move(actor_id)
-
-    def boop(actor_id, at):
-        let t = type[actor_ids[actor_id]]
-        if t & ent_avatar: at = use(actor_id, at)
-        else:              actor_move(actor_id)
-        return at
-
-    def use_one(actor_id, object_id) -> bool:
-        let id = actor_ids[actor_id]
-        let tile_id = tile[object_id]
-        let item_id = item[object_id]
-        var consumed = false
-        avatars.with(this, id) av:
-            if item_id != item_none:
-                if av.take(item_id):
-                    this.set_type(object_id, ent_none)
-                    print("take " + item_id)
-                    consumed = true
-                else:
-                    print("pass " + item_id)
-
-            else: if tile_id != tile_none:
-                // TODO gathering from tiles
-                print("TODO gather from " + tile_id)
-
-            else:
-                // TODO avatar state (hand items) X object
-                print("shrug t:" + type[object_id] + " item:" + item_id)
-
-        return consumed
-
-    def use(actor_id, at):
-        at = at.filter() id:
-            if id == actor_ids[actor_id]:
-                perform(id, actions[actor_id])
-                true
-            else: if type[id] & ent_avatar:
-                interact(actor_id, id)
-                true
-            else:
-                !this.use_one(actor_id, id)
-        actor_move(actor_id)
-        return at
-
-    def interact(actor_id, other_id):
-        avatars.with(this, actor_ids[actor_id]) av:
-            avatars.with(this, other_id) other_av:
-                // TODO could open all other offers as modal
-                let offered = other_av.offer()
-                if not offered:
-                    print("nothing offered")
-                else: if av.take(offered):
-                    other_av.offer_taken()
-                    print("took offered " + offered)
-                else:
-                    print("decline offered " + offered)
-
-    def perform(id, act): avatars.with(this, id) av:
-        switch act.act:
-            case action_none:         print("???")
-            case action_move:         print("rest...")
-            case action_hand_drop:    av.drop()
-            case action_hand_swap:    av.swap()
-            case action_hand_use:     av.use_hand()
-            case action_hand_combine: av.combine_hands()
+        // resolve actions ordered by avatar.initiative then mind id
+        reverse(vtrs) actor_id: avatar_move(actor_id)
+        for(rest) actor_id: actor_move(actor_id)
 
 def spawn(this::spawner, chunk):
     var last_id = -1
