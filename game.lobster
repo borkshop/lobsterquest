@@ -125,11 +125,11 @@ struct render:
             gl_set_primitive_texture(0, glyf.tile_texture())
             gl_color(fg): gl_unit_square()
 
-    def with_glyph(g:glyph):
-        if g.code != 0:
-            return render { bg, if fg == color_clear: color_white else: fg, g }
-        else:
-            return render { bg, color_clear, glyph_0 }
+    def with_fg_color(c:color, g:glyph):
+        if c == color_clear: c = color_white
+        return render { bg, c, g }
+    def with_fg(c:color): return with_fg_color(c, glyf)
+    def with_glyph(g:glyph): return with_fg_color(fg, g)
 
 let render_0 = render { color_clear, color_clear, glyph_0 }
 
