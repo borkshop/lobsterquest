@@ -1001,67 +1001,8 @@ class stacked_scene : system
                         else:
                             chunk.ren[id].draw()
 
-class ent_scaffold:
-    type  : entype
-    bg    = color_clear
-    fg    = color_clear
-    glyph = glyph_0
-    z     = 0.0
-    size  = 1.0
-
-    tile = tile_none
-    item = item_none
-
-    spawn_prob = xy_0i
-    spawn_item = item_none
-
-    avatar_helf       = xy_0i
-    avatar_stam       = xy_0i
-    avatar_initiative = 0
-    avatar_gives      = false
-    avatar_left_hand  = item_none
-    avatar_right_hand = item_none
-
-    def with(body):
-        let co = copy(this)
-        body(co)
-        return co
-
-    def create(chunk:chunk, loc:xy_f):
-        chunk.create(type) id:
-            chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size }
-            init(chunk, id)
-        post id:
-            set_ancillary(chunk, id)
-
-    def init(chunk, id):
-        chunk.ren[id] = render { bg, fg, glyph }
-        // may have associated tile or item sheet data, but not both
-        assert tile == tile_none or item == item_none
-        if tile != tile_none: chunk.tile[id] = tile
-        if item != item_none: chunk.item[id] = item
-
-    def set_ancillary(chunk, id):
-        if type & ent_avatar: chunk.avatars.with(chunk, id) av:
-            if avatar_helf.y     != 0:         av.helf       = avatar_helf
-            if avatar_stam.y     != 0:         av.stam       = avatar_stam
-            if avatar_initiative != 0:         av.initiative = avatar_initiative
-            if avatar_gives:                   av.gives      = avatar_gives
-            if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
-            if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
-        if this.spawn_prob != xy_0i:
-            chunk.spawner.add_spawn(chunk, id) sp:
-                sp.prob(spawn_prob.x, spawn_prob.y)
-                sp.add_item_spawn(this.spawn_item)
-
 class builder:
     loc = xy_0
-
-    def create(chunk, es:ent_scaffold):
-        return es.create(chunk, loc)
-
-    def create_with(chunk, es:ent_scaffold, body):
-        return this.create(chunk, es.with(body))
 
     def at(l:xy_f, body):
         let base = loc
@@ -1123,6 +1064,32 @@ def sqascii(code:int):  return glyph { sqascii_glyph_mode,  font_rune(sqascii_gl
 def unicode(code:int):  return glyph { unicode_glyph_mode,  font_rune(unicode_glyph_mode,  code) }
 def uniblock(code:int): return glyph { uniblock_glyph_mode, font_rune(uniblock_glyph_mode, code) }
 def twemoji(code:int):  return glyph { twemoji_glyph_mode,  font_rune(twemoji_glyph_mode,  code) }
+
+class ent_scaffold:
+    type  : entype
+    bg    = color_clear
+    fg    = color_clear
+    glyph = glyph_0
+    z     = 0.0
+    size  = 1.0
+
+    tile = tile_none
+    item = item_none
+
+    spawn_prob = xy_0i
+    spawn_item = item_none
+
+    avatar_helf       = xy_0i
+    avatar_stam       = xy_0i
+    avatar_initiative = 0
+    avatar_gives      = false
+    avatar_left_hand  = item_none
+    avatar_right_hand = item_none
+
+    def with(body):
+        let co = copy(this)
+        body(co)
+        return co
 
 enum scaffold_index:
     floor_scaffold
@@ -1236,6 +1203,33 @@ scaffolds[char_scaffold].with():
     _.type = _.type | ent_input
     _.avatar_initiative = 10
     scaffolds.push(_)
+
+def create(this::ent_scaffold, chunk:chunk, loc:xy_f):
+    chunk.create(type) id:
+        chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size }
+        chunk.ren[id] = render { bg, fg, glyph }
+        // may have associated tile or item sheet data, but not both
+        assert tile == tile_none or item == item_none
+        if tile != tile_none: chunk.tile[id] = tile
+        if item != item_none: chunk.item[id] = item
+    post id:
+        if type & ent_avatar: chunk.avatars.with(chunk, id) av:
+            if avatar_helf.y     != 0:         av.helf       = avatar_helf
+            if avatar_stam.y     != 0:         av.stam       = avatar_stam
+            if avatar_initiative != 0:         av.initiative = avatar_initiative
+            if avatar_gives:                   av.gives      = avatar_gives
+            if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
+            if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
+        if this.spawn_prob != xy_0i:
+            chunk.spawner.add_spawn(chunk, id) sp:
+                sp.prob(spawn_prob.x, spawn_prob.y)
+                sp.add_item_spawn(this.spawn_item)
+
+def create(this::builder, chunk, es:ent_scaffold):
+    return es.create(chunk, loc)
+
+def create_with(this::builder, chunk, es:ent_scaffold, body):
+    return this.create(chunk, es.with(body))
 
 def build_moji_grove(shard, build:builder, size):
     let dirt = [
