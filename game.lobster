@@ -189,9 +189,6 @@ def entype_str(t:entype):
     return s
 
 class system:
-    def ent_reset():
-        nil
-
     def ent_changed(shard, id:int, old:entype, new:entype):
         return new
 
@@ -259,15 +256,6 @@ class shard:
                 type[id] = new
         return new
 
-    def reset():
-        for(systems): _.ent_reset()
-        type = []
-        pos  = []
-        ren  = []
-        tex  = []
-        tile = []
-        item = []
-
 enum spawn_kind:
     // TODO spawn_tile
     spawn_item
@@ -277,12 +265,6 @@ class spawner : system
     prob = []::xy_i
     kind = []::spawn_kind
     kid  = []::int
-
-    def ent_reset():
-        ids  = []
-        prob = []
-        kind = []
-        kid  = []
 
     def ent_changed(shard, id:int, old:entype, new:entype):
         if new == ent_none:
@@ -366,11 +348,6 @@ class minds : system
             else: if old & ent_mind: this.exit(id)
         return new
 
-    def ent_reset():
-        ids   = []
-        types = []
-        minds = []
-
     def thoughts(chunk, input:input_fun):
         return map(types) t, mind_id:
             if t & ent_input: input()
@@ -390,9 +367,6 @@ class bodys : system
             if       new & ent_body: this.enter(id)
             else: if old & ent_body: this.exit(id)
         return new
-
-    def ent_reset():
-        ids = []
 
 class avatar:
     retex      = false
@@ -577,10 +551,6 @@ class avatars : system
                 av.show_status = show
         return new
 
-    def ent_reset():
-        ids     = []
-        avatars = []
-
 enum_flags anim_flags:
     anim_base  = 0
     anim_block = 1
@@ -653,14 +623,6 @@ class anims : system
     def has_any(id):
         let anim_id = ids.first_index(id)
         return anim_id >= 0
-
-    def ent_reset():
-        ids     = []
-        flags   = []
-        time    = []
-        elapsed = []
-        as      = []
-        bs      = []
 
     def clear(shard:shard, id):
         let prior, rest = ids.partition_indices(): _ == id
@@ -998,10 +960,6 @@ class stacked_scene : system
             if       new & ent_visible: this.enter(shard, id)
             else: if old & ent_visible: this.exit(id)
         return new
-
-    def ent_reset():
-        ids = []
-        zs  = []
 
     // TODO update_z
 
