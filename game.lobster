@@ -1132,15 +1132,6 @@ let tree_deciduous = templates.extend(object_template):
     _.spawn_prob = xy_i { 5, 1000 }
     _.spawn_item = item_apple
 
-let dirt_1 = templates.extend(floor_template):
-    _.glyph = uniblock(0x2591) // ░
-
-let dirt_2 = templates.extend(floor_template):
-    _.glyph = uniblock(0x2592) // ▒
-
-let dirt_3 = templates.extend(floor_template):
-    _.glyph = uniblock(0x2593) // ▓
-
 let element_earth = templates.extend(char_template):
     _.glyph = item_sprite(item_clover)
     _.fg = color_dark_green
@@ -1204,23 +1195,13 @@ def create_with(this::builder, chunk, es:ent_template, body):
 
 def build_moji_grove(shard, build:builder, size):
     let dirt = [
-        floor_template, floor_template, dirt_1,
-        floor_template, floor_template, dirt_2,
-        floor_template, floor_template, dirt_3,
-        floor_template, floor_template,
+        glyph_0, glyph_0, uniblock(0x2591), // ░
+        glyph_0, glyph_0, uniblock(0x2592), // ▒
+        glyph_0, glyph_0, uniblock(0x2593), // ▓
+        glyph_0, glyph_0,
     ]
-
-    let trees = [
-        tree_deciduous,
-        tree_evergreen,
-    ]
-
-    let elements = [
-        element_earth,
-        element_water,
-        element_fire,
-        element_air,
-    ]
+    let trees = [ tree_deciduous, tree_evergreen ]
+    let elements = [ element_earth, element_water, element_fire, element_air ]
 
     let floor_bg_base     = color { 0.05, 0.05, 0.05, 1 }
     let floor_bg_variance = color { 0.05, 0.05, 0,    0 }
@@ -1230,7 +1211,8 @@ def build_moji_grove(shard, build:builder, size):
     let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
     build.fill_rect(size) x, y:
-        build.create_with(shard, templates.defs[dirt.rnd_pick()]) tile:
+        build.create_with(shard, templates.defs[floor_template]) tile:
+            tile.glyph = dirt.rnd_pick()
             tile.bg = floor_bg_base + floor_bg_variance * rnd_float()
             if tile.glyph.code != 0: tile.fg = tile.bg + floor_fg_lift
         if x == 0 || y == 0 || x == size-1 || y == size-1:
