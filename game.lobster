@@ -899,32 +899,37 @@ def spawn(this::spawner, chunk):
     var at = spatial_0
     var did = false
 
-    def should_spawn(spawn_id) -> bool:
-        // TODO other trigger modes or distributions?
-        let p = prob[spawn_id]
-        return rnd(p.y) <= p.x
-
-    def once_each(body):
+    def once_each(when, then):
         for(ids) id, spawn_id:
             if id != last_id:
                 last_id = id
                 at = chunk.pos[id]
                 did = false
-            if not did: body(id, spawn_id)
+            if not did and when(id, spawn_id):
+                then(id, spawn_id)
+                did = true
 
-    once_each() id, spawn_id: switch kind[spawn_id]:
+    def can_spawn(spawn_id) -> bool:
+        // TODO other constraints
+        switch kind[spawn_id]:
+            case spawn_item: // items are unique-per-cell
+                let item_id = item_entity_id(kid[spawn_id])
+                return !exists(chunk.bodys_at(at.cell())): chunk.item[_] == item_id
+        return false
+
+    def should_spawn(spawn_id) -> bool:
+        // TODO other trigger modes or distributions?
+        let p = prob[spawn_id]
+        return rnd(p.y) <= p.x
+
+    once_each() id, spawn_id: can_spawn(spawn_id) and should_spawn(spawn_id)
+    then id, spawn_id: switch kind[spawn_id]:
         case spawn_item:
-            // items are unique-per-cell
-            let item_id = item_entity_id(kid[spawn_id])
-            let already_exsits = exists(chunk.bodys_at(at.cell())): chunk.item[_] == item_id
-            // TODO other constraints
-            if !already_exsits and should_spawn(spawn_id):
-                chunk.create(ent_visible | ent_body) new_id:
-                    chunk.pos[new_id] = at.cell_rel(xyz { 0.5, 0.5, 0.1 }, 1.0 / 3.0) // TODO better placement
-                    chunk.item[new_id] = item_id
-                post new_id:
-                    print("[" + id + " : " + spawn_id + "] spawned " + item_id + " #" + new_id)
-                    did = true
+            chunk.create(ent_visible | ent_body) new_id:
+                chunk.pos[new_id] = at.cell_rel(xyz { 0.5, 0.5, 0.1 }, 1.0 / 3.0) // TODO better placement
+                chunk.item[new_id] = item_entity_id(kid[spawn_id])
+            post new_id:
+                print("[" + id + " : " + spawn_id + "] spawned #" + new_id + " " + chunk.item[new_id])
 
 def spawn_items(this::chunk): spawner.spawn(this)
 
