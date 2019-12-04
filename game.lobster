@@ -273,7 +273,7 @@ class mind:
     id    : int
     state : int = 0
 
-    def think(chunk):
+    def think():
         let m = state % 2
         let d = state / 2
         let x = m ^ d
@@ -304,10 +304,10 @@ class minds : system
             else: if old & ent_mind: this.exit(id)
         return new
 
-    def thoughts(chunk, input:input_fun):
+    def thoughts(input:input_fun):
         return map(types) t, mind_id:
             if t & ent_input: input()
-            else:             minds[mind_id].think(chunk)
+            else:             minds[mind_id].think()
 
 class bodys : system
     ids:[int] = []
@@ -718,7 +718,7 @@ class chunk : shard
 
     def choose_actions(input:input_fun):
         // choose action intents
-        let intents = minds.thoughts(this, input)
+        let intents = minds.thoughts(input)
 
         // subset of minds with intent
         let actor_mind_ids = filter_indices(minds.ids) id, mind_id:
