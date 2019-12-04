@@ -6,6 +6,36 @@ import vec
 import sprites
 import sheets
 
+/* TODO
+- better trace logging facility
+
+- viewport control (zoom and pan)
+
+- minds
+  - tracks progress and abilities, e.g. elemental essences, status of mojick
+  - quest tracking
+
+- spatial
+  - super-cell entities
+  - shape control
+  - better collision processing, either using a spatial index, or circle collision
+
+- input
+  - alternate key bindings
+  - help overlay
+  - maybe naturalize the menu overlay ( rather than use imgui )
+  - click to move; touchscreen?  on-screen D-pad?
+  - inspection system for users?
+
+- log hud?
+- imgui
+  - closable windows would be nice
+  - use imgui more like the overlay demo example
+- ai system based on behavior trees
+- relations to other entities (threats, assists, respects, etc)
+
+*/
+
 def first_index(xs, x):
     for(xs) _, i: if _ == x:
         return i
@@ -17,80 +47,6 @@ def while_first_index(xs, x, body):
         if i < 0:
             return
         body(i)
-
-def for_from(xs, i, body):
-    while i < xs.length():
-        body(xs[i], i)
-        i++
-
-class timers:
-    labels = []::string
-    values = []::[float]
-    capn   = []::int
-
-    def im_show():
-        for(labels) label, id:
-            im_graph(label, values[id], false)
-
-    def add(label:string, cap:int) -> int:
-        let id = labels.length
-        labels.push(label)
-        values.push([])
-        capn.push(cap)
-        return id
-
-    def record(id:int, value:float):
-        let vals = values[id]
-        vals.push(value)
-        let over = vals.length - capn[id]
-        if over > 0: vals.remove(0, over)
-
-    def record_time(id:int, fun):
-        let t0 = seconds_elapsed()
-        fun()
-        let t1 = seconds_elapsed()
-        record(id, t1 - t0)
-
-/* TODO
-- better trace logging facility
-
-- viewport control (zoom and pan)
-
-- action
-  - item usage: in hand, in cell, neighbor cell...
-  - support resolving "far moves" ( affecting other than adjacent cell )
-
-- minds
-  - tracks progress and abilities, e.g. elemental essences, status of mojick
-  - quest tracking
-
-- spatial
-  - super-cell entities
-  - shape control
-  - better collision processing, either using a spatial index, or circle collision
-
-- ECS
-  - entity freelist and re-use
-  - is it useful to leave a hole in a sparse system rather than removing on type exit?
-
-- input
-  - alternate key bindings
-  - help overlay
-  - maybe naturalize the menu overlay ( rather than use imgui )
-  - click to move; touchscreen?  on-screen D-pad?
-  - inspection system for users?
-
-- interaction
-  - what to do on hit?
-  - solutions for multiple actors
-- log hud?
-- imgui
-  - closable windows would be nice
-  - use imgui more like the overlay demo example
-- ai system based on behavior trees
-- relations to other entities (threats, assists, respects, etc)
-
-*/
 
 let glyph_atlases = []::tile_atlas
 
@@ -701,6 +657,39 @@ def animate(anims::anims, id:int, over:float, body):
         time:  over,
     }.with(body)
 
+class timers:
+    labels = []::string
+    values = []::[float]
+    capn   = []::int
+
+    def im_show():
+        for(labels) label, id:
+            im_graph(label, values[id], false)
+
+    def add(label:string, cap:int) -> int:
+        let id = labels.length
+        labels.push(label)
+        values.push([])
+        capn.push(cap)
+        return id
+
+    def record(id:int, value:float):
+        let vals = values[id]
+        vals.push(value)
+        let over = vals.length - capn[id]
+        if over > 0: vals.remove(0, over)
+
+    def record_time(id:int, fun):
+        let t0 = seconds_elapsed()
+        fun()
+        let t1 = seconds_elapsed()
+        record(id, t1 - t0)
+
+def for_from(xs, i, body):
+    while i < xs.length():
+        body(xs[i], i)
+        i++
+
 class chunk : shard
     timers = timers{}
 
@@ -888,6 +877,23 @@ class chunk : shard
         reverse(vtrs) actor_id: avatar_move(actor_id)
         for(rest) actor_id: actor_move(actor_id)
 
+def new_chunk():
+    let ch = chunk {}
+    ch.systems.push(ch.minds)
+    ch.systems.push(ch.bodys)
+    ch.systems.push(ch.avatars)
+    ch.systems.push(ch.spawner)
+
+    ch.timers.add("step", 64)             // 0
+    ch.timers.add("step.prep", 64)        // 1
+    ch.timers.add("step.minds", 64)       // 2
+    ch.timers.add("...minds.think", 64)   // 3
+    ch.timers.add("...minds.hits", 64)    // 4
+    ch.timers.add("...minds.resolve", 64) // 5
+    ch.timers.add("step.spawn", 64)       // 6
+
+    return ch
+
 def spawn(this::spawner, chunk):
     var last_id = -1
     var at = spatial_0
@@ -921,23 +927,6 @@ def spawn(this::spawner, chunk):
                     did = true
 
 def spawn_items(this::chunk): spawner.spawn(this)
-
-def new_chunk():
-    let ch = chunk {}
-    ch.systems.push(ch.minds)
-    ch.systems.push(ch.bodys)
-    ch.systems.push(ch.avatars)
-    ch.systems.push(ch.spawner)
-
-    ch.timers.add("step", 64)             // 0
-    ch.timers.add("step.prep", 64)        // 1
-    ch.timers.add("step.minds", 64)       // 2
-    ch.timers.add("...minds.think", 64)   // 3
-    ch.timers.add("...minds.hits", 64)    // 4
-    ch.timers.add("...minds.resolve", 64) // 5
-    ch.timers.add("step.spawn", 64)       // 6
-
-    return ch
 
 class stacked_scene : system
     ids = []::int
@@ -1001,45 +990,17 @@ class stacked_scene : system
                         else:
                             chunk.ren[id].draw()
 
-class builder:
-    loc = xy_0
-
-    def at(l:xy_f, body):
-        let base = loc
-        loc = l
-        if body:
-            body()
-            loc = base
-
-    def translate(by:xy_f, body):
-        at(loc + by, body)
-
-    def each(offsets, body):
-        let base = loc
-        for(offsets) offset, i:
-            loc = base + offset
-            body(i)
-        loc = base
-
-    def fill_rect(n, body):
-        let base = loc
-        for(n) x: for(n) y:
-            loc = base + xy_f { x, y }
-            body(x, y)
-        loc = base
-
 //// specialization
 
-fatal(gl_window("Mojick PoC", 768, 768))
-
-// TODO ever change sprite resolution?
-
-for([
+let preload_fonts = [
     "data/fonts/Square/square.ttf",
     "data/fonts/Twemoji/TwitterColorEmoji-SVGinOT.ttf",
     "data/fonts/US101/US101.TTF",
     "data/fonts/unifont.ttf",
-]): check(gl_set_font_name(_), "cannot load gl font " + _)
+]
+
+// TODO refactor sheet loading to further defer gl_window call
+fatal(gl_window("Mojick PoC", 768, 768))
 
 let sheet_sprites = load_sheet_sprites()
 
@@ -1103,6 +1064,33 @@ class ent_templates:
         let tmpl = copy(defs[base_id])
         body(tmpl)
         return register(tmpl)
+
+class builder:
+    loc = xy_0
+
+    def at(l:xy_f, body):
+        let base = loc
+        loc = l
+        if body:
+            body()
+            loc = base
+
+    def translate(by:xy_f, body):
+        at(loc + by, body)
+
+    def each(offsets, body):
+        let base = loc
+        for(offsets) offset, i:
+            loc = base + offset
+            body(i)
+        loc = base
+
+    def fill_rect(n, body):
+        let base = loc
+        for(n) x: for(n) y:
+            loc = base + xy_f { x, y }
+            body(x, y)
+        loc = base
 
 let templates = ent_templates {}
 
@@ -1232,51 +1220,7 @@ def build_moji_grove(chunk, build:builder, size):
         ]): templates.create(elements[_], chunk, build.loc)
         templates.create(player_template, chunk, build.loc)
 
-class button_action_reader:
-    buttons:[string] = []
-    actions:[action] = []
-
-    have = false
-    input = action_0
-
-    def action():
-        return if have: input else: action_0
-
-    def read_input():
-        have = false
-        for(buttons) button, i:
-            if gl_button(button) > 0:
-                have = true
-                input = actions[i]
-        return have
-
 //// usage
-
-let play_reader = button_action_reader {
-    // arrow keys with "." to stay idiom
-    buttons: [
-        "w",
-        "s",
-        "a",
-        "d",
-        "z",
-        "x",
-        "q",
-        "e",
-        "c",
-    ],
-    actions: [
-        move_dir(xy {  0.0, -1.0 }),
-        move_dir(xy {  0.0,  1.0 }),
-        move_dir(xy { -1.0,  0.0 }),
-        move_dir(xy {  1.0,  0.0 }),
-        move_dir(xy_0),
-        act(action_hand_drop),
-        act(action_hand_swap),
-        act(action_hand_use),
-        act(action_hand_combine),
-    ],
-}
 
 class ui:
     paused      = false
@@ -1324,6 +1268,52 @@ class ui:
 
                     im_separator()
                     im_button("Halt"): return from program
+
+class button_action_reader:
+    buttons:[string] = []
+    actions:[action] = []
+
+    have = false
+    input = action_0
+
+    def action():
+        return if have: input else: action_0
+
+    def read_input():
+        have = false
+        for(buttons) button, i:
+            if gl_button(button) > 0:
+                have = true
+                input = actions[i]
+        return have
+
+for(preload_fonts): check(gl_set_font_name(_), "cannot load gl font " + _)
+
+let play_reader = button_action_reader {
+    // arrow keys with "." to stay idiom
+    buttons: [
+        "w",
+        "s",
+        "a",
+        "d",
+        "z",
+        "x",
+        "q",
+        "e",
+        "c",
+    ],
+    actions: [
+        move_dir(xy {  0.0, -1.0 }),
+        move_dir(xy {  0.0,  1.0 }),
+        move_dir(xy { -1.0,  0.0 }),
+        move_dir(xy {  1.0,  0.0 }),
+        move_dir(xy_0),
+        act(action_hand_drop),
+        act(action_hand_swap),
+        act(action_hand_use),
+        act(action_hand_combine),
+    ],
+}
 
 def run_a_world():
     // TODO one for each face / level / etc
