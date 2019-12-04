@@ -258,7 +258,7 @@ class spawn_scaffold:
             spawner.kid.insert(next_spawn_id, int(item_id))
             next_spawn_id++
 
-def add_spawn(this::spawner, chunk, id:int, body):
+def add_spawn(this::spawner, id:int, body):
     let n, spawn_id = ids.binary_search(id)
     body(spawn_scaffold {
         spawner: this,
@@ -1169,7 +1169,7 @@ def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
             if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
             if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
         if this.spawn_prob != xy_0i:
-            chunk.spawner.add_spawn(chunk, id) sp:
+            chunk.spawner.add_spawn(id) sp:
                 sp.prob(spawn_prob.x, spawn_prob.y)
                 sp.add_item_spawn(this.spawn_item)
         body(id)
