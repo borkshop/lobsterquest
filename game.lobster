@@ -1086,123 +1086,92 @@ class ent_scaffold:
     avatar_left_hand  = item_none
     avatar_right_hand = item_none
 
-    def with(body):
-        let co = copy(this)
-        body(co)
-        return co
+class ent_scaffolds:
+    defs = []::ent_scaffold
 
-enum scaffold_index:
-    floor_scaffold
-    object_scaffold
-    char_scaffold
-    tree_evergreen
-    tree_deciduous
-    dirt_1
-    dirt_2
-    dirt_3
-    element_earth
-    element_water
-    element_fire
-    element_air
-    player
+    def register(es):
+        let id = defs.length()
+        defs.push(es)
+        return id
 
-let scaffolds = []::ent_scaffold
+    def define(t:entype, body):
+        let es = ent_scaffold { type: t }
+        body(es)
+        return register(es)
 
-// floor_scaffold
-scaffolds.push(ent_scaffold {
-    type : ent_cell | ent_visible,
-    z    : 0.0,
-    size : 1.0,
-})
+    def extend(base_id, body):
+        let es = copy(defs[base_id])
+        body(es)
+        return register(es)
 
-// object_scaffold
-scaffolds.push(ent_scaffold {
-    type : ent_body | ent_visible,
-    z    : 0.5,
-    size : 1.0,
-})
+let scaffolds = ent_scaffolds {}
 
-// char_scaffold
-scaffolds.push(ent_scaffold {
-    type : ent_avatar | ent_body | ent_mind | ent_visible,
-    z    : 1.0,
-    size : 1.0,
-})
+let floor_scaffold = scaffolds.define(ent_cell | ent_visible):
+    _.z    = 0.0
+    _.size = 1.0
 
-// tree_evergreen
-scaffolds[object_scaffold].with():
+let object_scaffold = scaffolds.define(ent_body | ent_visible):
+    _.z    = 0.5
+    _.size = 1.0
+
+let char_scaffold = scaffolds.define(ent_body | ent_visible | ent_avatar | ent_mind):
+    _.z    = 1.0
+    _.size = 1.0
+
+let player_scaffold = scaffolds.extend(char_scaffold):
+    _.type = _.type | ent_input
+    _.avatar_initiative = 10
+
+let tree_evergreen = scaffolds.extend(object_scaffold):
     _.tile = tile_pine_tree
     _.spawn_prob = xy_i { 5, 1000 }
     _.spawn_item = item_pine_apple
-    scaffolds.push(_)
 
-// tree_deciduous
-scaffolds[object_scaffold].with():
+let tree_deciduous = scaffolds.extend(object_scaffold):
     _.tile = tile_apple_tree
     _.spawn_prob = xy_i { 5, 1000 }
     _.spawn_item = item_apple
-    scaffolds.push(_)
 
-// dirt_1
-scaffolds[floor_scaffold].with():
+let dirt_1 = scaffolds.extend(floor_scaffold):
     _.glyph = uniblock(0x2591) // ░
-    scaffolds.push(_)
 
-// dirt_2
-scaffolds[floor_scaffold].with():
+let dirt_2 = scaffolds.extend(floor_scaffold):
     _.glyph = uniblock(0x2592) // ▒
-    scaffolds.push(_)
 
-// dirt_3
-scaffolds[floor_scaffold].with():
+let dirt_3 = scaffolds.extend(floor_scaffold):
     _.glyph = uniblock(0x2593) // ▓
-    scaffolds.push(_)
 
-// element_earth
-scaffolds[char_scaffold].with():
+let element_earth = scaffolds.extend(char_scaffold):
     _.glyph = item_sprite(item_clover)
     _.fg = color_dark_green
     _.avatar_gives = true
     _.avatar_initiative = 3
     _.avatar_left_hand = item_clover
     _.avatar_right_hand = item_clover
-    scaffolds.push(_)
 
-// element_water
-scaffolds[char_scaffold].with():
+let element_water = scaffolds.extend(char_scaffold):
     _.glyph = item_sprite(item_water)
     _.fg = color_teal
     _.avatar_gives = true
     _.avatar_initiative = 4
     _.avatar_left_hand = item_water
     _.avatar_right_hand = item_water
-    scaffolds.push(_)
 
-// element_fire
-scaffolds[char_scaffold].with():
+let element_fire = scaffolds.extend(char_scaffold):
     _.glyph = item_sprite(item_fire)
     _.fg = color_orange
     _.avatar_gives = true
     _.avatar_initiative = 6
     _.avatar_left_hand = item_fire
     _.avatar_right_hand = item_fire
-    scaffolds.push(_)
 
-// element_air
-scaffolds[char_scaffold].with():
+let element_air = scaffolds.extend(char_scaffold):
     _.glyph = item_sprite(item_wind)
     _.fg = color_cyan
     _.avatar_gives = true
     _.avatar_initiative = 5
     _.avatar_left_hand = item_wind
     _.avatar_right_hand = item_wind
-    scaffolds.push(_)
-
-// player
-scaffolds[char_scaffold].with():
-    _.type = _.type | ent_input
-    _.avatar_initiative = 10
-    scaffolds.push(_)
 
 def create(this::ent_scaffold, chunk:chunk, loc:xy_f):
     chunk.create(type) id:
@@ -1229,7 +1198,9 @@ def create(this::builder, chunk, es:ent_scaffold):
     return es.create(chunk, loc)
 
 def create_with(this::builder, chunk, es:ent_scaffold, body):
-    return this.create(chunk, es.with(body))
+    es = copy(es)
+    body(es)
+    return this.create(chunk, es)
 
 def build_moji_grove(shard, build:builder, size):
     let dirt = [
@@ -1259,11 +1230,11 @@ def build_moji_grove(shard, build:builder, size):
     let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
     build.fill_rect(size) x, y:
-        build.create_with(shard, scaffolds[dirt.rnd_pick()]) tile:
+        build.create_with(shard, scaffolds.defs[dirt.rnd_pick()]) tile:
             tile.bg = floor_bg_base + floor_bg_variance * rnd_float()
             if tile.glyph.code != 0: tile.fg = tile.bg + floor_fg_lift
         if x == 0 || y == 0 || x == size-1 || y == size-1:
-            build.create_with(shard, scaffolds[trees.rnd_pick()]) tree:
+            build.create_with(shard, scaffolds.defs[trees.rnd_pick()]) tree:
                 tree.fg = tree_fg_base + tree_fg_variance * rnd_float()
     let mid = float(floor(size / 2))
     build.translate(xy_f { mid, mid }):
@@ -1273,8 +1244,8 @@ def build_moji_grove(shard, build:builder, size):
             xy_f {  l,  l },
             xy_f {  l, -l },
             xy_f { -l, -l },
-        ]): build.create(shard, scaffolds[elements[_]])
-        build.create(shard, scaffolds[player])
+        ]): build.create(shard, scaffolds.defs[elements[_]])
+        build.create(shard, scaffolds.defs[player_scaffold])
 
 class button_action_reader:
     buttons:[string] = []
