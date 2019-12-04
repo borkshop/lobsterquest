@@ -3,7 +3,8 @@ import util3d
 import game_draw
 import topology
 
-let cube_vertices = map(8) c: xyz_v(map(3) i: float(c & (1 << (2 - i)) != 0))
+let cube_vertices = map(8) c:
+    xyz_v(map(3) i: float(c & (1 << (2 - i)) != 0))
 
 def cube_vertex(i):
     if i < 0: return -cube_vertices[-i]

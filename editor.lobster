@@ -176,6 +176,7 @@ class map_mode<world_type>:
             gl_unit_square()
 
         gl_set_shader("textured")
+        gl_color(color_white)
         pov.gl_translate_for_visible_cells() v:
             // sprite
             let i = world.index(v)
@@ -183,7 +184,6 @@ class map_mode<world_type>:
             if tile_id > 0:
                 let sprite_id = tile_sprite_id[tile_id]
                 gl_set_primitive_texture(0, sprites.tile_texture(sprite_id))
-                gl_color(color_white)
                 gl_unit_square()
 
         gl_set_shader("color")

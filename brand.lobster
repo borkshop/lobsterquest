@@ -8,7 +8,7 @@ private def itoc(rgba):
     return color{ ff(rgba, 24), ff(rgba, 16), ff(rgba, 8), ff(rgba, 0) }
 
 let light_blue   = itoc(0x92D3F5FF)
-let dark_blue    = itoc(0x61B24EFF)
+let dark_blue    = itoc(0x61B2E4FF)
 let light_red    = itoc(0xEA5A47FF)
 let dark_red     = itoc(0xD22F27FF)
 let light_green  = itoc(0xB14CC3FF)
