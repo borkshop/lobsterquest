@@ -1164,8 +1164,8 @@ let element_air = templates.extend(char_template):
     _.avatar_left_hand = item_wind
     _.avatar_right_hand = item_wind
 
-def create(this::ent_template, chunk:chunk, loc:xy_f):
-    chunk.create(type) id:
+def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
+    return chunk.create(type) id:
         chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size }
         chunk.ren[id] = render { bg, fg, glyph }
         // may have associated tile or item sheet data, but not both
@@ -1184,16 +1184,18 @@ def create(this::ent_template, chunk:chunk, loc:xy_f):
             chunk.spawner.add_spawn(chunk, id) sp:
                 sp.prob(spawn_prob.x, spawn_prob.y)
                 sp.add_item_spawn(this.spawn_item)
+        body(id)
 
-def create(this::builder, chunk, es:ent_template):
-    return es.create(chunk, loc)
+def create(this::ent_template, chunk:chunk, loc:xy_f):
+    return this.create_with(chunk, loc): nil
 
-def create_with(this::builder, chunk, es:ent_template, body):
-    es = copy(es)
-    body(es)
-    return this.create(chunk, es)
+def create(this::ent_templates, id:int, chunk:chunk, loc:xy_f):
+    return templates.defs[id].create(chunk, loc)
 
-def build_moji_grove(shard, build:builder, size):
+def create_with(this::ent_templates, id:int, chunk:chunk, loc:xy_f, body):
+    return templates.defs[id].create_with(chunk, loc, body)
+
+def build_moji_grove(chunk, build:builder, size):
     let dirt = [
         glyph_0, glyph_0, uniblock(0x2591), // ░
         glyph_0, glyph_0, uniblock(0x2592), // ▒
@@ -1211,13 +1213,14 @@ def build_moji_grove(shard, build:builder, size):
     let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
     build.fill_rect(size) x, y:
-        build.create_with(shard, templates.defs[floor_template]) tile:
-            tile.glyph = dirt.rnd_pick()
-            tile.bg = floor_bg_base + floor_bg_variance * rnd_float()
-            if tile.glyph.code != 0: tile.fg = tile.bg + floor_fg_lift
+        templates.create_with(floor_template, chunk, build.loc) id:
+            let glyph = dirt.rnd_pick()
+            let bg = floor_bg_base + floor_bg_variance * rnd_float()
+            let fg = if glyph == glyph_0: color_clear else: bg + floor_fg_lift
+            chunk.ren[id] = render { bg, fg, glyph }
         if x == 0 || y == 0 || x == size-1 || y == size-1:
-            build.create_with(shard, templates.defs[trees.rnd_pick()]) tree:
-                tree.fg = tree_fg_base + tree_fg_variance * rnd_float()
+            templates.create_with(trees.rnd_pick(), chunk, build.loc) id:
+                chunk.ren[id] = chunk.ren[id].with_fg(tree_fg_base + tree_fg_variance * rnd_float())
     let mid = float(floor(size / 2))
     build.translate(xy_f { mid, mid }):
         let l = size / 4
@@ -1226,8 +1229,8 @@ def build_moji_grove(shard, build:builder, size):
             xy_f {  l,  l },
             xy_f {  l, -l },
             xy_f { -l, -l },
-        ]): build.create(shard, templates.defs[elements[_]])
-        build.create(shard, templates.defs[player_template])
+        ]): templates.create(elements[_], chunk, build.loc)
+        templates.create(player_template, chunk, build.loc)
 
 class button_action_reader:
     buttons:[string] = []
