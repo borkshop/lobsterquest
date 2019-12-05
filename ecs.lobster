@@ -151,6 +151,7 @@ class shard:
             let item_id = item[id]
             if       tile_id != tile_none: ren[id] = r.with_glyph(tile_sprite(tile_id))
             else: if item_id != item_none: ren[id] = r.with_glyph(item_sprite(item_id))
+        return id
 
     def add_type(id:int, t:entype): set_type(id, type[id] |  t)
     def del_type(id:int, t:entype): set_type(id, type[id] & ~t)
@@ -607,7 +608,7 @@ class ent_template:
     item = item_none
 
     spawn_prob = xy_0i
-    spawn_item = item_none
+    spawn_template = 0
 
     avatar_helf       = xy_0i
     avatar_stam       = xy_0i
@@ -666,15 +667,10 @@ class ent_scaffold:
 
 //// ancillary component: entities spawn other entities
 
-enum spawn_kind:
-    // TODO spawn_tile
-    spawn_item
-
 class spawner : system
     ids  = []::int
     prob = []::xy_i
-    kind = []::spawn_kind
-    kid  = []::int
+    tid  = []::int
 
     def ent_changed(shard, id:int, old:entype, new:entype):
         if new == ent_none:
@@ -682,8 +678,7 @@ class spawner : system
             if n:
                 ids.remove(i, n)
                 prob.remove(i, n)
-                kind.remove(i, n)
-                kid.remove(i, n)
+                tid.remove(i, n)
         return new
 
     def clear_spawn(id:int):
@@ -691,8 +686,7 @@ class spawner : system
         if n:
             ids.remove(i, n)
             prob.remove(i, n)
-            kind.remove(i, n)
-            kid.remove(i, n)
+            tid.remove(i, n)
 
 class spawn_scaffold:
     spawner:spawner
@@ -704,12 +698,11 @@ class spawn_scaffold:
     def prob(x:int, y:int): p = xy_i { x,     y }
     def odds(x:int, y:int): p = xy_i { x, x + y }
 
-    def add_item_spawn(item_id:item_entity_id):
-        if item_id != item_none and p.x and p.y:
+    def add_spawn(template_id:int):
+        if template_id != 0 and p.x and p.y:
             spawner.ids.insert(next_spawn_id, id)
             spawner.prob.insert(next_spawn_id, p)
-            spawner.kind.insert(next_spawn_id, spawn_item)
-            spawner.kid.insert(next_spawn_id, int(item_id))
+            spawner.tid.insert(next_spawn_id, template_id)
             next_spawn_id++
 
 def add_spawn(this::spawner, id:int, body):

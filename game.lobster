@@ -35,6 +35,9 @@ import ecs
 
 */
 
+// TODO eject data templates into separate module
+let templates = ent_templates {}
+
 class timers:
     labels = []::string
     values = []::[float]
@@ -69,9 +72,10 @@ def for_from(xs, i, body):
         i++
 
 class chunk : shard
+    templates = templates 
     timers = timers{}
 
-    spawner = spawner{}
+    spawner = spawner {}
     minds   = minds {}
     bodys   = bodys {}
     avatars = avatars {}
@@ -272,45 +276,6 @@ def new_chunk():
 
     return ch
 
-def spawn(this::spawner, chunk):
-    var last_id = -1
-    var at = spatial_0
-    var did = false
-
-    def once_each(when, then):
-        for(ids) id, spawn_id:
-            if id != last_id:
-                last_id = id
-                at = chunk.pos[id]
-                did = false
-            if not did and when(id, spawn_id):
-                then(id, spawn_id)
-                did = true
-
-    def can_spawn(spawn_id) -> bool:
-        // TODO other constraints
-        switch kind[spawn_id]:
-            case spawn_item: // items are unique-per-cell
-                let item_id = item_entity_id(kid[spawn_id])
-                return !exists(chunk.bodys_at(at.cell())): chunk.item[_] == item_id
-        return false
-
-    def should_spawn(spawn_id) -> bool:
-        // TODO other trigger modes or distributions?
-        let p = prob[spawn_id]
-        return rnd(p.y) <= p.x
-
-    once_each() id, spawn_id: can_spawn(spawn_id) and should_spawn(spawn_id)
-    then id, spawn_id: switch kind[spawn_id]:
-        case spawn_item:
-            chunk.create(ent_visible | ent_body) new_id:
-                chunk.pos[new_id] = at.cell_rel(xyz { 0.5, 0.5, 0.1 }, 1.0 / 3.0) // TODO better placement
-                chunk.item[new_id] = item_entity_id(kid[spawn_id])
-            post new_id:
-                print("[" + id + " : " + spawn_id + "] spawned #" + new_id + " " + chunk.item[new_id])
-
-def spawn_items(this::chunk): spawner.spawn(this)
-
 class stacked_scene : system
     ids = []::int
     zs  = []::float
@@ -375,6 +340,7 @@ class stacked_scene : system
 
 def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
     return chunk.create(type) id:
+        // TODO better placement
         chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size }
         chunk.ren[id] = render { bg, fg, glyph }
         // may have associated tile or item sheet data, but not both
@@ -392,7 +358,7 @@ def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
         if this.spawn_prob != xy_0i:
             chunk.spawner.add_spawn(id) sp:
                 sp.prob(spawn_prob.x, spawn_prob.y)
-                sp.add_item_spawn(this.spawn_item)
+                sp.add_spawn(this.spawn_template)
         body(id)
 
 def create(this::ent_template, chunk:chunk, loc:xy_f):
@@ -403,6 +369,45 @@ def create(this::ent_templates, id:int, chunk:chunk, loc:xy_f):
 
 def create_with(this::ent_templates, id:int, chunk:chunk, loc:xy_f, body):
     return defs[id].create_with(chunk, loc, body)
+
+def spawn(this::spawner, chunk):
+    var last_id = -1
+    var at = spatial_0
+    var did = false
+
+    def once_each(when, then):
+        for(ids) id, spawn_id:
+            if id != last_id:
+                last_id = id
+                at = chunk.pos[id]
+                did = false
+            if not did and when(id, spawn_id):
+                then(id, spawn_id)
+                did = true
+
+    def can_spawn(spawn_id) -> bool:
+        // TODO other constraints
+        let tmpl = chunk.templates.defs[tid[spawn_id]]
+        let there = chunk.bodys_at(at.cell())
+        // tiles are exclusive, items are unique, bodys are exclusive, otherwise ... sure?
+        if tmpl.tile != tile_none: return !exists(there): chunk.tile[_] != tile_none
+        if tmpl.item != item_none: return !exists(there): chunk.item[_] == tmpl.item
+        if tmpl.type & ent_body: return !exists(there): chunk.type[_] & ent_body
+        return true
+
+    def should_spawn(spawn_id) -> bool:
+        // TODO other trigger modes or distributions?
+        let p = prob[spawn_id]
+        return rnd(p.y) <= p.x
+
+    once_each() id, spawn_id: can_spawn(spawn_id) and should_spawn(spawn_id)
+    then id, spawn_id:
+        let loc = float(at.cell())
+        let template_id = tid[spawn_id]
+        let new_id = chunk.templates.create(template_id, chunk, loc)
+        print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + template_id)
+
+def spawn_items(this::chunk): spawner.spawn(this)
 
 //// specialization
 
@@ -437,15 +442,17 @@ def unicode(code:int):  return glyph { unicode_glyph_mode,  font_rune(unicode_gl
 def uniblock(code:int): return glyph { uniblock_glyph_mode, font_rune(uniblock_glyph_mode, code) }
 def twemoji(code:int):  return glyph { twemoji_glyph_mode,  font_rune(twemoji_glyph_mode,  code) }
 
-let templates = ent_templates {}
-
 let floor_template = templates.define(ent_cell | ent_visible):
     _.z    = 0.0
     _.size = 1.0
 
-let object_template = templates.define(ent_body | ent_visible):
+let tile_template = templates.define(ent_body | ent_visible):
     _.z    = 0.5
     _.size = 1.0
+
+let item_template = templates.define(ent_body | ent_visible):
+    _.z    = 0.75
+    _.size = 1.0 / 3.0
 
 let char_template = templates.define(ent_body | ent_visible | ent_avatar | ent_mind):
     _.z    = 1.0
@@ -455,15 +462,21 @@ let player_template = templates.extend(char_template):
     _.type = _.type | ent_input
     _.avatar_initiative = 10
 
-let tree_evergreen = templates.extend(object_template):
+let tmpl_item_pine_apple = templates.extend(item_template):
+    _.item = item_pine_apple
+
+let tmpl_item_apple = templates.extend(item_template):
+    _.item = item_apple
+
+let tree_evergreen = templates.extend(tile_template):
     _.tile = tile_pine_tree
     _.spawn_prob = xy_i { 5, 1000 }
-    _.spawn_item = item_pine_apple
+    _.spawn_template = tmpl_item_pine_apple
 
-let tree_deciduous = templates.extend(object_template):
+let tree_deciduous = templates.extend(tile_template):
     _.tile = tile_apple_tree
     _.spawn_prob = xy_i { 5, 1000 }
-    _.spawn_item = item_apple
+    _.spawn_template = tmpl_item_apple
 
 let element_earth = templates.extend(char_template):
     _.glyph = item_sprite(item_clover)
@@ -518,13 +531,13 @@ def build_world(chunk):
     let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
     build.fill_rect(size) x, y:
-        templates.create_with(floor_template, chunk, build.loc) id:
+        chunk.templates.create_with(floor_template, chunk, build.loc) id:
             let glyph = dirt.rnd_pick()
             let bg = floor_bg_base + floor_bg_variance * rnd_float()
             let fg = if glyph == glyph_0: color_clear else: bg + floor_fg_lift
             chunk.ren[id] = render { bg, fg, glyph }
         if x == 0 || y == 0 || x == size-1 || y == size-1:
-            templates.create_with(trees.rnd_pick(), chunk, build.loc) id:
+            chunk.templates.create_with(trees.rnd_pick(), chunk, build.loc) id:
                 chunk.ren[id] = chunk.ren[id].with_fg(tree_fg_base + tree_fg_variance * rnd_float())
     let mid = float(floor(size / 2))
     build.translate(xy_f { mid, mid }):
@@ -534,8 +547,8 @@ def build_world(chunk):
             xy_f {  l,  l },
             xy_f {  l, -l },
             xy_f { -l, -l },
-        ]): templates.create(elements[_], chunk, build.loc)
-        templates.create(player_template, chunk, build.loc)
+        ]): chunk.templates.create(elements[_], chunk, build.loc)
+        chunk.templates.create(player_template, chunk, build.loc)
 
 //// usage
 
