@@ -616,11 +616,14 @@ class ent_template:
     avatar_left_hand  = item_none
     avatar_right_hand = item_none
 
+let ent_0 = ent_template { type: ent_none }
+
 class ent_templates:
     defs = []::ent_template
 
     def register(tmpl):
-        let id = defs.length()
+        if not defs.length: defs.push(ent_0)
+        let id = defs.length
         defs.push(tmpl)
         return id
 
