@@ -657,6 +657,78 @@ def animate(anims::anims, id:int, over:float, body):
         time:  over,
     }.with(body)
 
+def font_string(mode:int, s:string) -> int:
+    return glyph_atlases[mode].symbolicate(s)
+
+def font_rune(mode:int, code:int) -> int:
+    return glyph_atlases[mode].symbolicate(unicode_to_string([code]))
+
+class ent_template:
+    type  : entype
+    bg    = color_clear
+    fg    = color_clear
+    glyph = glyph_0
+    z     = 0.0
+    size  = 1.0
+
+    tile = tile_none
+    item = item_none
+
+    spawn_prob = xy_0i
+    spawn_item = item_none
+
+    avatar_helf       = xy_0i
+    avatar_stam       = xy_0i
+    avatar_initiative = 0
+    avatar_gives      = false
+    avatar_left_hand  = item_none
+    avatar_right_hand = item_none
+
+class ent_templates:
+    defs = []::ent_template
+
+    def register(tmpl):
+        let id = defs.length()
+        defs.push(tmpl)
+        return id
+
+    def define(t:entype, body):
+        let tmpl = ent_template { type: t }
+        body(tmpl)
+        return register(tmpl)
+
+    def extend(base_id, body):
+        let tmpl = copy(defs[base_id])
+        body(tmpl)
+        return register(tmpl)
+
+class ent_scaffold:
+    loc = xy_0
+
+    def at(l:xy_f, body):
+        let base = loc
+        loc = l
+        if body:
+            body()
+            loc = base
+
+    def translate(by:xy_f, body):
+        at(loc + by, body)
+
+    def each(offsets, body):
+        let base = loc
+        for(offsets) offset, i:
+            loc = base + offset
+            body(i)
+        loc = base
+
+    def fill_rect(n, body):
+        let base = loc
+        for(n) x: for(n) y:
+            loc = base + xy_f { x, y }
+            body(x, y)
+        loc = base
+
 class timers:
     labels = []::string
     values = []::[float]
@@ -995,6 +1067,37 @@ class stacked_scene : system
                         else:
                             chunk.ren[id].draw()
 
+def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
+    return chunk.create(type) id:
+        chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size }
+        chunk.ren[id] = render { bg, fg, glyph }
+        // may have associated tile or item sheet data, but not both
+        assert tile == tile_none or item == item_none
+        if tile != tile_none: chunk.tile[id] = tile
+        if item != item_none: chunk.item[id] = item
+    post id:
+        if type & ent_avatar: chunk.avatars.with(chunk, id) av:
+            if avatar_helf.y     != 0:         av.helf       = avatar_helf
+            if avatar_stam.y     != 0:         av.stam       = avatar_stam
+            if avatar_initiative != 0:         av.initiative = avatar_initiative
+            if avatar_gives:                   av.gives      = avatar_gives
+            if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
+            if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
+        if this.spawn_prob != xy_0i:
+            chunk.spawner.add_spawn(id) sp:
+                sp.prob(spawn_prob.x, spawn_prob.y)
+                sp.add_item_spawn(this.spawn_item)
+        body(id)
+
+def create(this::ent_template, chunk:chunk, loc:xy_f):
+    return create_with(chunk, loc): nil
+
+def create(this::ent_templates, id:int, chunk:chunk, loc:xy_f):
+    return defs[id].create(chunk, loc)
+
+def create_with(this::ent_templates, id:int, chunk:chunk, loc:xy_f, body):
+    return defs[id].create_with(chunk, loc, body)
+
 //// specialization
 
 let preload_fonts = [
@@ -1022,80 +1125,11 @@ def tile_sprite(id:tile_entity_id):     return sprite(  tile_sprite_id[id])
 def item_sprite(id:item_entity_id):     return sprite(  item_sprite_id[id])
 def avatar_sprite(id:avatar_entity_id): return sprite(avatar_sprite_id[id])
 
-def font_string(mode:int, s:string) -> int: return glyph_atlases[mode].symbolicate(s)
-def font_rune(  mode:int, code:int) -> int: return font_string(mode, unicode_to_string([code]))
-
 def ascii(code:int):    return glyph { ascii_glyph_mode,    font_rune(ascii_glyph_mode,    code) }
 def sqascii(code:int):  return glyph { sqascii_glyph_mode,  font_rune(sqascii_glyph_mode,  code) }
 def unicode(code:int):  return glyph { unicode_glyph_mode,  font_rune(unicode_glyph_mode,  code) }
 def uniblock(code:int): return glyph { uniblock_glyph_mode, font_rune(uniblock_glyph_mode, code) }
 def twemoji(code:int):  return glyph { twemoji_glyph_mode,  font_rune(twemoji_glyph_mode,  code) }
-
-class ent_template:
-    type  : entype
-    bg    = color_clear
-    fg    = color_clear
-    glyph = glyph_0
-    z     = 0.0
-    size  = 1.0
-
-    tile = tile_none
-    item = item_none
-
-    spawn_prob = xy_0i
-    spawn_item = item_none
-
-    avatar_helf       = xy_0i
-    avatar_stam       = xy_0i
-    avatar_initiative = 0
-    avatar_gives      = false
-    avatar_left_hand  = item_none
-    avatar_right_hand = item_none
-
-class ent_templates:
-    defs = []::ent_template
-
-    def register(tmpl):
-        let id = defs.length()
-        defs.push(tmpl)
-        return id
-
-    def define(t:entype, body):
-        let tmpl = ent_template { type: t }
-        body(tmpl)
-        return register(tmpl)
-
-    def extend(base_id, body):
-        let tmpl = copy(defs[base_id])
-        body(tmpl)
-        return register(tmpl)
-
-class builder:
-    loc = xy_0
-
-    def at(l:xy_f, body):
-        let base = loc
-        loc = l
-        if body:
-            body()
-            loc = base
-
-    def translate(by:xy_f, body):
-        at(loc + by, body)
-
-    def each(offsets, body):
-        let base = loc
-        for(offsets) offset, i:
-            loc = base + offset
-            body(i)
-        loc = base
-
-    def fill_rect(n, body):
-        let base = loc
-        for(n) x: for(n) y:
-            loc = base + xy_f { x, y }
-            body(x, y)
-        loc = base
 
 let templates = ent_templates {}
 
@@ -1157,38 +1191,10 @@ let element_air = templates.extend(char_template):
     _.avatar_left_hand = item_wind
     _.avatar_right_hand = item_wind
 
-def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
-    return chunk.create(type) id:
-        chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size }
-        chunk.ren[id] = render { bg, fg, glyph }
-        // may have associated tile or item sheet data, but not both
-        assert tile == tile_none or item == item_none
-        if tile != tile_none: chunk.tile[id] = tile
-        if item != item_none: chunk.item[id] = item
-    post id:
-        if type & ent_avatar: chunk.avatars.with(chunk, id) av:
-            if avatar_helf.y     != 0:         av.helf       = avatar_helf
-            if avatar_stam.y     != 0:         av.stam       = avatar_stam
-            if avatar_initiative != 0:         av.initiative = avatar_initiative
-            if avatar_gives:                   av.gives      = avatar_gives
-            if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
-            if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
-        if this.spawn_prob != xy_0i:
-            chunk.spawner.add_spawn(id) sp:
-                sp.prob(spawn_prob.x, spawn_prob.y)
-                sp.add_item_spawn(this.spawn_item)
-        body(id)
+def build_world(chunk):
+    let size = 12
+    let build = ent_scaffold {}
 
-def create(this::ent_template, chunk:chunk, loc:xy_f):
-    return this.create_with(chunk, loc): nil
-
-def create(this::ent_templates, id:int, chunk:chunk, loc:xy_f):
-    return templates.defs[id].create(chunk, loc)
-
-def create_with(this::ent_templates, id:int, chunk:chunk, loc:xy_f, body):
-    return templates.defs[id].create_with(chunk, loc, body)
-
-def build_moji_grove(chunk, build:builder, size):
     let dirt = [
         glyph_0, glyph_0, uniblock(0x2591), // ░
         glyph_0, glyph_0, uniblock(0x2592), // ▒
@@ -1329,8 +1335,7 @@ def run_a_world():
     var scene = stacked_scene {}
     world.systems.push(scene)
 
-    let build = builder {}
-    build_moji_grove(world, build, 12)
+    build_world(world)
 
     world.spawn_items()
 
@@ -1347,7 +1352,6 @@ def run_a_world():
     edit:
         im_edit_anything(world, "World")
         im_edit_anything(scene, "Scene")
-        im_edit_anything(build, "Build")
         im_edit_anything(ui, "UI")
 
 do():
