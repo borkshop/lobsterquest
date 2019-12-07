@@ -76,9 +76,6 @@ class tile_menu_world:
         return string(tile_entity_id(i))
 
 enum map_command:
-    map_command_escape
-    map_command_enter
-    map_command_exit
     map_command_north
     map_command_west
     map_command_east
@@ -92,8 +89,6 @@ class map_key_command:
     command:map_command
 
 let map_commands = [
-    map_key_command{ "escape", map_command_escape },
-    map_key_command{ "return", map_command_enter },
     map_key_command{ "up", map_command_north },
     map_key_command{ "k", map_command_north },
     map_key_command{ "right", map_command_east },
@@ -105,7 +100,6 @@ let map_commands = [
     map_key_command{ "0", map_command_origin },
     map_key_command{ "f", map_command_fill },
     map_key_command{ "d", map_command_raze },
-    map_key_command{ "q", map_command_exit },
 ]
 
 enum cursor_style:
@@ -120,12 +114,8 @@ class map_mode<world_type>:
     fill_tile: tile_entity_id
     fill_color: color
 
-    def invoke_map_command(command, exit, enter):
+    def invoke_map_command(command):
         switch command:
-            case map_command_exit:
-                exit()
-            case map_command_enter:
-                enter()
             case map_command_north:
                 pov.cursor -= xy_yi
             case map_command_east:
@@ -147,12 +137,11 @@ class map_mode<world_type>:
             default:
                 nil
 
-    def map_input(exit, enter):
+    def map_input():
         for(map_commands) kc:
             let state = gl_button(kc.key)
             if state == 0: // wentup
-                invoke_map_command(kc.command): exit()
-                enter: enter()
+                invoke_map_command(kc.command)
 
     def map_draw():
         pov.update()

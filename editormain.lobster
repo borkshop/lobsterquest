@@ -13,16 +13,16 @@ class root_mode:
     tile_menu_mode: tile_menu_mode
 
     def root_input(exit):
+        if gl_button("q") == 0:
+            exit()
         switch mode:
             case mode_navigating:
-                map_mode.map_input():
-                    exit()
-                enter:
+                map_mode.map_input()
+                if gl_button("return") == 0:
                     mode = mode_selecting_tile
             case mode_selecting_tile:
-                tile_menu_mode.map_input():
-                    exit()
-                enter:
+                tile_menu_mode.map_input()
+                if gl_button("return") == 0:
                     mode = mode_navigating
                     map_mode.fill_tile = tile_entity_id(mod(tile_menu_mode.pov.cursor.y, length(tile_sprite_id)))
 
