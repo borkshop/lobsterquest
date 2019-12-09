@@ -58,7 +58,7 @@ struct spatial : xyzw_f
 
 let spatial_0 = spatial { 0, 0, 0, 0 }
 
-let glyph_atlases = []::tile_atlas
+let glyph_atlases = []::texture_atlas
 
 def font_string(mode:int, s:string) -> int:
     return glyph_atlases[mode].symbolicate(s)
@@ -66,7 +66,7 @@ def font_string(mode:int, s:string) -> int:
 def font_rune(mode:int, code:int) -> int:
     return glyph_atlases[mode].symbolicate(unicode_to_string([code]))
 
-def add_glyph_tile_atlas(atlas:tile_atlas):
+def add_glyph_tile_atlas(atlas:texture_atlas):
     let atlas_id = glyph_atlases.length()
     glyph_atlases.push(atlas)
     return atlas_id
@@ -78,8 +78,8 @@ struct glyph:
     mode : int
     code : int
 
-    def tile_texture():
-        return glyph_atlases[mode].tile_texture(code)
+    def get_texture():
+        return glyph_atlases[mode].get_texture(code)
 
 let glyph_0 = glyph { 0, 0 }
 
@@ -94,7 +94,7 @@ struct render:
             gl_color(bg): gl_unit_square()
         if glyf.code != 0:
             gl_set_shader("textured")
-            gl_set_primitive_texture(0, glyf.tile_texture())
+            gl_set_primitive_texture(0, glyf.get_texture())
             gl_color(fg): gl_unit_square()
 
     def with_fg_color(c:color, g:glyph):
@@ -514,7 +514,7 @@ class avatar:
         let hand = xy_1 * 1.0 / 3.0
         gl_set_shader("textured")
         def unit(glyf):
-            gl_set_primitive_texture(0, glyf.tile_texture())
+            gl_set_primitive_texture(0, glyf.get_texture())
             gl_unit_square()
         faces() glyf, i:
             if i == 0:

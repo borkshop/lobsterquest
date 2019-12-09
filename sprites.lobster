@@ -2,7 +2,7 @@ import color
 import texture
 import vec
 
-class tile_atlas:
+class texture_atlas:
     res : xy_i
 
     kash = []::resource
@@ -17,11 +17,11 @@ class tile_atlas:
     def render_tile(id:int, c:color) -> resource:
         return sprite_render(xy_1i * res): draw_tile(id, c)
 
-    def tile_texture(id:int) -> resource:
+    def get_texture(id:int) -> resource:
         assert id >= 0 and id < kash.length
         return kash[id]
 
-class text_atlas : tile_atlas
+class text_atlas : texture_atlas
     stretch   : bool
     font_name : string
 
@@ -67,7 +67,7 @@ class text_atlas : tile_atlas
                     gl_translate(xy { 0.0, box.y / 4 }):
                         gl_text(t)
 
-class sprite_atlas : tile_atlas
+class sprite_atlas : texture_atlas
     size : xy_i
     tex  : resource
 
