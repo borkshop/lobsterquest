@@ -97,19 +97,6 @@ class chunk : shard
         anims.update(this, dt)
         avatars.update_any(this)
 
-    def choose_actions(input:input_fun):
-        // choose action intents
-        let intents = minds.thoughts(input)
-
-        // subset of minds with intent
-        let actor_mind_ids = filter_indices(minds.ids) id, mind_id:
-            intents[mind_id].act != action_none
-        actor_ids = map(actor_mind_ids): minds.ids[_]
-        actions = filter(intents): _.act != action_none
-
-        // compute action targets
-        targets = map(actions) a, actor_id: a.target(pos[actor_ids[actor_id]])
-
     def actor_move(actor_id):
         // animate actor movement, adding to hit group if successful
         let group_id = group_ids[actor_id]
@@ -155,7 +142,9 @@ class chunk : shard
             timers.record_time(6): spawn_items()
 
     def run_minds(input:input_fun):
-        timers.record_time(3): choose_actions(input)
+        timers.record_time(3):
+            actor_ids, actions = minds.intents(input)
+            targets = map(actions) a, actor_id: a.target(pos[actor_ids[actor_id]])
 
         timers.record_time(4):
             group_ids = map(targets): -1

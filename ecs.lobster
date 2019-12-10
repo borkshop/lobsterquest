@@ -404,10 +404,16 @@ class minds : system
             else: if old & ent_mind: this.exit(id)
         return new
 
-    def thoughts(input:input_fun):
-        return map(types) t, mind_id:
+    def intents(input:input_fun):
+        let intents = map(types) t, mind_id:
             if t & ent_input: input()
             else:             minds[mind_id].think()
+        let actor_ids = vector_reserve(typeof [int], intents.length)
+        let actions   = vector_reserve(typeof [action], intents.length)
+        for(intents) act, mind_id: if act.act != action_none:
+            actor_ids.push(ids[mind_id])
+            actions.push(act)
+        return actor_ids, actions
 
 //// ancillary component: avatars represent character state
 
