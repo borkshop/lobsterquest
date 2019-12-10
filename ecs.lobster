@@ -386,18 +386,21 @@ class mind:
 class minds : system
     ids   = []::int
     types = []::entype
+    inits = []::int
     minds = []::mind
 
     def enter(id, type):
         let n, i = ids.binary_search(id)
         ids.insert(i, id)
         types.insert(i, type)
+        inits.insert(i, 0)
         minds.insert(i, mind { id: id })
 
     def exit(id):
         let n, i = ids.binary_search(id)
         ids.remove(i, n)
         types.remove(i, n)
+        inits.remove(i, n)
         minds.remove(i, n)
 
     def ent_changed(shard, id:int, old:entype, new:entype):
@@ -409,15 +412,23 @@ class minds : system
             for(n) j: types[i + j] = new
         return new
 
+    def set_init(id:int, init:int):
+        let n, i = ids.binary_search(id)
+        for(n) j: inits[i + j] = init
+
     def intents(input:input_fun):
         let intents = map(types) t, mind_id:
             if t & ent_input: input()
             else:             minds[mind_id].think()
+        let by_init   = vector_reserve(typeof [int], intents.length)
         let actor_ids = vector_reserve(typeof [int], intents.length)
         let actions   = vector_reserve(typeof [action], intents.length)
         for(intents) act, mind_id: if act.act != action_none:
-            actor_ids.push(ids[mind_id])
-            actions.push(act)
+            let init = -inits[mind_id] // reverse initiative order
+            let n, i = by_init.binary_search(init)
+            by_init.insert(i, init)
+            actor_ids.insert(i, ids[mind_id])
+            actions.insert(i, act)
         return actor_ids, actions
 
 //// ancillary component: avatars represent character state
@@ -428,7 +439,6 @@ class avatar:
     moji       = glyph_0
     helf       = xy { 3, 3 } // ❤️
     stam       = xy { 0, 0 } // 💛
-    initiative = 0
     gives      = false
     left_hand  = item_none
     right_hand = item_none
@@ -618,12 +628,13 @@ class ent_template:
     tile = tile_none
     item = item_none
 
+    initiative = 0
+
     spawn_prob = xy_0i
     spawn_template = 0
 
     avatar_helf       = xy_0i
     avatar_stam       = xy_0i
-    avatar_initiative = 0
     avatar_gives      = false
     avatar_left_hand  = item_none
     avatar_right_hand = item_none

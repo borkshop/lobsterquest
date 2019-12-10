@@ -97,11 +97,10 @@ class chunk : shard
         anims.update(this, dt)
         avatars.update_any(this)
 
-    def actor_move(actor_id):
+    def actor_move(id, actor_id):
         // animate actor movement, adding to hit group if successful
         let group_id = group_ids[actor_id]
         let at = hits[group_id]
-        let id = actor_ids[actor_id]
         let a = pos[id]
         let t = targets[actor_id]
         let d = t - a.cell()
@@ -171,12 +170,16 @@ class chunk : shard
 
         timers.record_time(5):
             for(groups) actors:
-                resolve_action_group(actors)
+                for(actors) actor_id:
+                    let id = actor_ids[actor_id]
+                    if type[id] & ent_avatar:
+                        avatar_move(id, actor_id)
+                    else:
+                        actor_move(id, actor_id)
 
-    def avatar_move(actor_id):
-        let id = actor_ids[actor_id]
-        let act = actions[actor_id]
+    def avatar_move(id, actor_id):
         avatars.with(this, id) av:
+            let act = actions[actor_id]
             def boop(object_id) -> bool:
                 // TODO take av.right_hand into account? combat? digging? crafting-at?
                 let t = type[object_id]
@@ -222,26 +225,7 @@ class chunk : shard
                         print("#" + id + " rest...") // TODO and then...
                     else:
                         actor_find_at(actor_id) object_id: boop(object_id)
-                        actor_move(actor_id)
-
-    def resolve_action_group(actors):
-        // partition actors into...
-        let vtrs = []::int // ...avatar actors
-        let init = []::int //  , sorted by initiative
-        let rest = []::int //  ; and non-avatar actors
-        for(actors) actor_id:
-            let id = actor_ids[actor_id]
-            if type[id] & ent_avatar:
-                let av = avatars.get(id)
-                assert av
-                let n, i = init.binary_search(av.initiative)
-                init.insert(i, av.initiative)
-                vtrs.insert(i, actor_id)
-            else:
-                rest.push(actor_id)
-        // resolve actions ordered by avatar.initiative then mind id
-        reverse(vtrs) actor_id: avatar_move(actor_id)
-        for(rest) actor_id: actor_move(actor_id)
+                        actor_move(id, actor_id)
 
 def new_chunk():
     let ch = chunk {}
@@ -332,10 +316,11 @@ def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
         if tile != tile_none: chunk.tile[id] = tile
         if item != item_none: chunk.item[id] = item
     post id:
+        if type & ent_mind:
+            chunk.minds.set_init(id, initiative)
         if type & ent_avatar: chunk.avatars.with(chunk, id) av:
             if avatar_helf.y     != 0:         av.helf       = avatar_helf
             if avatar_stam.y     != 0:         av.stam       = avatar_stam
-            if avatar_initiative != 0:         av.initiative = avatar_initiative
             if avatar_gives:                   av.gives      = avatar_gives
             if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
             if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
@@ -444,7 +429,7 @@ let char_template = templates.define(ent_body | ent_visible | ent_avatar | ent_m
 
 let player_template = templates.extend(char_template):
     _.type = _.type | ent_input
-    _.avatar_initiative = 10
+    _.initiative = 10
 
 let tmpl_item_pine_apple = templates.extend(item_template):
     _.item = item_pine_apple
@@ -465,32 +450,32 @@ let tree_deciduous = templates.extend(tile_template):
 let element_earth = templates.extend(char_template):
     _.glyph = item_sprite(item_clover)
     _.fg = color_dark_green
+    _.initiative = 3
     _.avatar_gives = true
-    _.avatar_initiative = 3
     _.avatar_left_hand = item_clover
     _.avatar_right_hand = item_clover
 
 let element_water = templates.extend(char_template):
     _.glyph = item_sprite(item_water)
     _.fg = color_teal
+    _.initiative = 4
     _.avatar_gives = true
-    _.avatar_initiative = 4
     _.avatar_left_hand = item_water
     _.avatar_right_hand = item_water
 
 let element_fire = templates.extend(char_template):
     _.glyph = item_sprite(item_fire)
     _.fg = color_orange
+    _.initiative = 6
     _.avatar_gives = true
-    _.avatar_initiative = 6
     _.avatar_left_hand = item_fire
     _.avatar_right_hand = item_fire
 
 let element_air = templates.extend(char_template):
     _.glyph = item_sprite(item_wind)
     _.fg = color_cyan
+    _.initiative = 5
     _.avatar_gives = true
-    _.avatar_initiative = 5
     _.avatar_left_hand = item_wind
     _.avatar_right_hand = item_wind
 
