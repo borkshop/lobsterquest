@@ -404,6 +404,9 @@ class minds : system
         if (old ^ new) & ent_mind:
             if       new & ent_mind: this.enter(id, new)
             else: if old & ent_mind: this.exit(id)
+        else:
+            let n, i = ids.binary_search(id)
+            for(n) j: types[i + j] = new
         return new
 
     def intents(input:input_fun):
