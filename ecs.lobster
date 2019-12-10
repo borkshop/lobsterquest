@@ -389,14 +389,16 @@ class minds : system
     minds = []::mind
 
     def enter(id, type):
-        ids.push(id)
-        types.push(type)
-        minds.push(mind { id: id })
+        let n, i = ids.binary_search(id)
+        ids.insert(i, id)
+        types.insert(i, type)
+        minds.insert(i, mind { id: id })
 
-    def exit(id): while_first_index(ids, id) mind_id:
-        ids.remove(mind_id, 1)
-        types.remove(mind_id, 1)
-        minds.remove(mind_id, 1)
+    def exit(id):
+        let n, i = ids.binary_search(id)
+        ids.remove(i, n)
+        types.remove(i, n)
+        minds.remove(i, n)
 
     def ent_changed(shard, id:int, old:entype, new:entype):
         if (old ^ new) & ent_mind:
