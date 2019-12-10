@@ -85,7 +85,6 @@ class chunk : shard
 
     actor_ids = []::int
     actions   = []::action
-    actor_pos = []::spatial
     targets   = []::xy_i
     group_ids = []::int
     groups    = []::[int]
@@ -108,14 +107,11 @@ class chunk : shard
         actor_ids = map(actor_mind_ids): minds.ids[_]
         actions = filter(intents): _.act != action_none
 
-        // track current actor location
-        actor_pos = map(actor_ids): pos[_]
-
         // compute action targets
-        targets = map(actions) a, actor_id: a.target(actor_pos[actor_id])
+        targets = map(actions) a, actor_id: a.target(pos[actor_ids[actor_id]])
 
     def actor_move(actor_id):
-        // animate actor movement, updating actor_pos if not blocked
+        // animate actor movement, adding to hit group if successful
         let group_id = group_ids[actor_id]
         let at = hits[group_id]
         let id = actor_ids[actor_id]
@@ -138,7 +134,6 @@ class chunk : shard
             else: // unblocked, full-animate
                 anim.after(1): anim.pos = b
         if not at.length: // unblocked, update actor state
-            actor_pos[actor_id] = b
             at.push(id) // ...am here now, have at me!
 
     def actor_find_at(actor_id, want):
