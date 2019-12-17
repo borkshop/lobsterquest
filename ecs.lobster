@@ -28,14 +28,14 @@ enum_flags entype:
     ent_avatar      // has avatar
 
 def entype_str(t:entype):
-    var s = ""
-    if t & ent_visible: s += " ent_visible"
-    if t & ent_cell:    s += " ent_cell"
-    if t & ent_body:    s += " ent_body"
-    if t & ent_mind:    s += " ent_mind"
-    if t & ent_input:   s += " ent_input"
-    if t & ent_avatar:  s += " ent_avatar"
-    return s
+    let parts = []
+    if t & ent_visible: parts.push("visible")
+    if t & ent_cell:    parts.push("cell")
+    if t & ent_body:    parts.push("body")
+    if t & ent_mind:    parts.push("mind")
+    if t & ent_input:   parts.push("input")
+    if t & ent_avatar:  parts.push("avatar")
+    return parts.concat_string("|")
 
 //// systems
 
