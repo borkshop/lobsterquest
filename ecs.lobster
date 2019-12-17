@@ -4,6 +4,12 @@ import vec
 import sprites
 import sheets // TODO invert ecs -> sheets dep
 
+def color_to_hex(c:color) -> string: return "#" +
+    number_to_string(int(c.red   * 255), 16, 2) +
+    number_to_string(int(c.green * 255), 16, 2) +
+    number_to_string(int(c.blue  * 255), 16, 2) +
+    number_to_string(int(c.alpha * 255), 16, 2)
+
 def first_index(xs, x):
     for(xs) _, i: if _ == x:
         return i
@@ -108,16 +114,38 @@ let render_0 = render { color_clear, color_clear, glyph_0 }
 //// entity allocation arenas ( shards )
 
 class shard:
+    // entity type
     type = []::entype
-    pos  = []::spatial
-    ren  = []::render
-    tex  = []::resource?
+
+    // global data relevant to any entity
+    pos = []::spatial   // spatial position
+    ren = []::render    // colored glyph with an optional background
+    tex = []::resource? // render texture overrides any glyph
+
+    // any associated rule sheet data
     tile = []::tile_entity_id
     item = []::item_entity_id
 
     systems = []::system
 
     free_ids = []::int
+
+    def describe(id:int) -> string:
+        let parts = [
+            "#" + id,
+            entype_str(type[id]),
+            "@<" + pos[id].x + ", " + pos[id].y + ">",
+            "z:" + pos[id].z,
+        ]
+        if pos[id].w: "size:" + pos[id].w
+        if ren[id].bg != color_clear: parts.push("bg:" + color_to_hex(ren[id].bg))
+        if ren[id].glyf != glyph_0:
+            parts.push("fg:" + color_to_hex(ren[id].fg))
+            parts.push("" + ren[id].glyf)
+        if tex[id]: parts.push("tex:" + tex[id])
+        if tile[id]: parts.push("" + tile[id])
+        if item[id]: parts.push("" + item[id])
+        return parts.concat_string(" ")
 
     def alloc() -> int:
         if free_ids.length:
