@@ -166,6 +166,7 @@ class shard:
             tile[id] = tile_none
             item[id] = item_none
             return id
+        if not type.length: grow() // reserve #0
         return if free_ids.length: reuse() else: grow()
 
     def create(t:entype, init, post):
