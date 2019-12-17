@@ -148,7 +148,16 @@ class shard:
         return parts.concat_string(" ")
 
     def alloc() -> int:
-        if free_ids.length:
+        def grow():
+            let id = type.length
+            type.push(ent_none)
+            pos.push(spatial_0)
+            ren.push(render_0)
+            tex.push(nil)
+            tile.push(tile_none)
+            item.push(item_none)
+            return id
+        def reuse():
             let id = free_ids.pop()
             type[id] = ent_none
             pos[id] = spatial_0
@@ -157,15 +166,7 @@ class shard:
             tile[id] = tile_none
             item[id] = item_none
             return id
-        else:
-            let id = type.length()
-            type.push(ent_none)
-            pos.push(spatial_0)
-            ren.push(render_0)
-            tex.push(nil)
-            tile.push(tile_none)
-            item.push(item_none)
-            return id
+        return if free_ids.length: reuse() else: grow()
 
     def create(t:entype, init, post):
         let id = alloc()
