@@ -183,9 +183,6 @@ class shard:
             else: if item_id != item_none: ren[id] = r.with_glyph(item_sprite(item_id))
         return id
 
-    def add_type(id:int, t:entype): set_type(id, type[id] |  t)
-    def del_type(id:int, t:entype): set_type(id, type[id] & ~t)
-
     def set_type(id:int, t:entype):
         let old = type[id]
         if old != t:
@@ -193,6 +190,9 @@ class shard:
             t = notify_type(id, old, t)
         if t == ent_none:
             free_ids.push(id)
+
+    def add_type(id:int, t:entype): set_type(id, type[id] |  t)
+    def del_type(id:int, t:entype): set_type(id, type[id] & ~t)
 
     def notify_type(id:int, old:entype, new:entype) -> entype:
         for(systems):
