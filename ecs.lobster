@@ -46,7 +46,7 @@ def entype_str(t:entype):
 //// systems
 
 class system:
-    def ent_changed(shard, id:int, old:entype, new:entype):
+    def ent_changed(shard, id:int, new:entype, old:entype):
         return new
 
 //// toplevel components
@@ -197,7 +197,7 @@ class shard:
     def notify_type(id:int, old:entype, new:entype) -> entype:
         for(systems):
             let prior = new
-            new = _.ent_changed(this, id, old, new)
+            new = _.ent_changed(this, id, new, old)
             if new != prior:
                 type[id] = new
         return new
@@ -365,7 +365,7 @@ class bodys : system
     def exit(id): while_first_index(ids, id) body_id:
         ids.remove(body_id, 1)
 
-    def ent_changed(shard, id:int, old:entype, new:entype):
+    def ent_changed(shard, id:int, new:entype, old:entype):
         if (old ^ new) & ent_body:
             if       new & ent_body: this.enter(id)
             else: if old & ent_body: this.exit(id)
@@ -433,7 +433,7 @@ class minds : system
         inits.remove(i, n)
         minds.remove(i, n)
 
-    def ent_changed(shard, id:int, old:entype, new:entype):
+    def ent_changed(shard, id:int, new:entype, old:entype):
         if (old ^ new) & ent_mind:
             if       new & ent_mind: this.enter(id, new)
             else: if old & ent_mind: this.exit(id)
@@ -634,7 +634,7 @@ class avatars : system
             avatars.remove(avatar_id, n)
             shard.tex[id] = nil
 
-    def ent_changed(shard, id:int, old:entype, new:entype):
+    def ent_changed(shard, id:int, new:entype, old:entype):
         if (old ^ new) & ent_avatar:
             if       new & ent_avatar: this.enter(shard, id, new)
             else: if old & ent_avatar: this.exit(shard, id)
@@ -724,7 +724,7 @@ class spawner : system
     prob = []::xy_i
     tid  = []::int
 
-    def ent_changed(shard, id:int, old:entype, new:entype):
+    def ent_changed(shard, id:int, new:entype, old:entype):
         if new == ent_none:
             let n, i = ids.binary_search(id)
             if n:

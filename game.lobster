@@ -260,7 +260,7 @@ class stacked_scene : system
         ids.remove(scene_id, 1)
         zs.remove(scene_id, 1)
 
-    def ent_changed(shard, id:int, old:entype, new:entype):
+    def ent_changed(shard, id:int, new:entype, old:entype):
         if (old ^ new) & ent_visible:
             if       new & ent_visible: this.enter(shard, id)
             else: if old & ent_visible: this.exit(id)
