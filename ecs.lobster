@@ -185,11 +185,16 @@ class shard:
 
     def set_type(id:int, t:entype):
         let old = type[id]
-        if old != t:
+        if old == t: return
+
+        if t != ent_none:
             type[id] = t
             t = notify_type(id, old, t)
-        if t == ent_none:
-            free_ids.push(id)
+            return
+
+        type[id] = ent_none
+        notify_type(id, old, ent_none)
+        free_ids.push(id)
 
     def add_type(id:int, t:entype): set_type(id, type[id] |  t)
     def del_type(id:int, t:entype): set_type(id, type[id] & ~t)
