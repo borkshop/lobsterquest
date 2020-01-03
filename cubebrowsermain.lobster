@@ -76,7 +76,7 @@ while gl_frame():
                     let tile_id = tiles[index]
                     if tile_id > 0:
                         let sprite_id = tile_sprite_id[tile_id]
-                        gl_set_primitive_texture(0, sprites.tile_texture(sprite_id))
+                        gl_set_primitive_texture(0, sprites.get_texture(sprite_id))
                         gl_color(color_white)
                         let v = float(xy{ index_within_face % size, index_within_face / size })
                         gl_translate(v):
