@@ -172,7 +172,7 @@ class map_mode<world_type>:
             let tile_id = world.tile(i)
             if tile_id > 0:
                 let sprite_id = tile_sprite_id[tile_id]
-                gl_set_primitive_texture(0, sprites.tile_texture(sprite_id))
+                gl_set_primitive_texture(0, sprites.get_texture(sprite_id))
                 gl_unit_square()
 
         gl_set_shader("color")
@@ -209,7 +209,7 @@ class map_mode<world_type>:
                     unit_box(0.05)
             case cursor_style_hand:
                 gl_set_shader("textured")
-                gl_set_primitive_texture(0, sprites.tile_texture(ui_sprite_id[ui_point_east]))
+                gl_set_primitive_texture(0, sprites.get_texture(ui_sprite_id[ui_point_east]))
                 gl_translate(pov.retical - pov.camera):
                     gl_translate(xy_x*-1.5 - xy_y/2)
                     gl_unit_square()

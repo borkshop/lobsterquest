@@ -4,7 +4,7 @@ class world_map_mode : map_mode<world>
 class tile_menu_mode : map_mode<tile_menu_world>
 
 enum mode:
-    mode_navigating
+    mode_map_unbounded_flat_world
     mode_selecting_tile
 
 class root_mode:
@@ -16,19 +16,19 @@ class root_mode:
         if gl_button("q") == 0:
             exit()
         switch mode:
-            case mode_navigating:
+            case mode_map_unbounded_flat_world:
                 map_mode.map_input()
                 if gl_button("return") == 0:
                     mode = mode_selecting_tile
             case mode_selecting_tile:
                 tile_menu_mode.map_input()
                 if gl_button("return") == 0:
-                    mode = mode_navigating
+                    mode = mode_map_unbounded_flat_world
                     map_mode.fill_tile = tile_entity_id(mod(tile_menu_mode.pov.cursor.y, length(tile_sprite_id)))
 
     def root_draw():
         switch mode:
-            case mode_navigating:
+            case mode_map_unbounded_flat_world:
                 map_mode.map_draw()
             case mode_selecting_tile:
                 tile_menu_mode.map_draw()
@@ -52,7 +52,7 @@ def new_root_mode():
         fill_color: color_clear,
     }
     return root_mode{
-        mode: mode_navigating,
+        mode: mode_map_unbounded_flat_world,
         map_mode: map_mode,
         tile_menu_mode: tile_mode,
     }
