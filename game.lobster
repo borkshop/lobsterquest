@@ -71,6 +71,192 @@ def for_from(xs, i, body):
         body(xs[i], i)
         i++
 
+//// ancillary component: avatars represent character state
+
+class avatar:
+    retex      = false
+    state      = avatar_state_content
+    moji       = glyph_0
+    helf       = xy { 3, 3 } // ❤️
+    stam       = xy { 0, 0 } // 💛
+    gives      = false
+    left_hand  = item_none
+    right_hand = item_none
+    // TODO worn item
+    // TODO back item
+
+    show_hearts = false
+    show_status = false
+
+    def offer() -> item_entity_id:
+        if not gives:
+            return item_none
+        if right_hand != item_none: return right_hand
+        if  left_hand != item_none: return left_hand
+        return item_none
+
+    def offer_taken():
+        if gives:
+            if right_hand != item_none:
+                right_hand = left_hand
+                left_hand = item_none
+            else: if  left_hand != item_none:
+                left_hand = item_none
+
+    def take(id:item_entity_id) -> bool:
+        if id == item_none:
+            return false
+        if right_hand != item_none:
+            if left_hand != item_none:
+                return false
+            left_hand = right_hand
+        right_hand = id
+        return true
+
+    def drop() -> item_entity_id:
+        if right_hand != item_none:
+            let r = right_hand
+            right_hand = item_none
+            print("dropped right hand " + r)
+            return r
+        if left_hand != item_none:
+            let r = left_hand
+            left_hand = item_none
+            print("dropped left hand " + r)
+            return r
+        return item_none
+
+    def swap():
+        let tmp = right_hand
+        right_hand = left_hand
+        left_hand = tmp
+
+    def use_hand():
+        if right_hand != item_none:
+            print("TODO use " + right_hand) // TODO implement
+            return
+        if left_hand != item_none:
+            right_hand = left_hand
+            left_hand = item_none
+            print("use fault swap")
+            return
+
+    def combine_hands():
+        if right_hand == item_none: return
+        if  left_hand == item_none: return
+        print("TODO combine " + right_hand + " + " + left_hand) // TODO implement
+
+    def faces(each):
+        var i = 0
+        if moji.code != 0:
+            each(moji, i++)
+        if state == avatar_state_content:
+            each(avatar_sprite(avatar_state_entity_ids[0]), i++) // 🙂
+            return
+        for(avatar_state_entity_ids) aeid, j: if j:
+            let q_state = avatar_state(1 << (j - 1))
+            if state & q_state:
+                each(avatar_sprite(aeid), i++)
+
+    def hearts(each):
+        let e = ui_sprite(ui_empty_heart)
+        let h = ui_sprite(ui_health_heart)
+        let s = ui_sprite(ui_stamina_heart)
+        var i = 0
+        for(         helf.x): each(h, i++, 0)
+        for(helf.y - helf.x): each(e, i++, 0)
+        i = 0
+        for(         stam.x): each(h, i++, 1)
+        for(stam.y - stam.x): each(e, i++, 1)
+
+    def draw_tile():
+        let face = xy_1 * 2.0 / 3.0
+        let icon = xy_1 * 1.0 / 5.0
+        let hand = xy_1 * 1.0 / 3.0
+        gl_set_shader("textured")
+        def unit(glyf):
+            gl_set_primitive_texture(0, glyf.get_texture())
+            gl_unit_square()
+        faces() glyf, i:
+            if i == 0:
+                gl_translate(xy_1 / 6): gl_scale(face):
+                    unit(glyf)
+            else: if show_status:
+                gl_scale(icon):
+                    gl_translate(xy_f { 4 - (i - 1) / 3, (i - 1) % 3 }):
+                        unit(glyf)
+        if show_hearts:
+            hearts() heart, x, y:
+                gl_scale(icon):
+                    gl_translate(xy_f { y, x }):
+                        unit(heart)
+        gl_scale(hand): gl_translate(xy_f { 0, 2 }):
+            unit(if left_hand: item_sprite(left_hand)
+                 else:         ui_sprite(ui_left_hand))
+        gl_scale(hand): gl_translate(xy_f { 2, 2 }):
+            unit(if right_hand: item_sprite(right_hand)
+                 else:          ui_sprite(ui_right_hand))
+
+class avatars : system
+    ids     = []::int
+    avatars = []::avatar
+
+    res = xy_i { 144, 144 }
+
+    def update_tex(shard, av, id):
+        shard.tex[id] = sprite_render(res):
+            gl_scale(float(res)):
+                av.draw_tile()
+        av.retex = false
+
+    def update_any(shard):
+        for(avatars) av, avatar_id: if av.retex:
+            update_tex(shard, av, ids[avatar_id])
+
+    def get(id:int) -> avatar?:
+        let n, avatar_id = ids.binary_search(id)
+        return if n: avatars[avatar_id] else: nil
+
+    def with(shard, id:int, body):
+        shard.add_type(id, ent_avatar)
+        let n, avatar_id = ids.binary_search(id)
+        assert n
+        let av = avatars[avatar_id]
+        body(av)
+        av.retex = true
+
+    def enter(shard, id, type):
+        let n, avatar_id = ids.binary_search(id)
+        if not n:
+            let show = if shard.type[id] & ent_input: true else: false
+            ids.insert(avatar_id, id)
+            avatars.insert(avatar_id, avatar {
+                moji:        shard.ren[id].glyf,
+                retex:       true,
+                show_hearts: show,
+                show_status: show,
+            })
+
+    def exit(shard, id):
+        let n, avatar_id = ids.binary_search(id)
+        if n:
+            ids.remove(avatar_id, n)
+            avatars.remove(avatar_id, n)
+            shard.tex[id] = nil
+
+    def ent_changed(shard, id:int, new:entype, old:entype):
+        if (old ^ new) & ent_avatar:
+            if       new & ent_avatar: this.enter(shard, id, new)
+            else: if old & ent_avatar: this.exit(shard, id)
+        else: if (old ^ new) & ent_input:
+            let show = if new & ent_input: true else: false
+            this.with(shard, id) av:
+                av.show_hearts = show
+                av.show_status = show
+        return new
+
+//// shard integration
+
 class chunk : shard
     templates = templates 
     timers = timers{}
