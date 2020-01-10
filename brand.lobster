@@ -52,3 +52,24 @@ let palette = [
     dark_orange,
     dark_brown,
 ]
+
+// Colors are arranged such that CMY are about the origin and RGB on the polar
+// opposites.
+// Colors on opposite faces are also opposite hues.
+let face_colors = [
+    light_purple,    // M
+    light_orange,    // Y
+    light_blue,      // C
+    color_white*0.8, // R
+    dark_blue,       // B
+    dark_green,      // G
+]
+
+let face_highlight_colors = [
+    dark_purple,
+    light_brown,
+    dark_blue,
+    light_red,
+    light_blue,
+    light_brown,
+]

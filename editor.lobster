@@ -11,7 +11,7 @@ def mod(n, m):
     if power_of_two(m): return n & m
     return (n % m + m) % m
 
-class point_of_view:
+class map_vantage:
     cursor: xy_i
     retical: xy_f
     camera: xy_f
@@ -107,7 +107,7 @@ enum cursor_style:
     cursor_style_box
 
 class map_mode<world_type>:
-    pov: point_of_view
+    pov: map_vantage
     world: world_type
     sprites: sprite_atlas
     cursor_style: cursor_style
