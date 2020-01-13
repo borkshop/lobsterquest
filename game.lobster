@@ -310,9 +310,9 @@ def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
     // may have associated tile or item sheet data, but not both
     assert tile == tile_none or item == item_none
     return chunk.create(type) id:
-        // TODO better placement
-        chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size }
-        chunk.ren[id] = render { bg, fg, glyph }
+        var r = render { bg, fg, glyph }
+        chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size } // TODO better placement
+        chunk.ren[id] = r
         if tile != tile_none: chunk.tile[id] = tile
         if item != item_none: chunk.item[id] = item
     post id:
