@@ -1,3 +1,6 @@
+// Langton's Ents is a demonstration of a cellular automaton modelling
+// multiple agents moving on a square tesselated world.
+
 import color
 import vec
 import std
@@ -6,6 +9,7 @@ import topology
 import sprites
 import sheets
 import brand
+import tessel_square_topology
 
 fatal(gl_window("Langton\'s Ents", 512, 512, 0))
 
@@ -27,7 +31,7 @@ do():
     let size = 16
     let count = 4
     let rules = [1, -1, 0]
-    let neighborhoods, turns = new_round_square_topology(size)
+    let neighborhoods, turns = new_tessel_square_topology(size)
     let w = langton_new_world(neighborhoods, turns, count, rules)
     let first_rule_color = dark_brown
     let last_rule_color = dark_green

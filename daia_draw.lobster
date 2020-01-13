@@ -1,5 +1,7 @@
+// daia_draw provides methods for rendering a cube, with each face oriented
+// according to the Daia world topology (see daia_topology.lobster).
+
 import vec
-namespace cube
 
 //                                 inverted clockwise
 //  Z       4---5             .---.   .---.
@@ -11,9 +13,10 @@ namespace cube
 //            2---3             '---'   '---'
 //                    counter-clockwise
 
-// face_meshes contains the meshes for the six faces of a cube,
-// facing outward.
-def new_face_vertices(): return [
+// face_meshes contains the meshes for the six faces of a Daia cube, facing
+// outward.
+
+def new_daia_face_vertices(): return [
     "3102", // 1
     "1540", // 2
     "0462", // 3
@@ -24,10 +27,10 @@ def new_face_vertices(): return [
 
 // These are in order from top-right, counter-clockwise.
 // I can offer no explanation why the origin is not the top- or bottom-left.
-let square = [xy_0, xy_x, xy_1, xy_y]
-let indices = [0, 1, 2, 2, 3, 0]
+let square_corners = [xy_0, xy_x, xy_1, xy_y]
+let square_triange_indices = [0, 1, 2, 2, 3, 0]
 
-def new_face_meshes(vertices):
+def new_daia_face_meshes(vertices):
     return map(vertices) v:
         let positions = map(v) c: xyz_v(map(3) i: float(c & (1 << (2 - i)) != 0))
         gl_new_mesh(
@@ -35,12 +38,12 @@ def new_face_meshes(vertices):
             positions, // "P"
             [], // colors,
             [], // normals,
-            square, // "T" texcoords,
+            square_corners, // "T" texcoords,
             [], // textcoords2,
-            indices
+            square_triange_indices
         )
 
-def draw(face_meshes, face_colors, face_textures):
+def draw_daia(face_meshes, face_colors, face_textures):
     gl_set_shader("textured")
     gl_translate(-xyz_1/2): for(6) i:
         // The texture colors are multiplied by the color in context.

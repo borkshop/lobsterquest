@@ -1,43 +1,27 @@
-import langton
+// Demonstrates rendering the faces of a Daia cube, numbered and colored
+// according to the corresponding pips on right handed dice, oriented and
+// colored according to the Daia aesthetic.
+
 import vec
 import color
-import cube
 import texture
-import std
-import sprites
-import sheets
-import topology
-import brand
 import util3d
+import daia_draw
 
-let hz = 2
-let size = 3
-let area = size * size
-let count = 12
-let rules = [1, -1, 0]
-let neighborhoods, turns = new_daia_topology(size)
-let w = langton_new_world(neighborhoods, turns, count, rules)
-let first_rule_color = dark_brown
-let last_rule_color = dark_green
-let v = langton_new_square_view(size, neighborhoods, turns, first_rule_color, last_rule_color)
+fatal(gl_window("Daia Cube", 515, 515))
+check(gl_set_font_name("data/fonts/Droid_Sans/DroidSans.ttf"), "can\'t load font")
 
-w.tick()
-var start = gl_time()
-def next():
-    let now = gl_time()
-    let tween = (now - start) * hz
-    if tween < 1.0:
-        return tween
-    start = now
-    w.tick()
-    return 0.0
-
-fatal(gl_window("Langton Cube", 515, 515))
-
-let sheet_sprites = load_sheet_sprites()
-
-let tex = sheet_sprites.get_texture(tile_sprite_id[tile_pine_tree])
-assert tex
+// Colors are arranged such that CMY are about the origin and RGB on the polar
+// opposites.
+// Colors on opposite faces are also opposite hues.
+let face_colors = [
+    color_purple,     // M
+    color_olive,      // Y
+    color_teal,       // C
+    color_dark_red,   // R
+    color_dark_blue,  // G
+    color_dark_green, // B
+]
 
 // Use the frame buffer to render a unique texture for each face of the cube,
 // with its number.
@@ -46,12 +30,21 @@ assert tex
 let detail = 256
 let face_textures = map(6):
     gl_create_blank_texture(xy_1i * detail, color_black, texture_format_none)
+for(6) i:
+    render_to_texture(face_textures[i], xy_1i * detail, false, nil, 0):
+        let label = string(i+1)
+        gl_set_font_size(detail/2)
+        let size = gl_text_size(label)
+        gl_translate(xy_1 * float(detail) / 2 - float(size) / 2)
+        gl_clear(color_grey)
+        gl_color(color_white)
+        gl_text(label)
 
-let face_meshes = cube_new_face_meshes(cube_new_face_vertices())
+let face_meshes = new_daia_face_meshes(new_daia_face_vertices())
 
 // Rotate the camera to place the origin vertex of the cube in the center of
 // the view.
-camera_pitch = 30
+camera_pitch = 45
 camera_yaw = -45
 
 // This demo is able to use camera_FPS_view but uses a different control model
@@ -65,19 +58,13 @@ def camera_GPS_update(upkey, leftkey, downkey, rightkey, elevation:float, mouses
     camera_position = vecfromyawpitch(camera_yaw, camera_pitch, -elevation, 0.0)
 
 while gl_frame() and gl_button("escape") != -1:
-    let tween = next()
-
-    // Render each face texture of the cube.
-    for(6) i:
-        render_to_texture(face_textures[i], xy_1i * detail, false, nil, 0):
-            gl_scale(xy_1 * detail)
-            v.draw(w, i * area, tween, tex)
-
-    gl_clear(color_dark_grey / 2)
+    gl_clear(color_dark_grey)
     gl_cursor(false)
     gl_perspective(60, 0.1, 1000)
 
     camera_GPS_update("w", "a", "s", "d", 2.0, 4.0, 4.0)
     camera_FPS_view()
 
-    cube_draw(face_meshes, map(6): color_white, face_textures)
+    gl_light(camera_position, xy { 128.0, 0.1 })
+
+    draw_daia(face_meshes, face_colors, face_textures)

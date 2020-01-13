@@ -1,3 +1,5 @@
+// brand provides branded colors for the game.
+
 import color
 
 // Brand colors from https://openmoji.org/styleguide/
