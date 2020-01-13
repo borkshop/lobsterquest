@@ -175,12 +175,6 @@ class shard:
         init(id)
         t = notify_type(id, ent_none, t)
         if post: post(id)
-        let r = ren[id]
-        if r.glyf == glyph_0:
-            let tile_id = tile[id]
-            let item_id = item[id]
-            if       tile_id != tile_none: ren[id] = r.with_glyph(tile_sprite(tile_id))
-            else: if item_id != item_none: ren[id] = r.with_glyph(item_sprite(item_id))
         return id
 
     def set_type(id:int, t:entype):

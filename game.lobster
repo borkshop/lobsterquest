@@ -311,6 +311,9 @@ def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
     assert tile == tile_none or item == item_none
     return chunk.create(type) id:
         var r = render { bg, fg, glyph }
+        if r.glyf == glyph_0:
+            if       tile != tile_none: r = r.with_glyph(tile_sprite(tile))
+            else: if item != item_none: r = r.with_glyph(item_sprite(item))
         chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size } // TODO better placement
         chunk.ren[id] = r
         if tile != tile_none: chunk.tile[id] = tile
