@@ -60,11 +60,11 @@ class text_atlas : texture_atlas
                     gl_text(t)
             else: if box.y > box.x:
                 gl_scale(res.y / box.y):
-                    gl_translate(xy { box.x / 4, 0.0 }):
+                    gl_translate(xy_f { box.x / 4, 0.0 }):
                         gl_text(t)
             else:
                 gl_scale(res.x / box.x):
-                    gl_translate(xy { 0.0, box.y / 4 }):
+                    gl_translate(xy_f { 0.0, box.y / 4 }):
                         gl_text(t)
 
 class sprite_atlas : texture_atlas
