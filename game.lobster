@@ -281,6 +281,19 @@ class chunk : shard
     groups    = []::[int]
     hits      = []::[int]
 
+    def draw_ent(id, size):
+        // TODO prerendered tile textures
+        let p = pos[id]
+        let c = p.xy - p.w / 2
+        gl_translate(c * size): gl_scale(size * p.w): // TODO precompute?
+            let tx = tex[id]
+            if tx:
+                gl_set_shader("textured")
+                gl_set_primitive_texture(0, tx)
+                gl_color(color_white): gl_unit_square()
+            else:
+                ren[id].draw()
+
     def can_step():
         return !anims.blocked
 
@@ -439,7 +452,6 @@ class stacked_scene : system
     ids = []::int
     zs  = []::float
     // TODO maybe bucket-by-z rather than full sorting
-    // TODO pre-computed tile
 
     def enter(shard, id):
         let z = shard.pos[id].z
@@ -478,24 +490,10 @@ class stacked_scene : system
         let minc, maxc = bounds(chunk)
         let space_size = float(maxc - minc + 1)
         let side_size  = float(max(1, min(floor(screen_size / space_size))))
-        let cell_size  = xy_f { side_size, side_size }
         let view_rem   = screen_size - space_size * side_size
         gl_translate(float(-minc.xy) * side_size + view_rem / 2):
-            for(ids) id:
-                // TODO precomputed translation
-                // TODO prerendered tile textures
-                let p = chunk.pos[id]
-                let c = p.xy - p.w / 2
-                gl_translate(c * cell_size):
-                    let size = cell_size * p.w
-                    gl_scale(size):
-                        let tex = chunk.tex[id]
-                        if tex:
-                            gl_set_shader("textured")
-                            gl_set_primitive_texture(0, tex)
-                            gl_color(color_white): gl_unit_square()
-                        else:
-                            chunk.ren[id].draw()
+            let cell_size = xy_f { side_size, side_size }
+            for(ids): chunk.draw_ent(_, cell_size)
 
 def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
     // may have associated tile or item sheet data, but not both
