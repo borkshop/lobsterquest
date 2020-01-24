@@ -258,9 +258,13 @@ class avatars : system
 //// shard integration
 
 class chunk : shard
+    // carries game-specific entity templates
     templates = templates 
+
+    // performance timers
     timers = timers{}
 
+    // game-specific entity systems
     spawner = spawner {}
     minds   = minds {}
     bodys   = bodys {}
@@ -269,6 +273,7 @@ class chunk : shard
 
     movement_time = 1.0 / 4
 
+    // scratch data used for action stepping
     actor_ids = []::int
     actions   = []::action
     targets   = []::xy_i
