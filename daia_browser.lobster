@@ -3,6 +3,7 @@ import util3d
 import color
 import game_draw
 import daia_topology
+import daia_file
 import sheets
 
 let cube_vertices = map(8) c:
@@ -179,6 +180,8 @@ class daia_mode:
             tiles[pov.index] = fill_tile
         if gl_button("d") == 1:
             tiles[pov.index] = tile_none
+        if gl_button("w") == 1:
+            write_daia_file(tiles)
 
     def daia_draw():
         for(6) face:

@@ -6,6 +6,7 @@
 // Enter to toggle tile selector view.
 // Q or Escape to quit.
 
+import daia_map
 import daia_draw
 import daia_topology
 import daia_browser
@@ -59,7 +60,10 @@ def new_root_mode(face_meshes):
         fill_color: color_clear,
     }
 
-    let daia_mode = new_daia_mode(500, 7, 0, 1, sprites, face_meshes, face_colors, face_highlight_colors)
+    let margin = 7
+    let size = margin*4+3
+    let daia_mode = new_daia_mode(72*size, size, 0, 0.35, sprites, face_meshes, face_colors, face_highlight_colors)
+    daia_mode.tiles = daia_map_tiles
     daia_mode.fill_tile = tile_pine_tree
 
     return root_mode{
