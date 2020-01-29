@@ -121,6 +121,8 @@ class shard:
     pos = []::spatial   // spatial position
     ren = []::render    // colored glyph with an optional background
     tex = []::resource? // render texture overrides any glyph
+    ksh = []::resource? // cached render to texture
+    // TODO drop tex aspect, once we switch fully to graph-structured drawing into ksh
 
     // any associated rule sheet data
     tile = []::tile_entity_id
@@ -143,6 +145,7 @@ class shard:
             parts.push("fg:" + color_to_hex(ren[id].fg))
             parts.push("" + ren[id].glyf)
         if tex[id]: parts.push("tex:" + tex[id])
+        if ksh[id]: parts.push("ksh:" + ksh[id])
         if tile[id]: parts.push("" + tile[id])
         if item[id]: parts.push("" + item[id])
         return parts.concat_string(" ")
@@ -154,6 +157,7 @@ class shard:
             pos.push(spatial_0)
             ren.push(render_0)
             tex.push(nil)
+            ksh.push(nil)
             tile.push(tile_none)
             item.push(item_none)
             return id
@@ -163,6 +167,7 @@ class shard:
             pos[id] = spatial_0
             ren[id] = render_0
             tex[id] = nil
+            ksh[id] = nil
             tile[id] = tile_none
             item[id] = item_none
             return id
@@ -200,6 +205,9 @@ class shard:
             if new != prior:
                 type[id] = new
         return new
+
+    def invalidate(id:int):
+        ksh[id] = nil
 
 //// ancillary component: spatial animation
 
