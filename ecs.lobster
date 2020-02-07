@@ -139,7 +139,7 @@ class shard:
             "@<" + pos[id].x + ", " + pos[id].y + ">",
             "z:" + pos[id].z,
         ]
-        if pos[id].w: "size:" + pos[id].w
+        if pos[id].w: parts.push("size:" + pos[id].w)
         if ren[id].bg != color_clear: parts.push("bg:" + color_to_hex(ren[id].bg))
         if ren[id].glyf != glyph_0:
             parts.push("fg:" + color_to_hex(ren[id].fg))
