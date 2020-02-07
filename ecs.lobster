@@ -104,7 +104,7 @@ struct render:
             gl_color(fg): gl_unit_square()
 
     def with_fg_color(c:color, g:glyph):
-        if c == color_clear: c = color_white
+        if g != glyph_0 and c == color_clear: c = color_white
         return render { bg, c, g }
     def with_fg(c:color): return with_fg_color(c, glyf)
     def with_glyph(g:glyph): return with_fg_color(fg, g)
