@@ -292,20 +292,22 @@ class chunk : shard
         else:
             ren[id].draw()
 
-    def draw_ent(id, size):
+    def transform_ent(id, size, body):
         let p = pos[id]
         let c = p.xy - p.w / 2
-        gl_translate(c * size): gl_scale(size * p.w):
-            var tx = ksh[id]
-            let tx_size = xy_i { int(size.x), int(size.y) }
-            if !tx or gl_texture_size(tx) != tx_size:
-                tx = render_to_texture(nil, tx_size, false, nil, texture_format_clamp | texture_format_nomipmap):
-                    gl_scale(size): render_ent(id)
-                ksh[id] = tx
-            assert tx // FIXME
-            gl_set_shader("textured")
-            gl_set_primitive_texture(0, tx)
-            gl_color(color_white): gl_unit_square()
+        gl_translate(c * size): gl_scale(size * p.w): body()
+
+    def draw_ent(id, size): transform_ent(id, size):
+        var tx = ksh[id]
+        let tx_size = xy_i { int(size.x), int(size.y) }
+        if !tx or gl_texture_size(tx) != tx_size:
+            tx = render_to_texture(nil, tx_size, false, nil, texture_format_clamp | texture_format_nomipmap):
+                gl_scale(size): render_ent(id)
+            ksh[id] = tx
+        assert tx // FIXME
+        gl_set_shader("textured")
+        gl_set_primitive_texture(0, tx)
+        gl_color(color_white): gl_unit_square()
 
     def can_step():
         return !anims.blocked
