@@ -514,6 +514,8 @@ class ent_templates:
         return register(tmpl)
 
 class ent_scaffold:
+    templates : ent_templates
+
     loc = xy_0            // location cell
     off = xy { 0.5, 0.5 } // sub-cell offset
 

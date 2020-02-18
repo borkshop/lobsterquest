@@ -584,6 +584,7 @@ def spawn(this::spawner, chunk):
     once_each() id, spawn_id: can_spawn(spawn_id) and should_spawn(spawn_id)
     then id, spawn_id:
         let ctx = ent_scaffold {
+            templates: chunk.templates,
             loc: float(at.cell()),
         }
         let template_id = tid[spawn_id]
@@ -695,7 +696,9 @@ let element_air = templates.extend(char_template):
 
 def build_world(chunk):
     let size = 12
-    let build = ent_scaffold {}
+    let build = ent_scaffold {
+        templates : templates
+    }
 
     let dirt = [
         glyph_0, glyph_0, uniblock(0x2591), // ░
