@@ -545,11 +545,13 @@ def create_with(this::ent_template, ctx:ent_scaffold, chunk:chunk, body):
 def create(this::ent_template, ctx:ent_scaffold, chunk:chunk):
     return create_with(ctx, chunk): nil
 
-def create(this::ent_templates, id:int, ctx:ent_scaffold, chunk:chunk):
-    return defs[id].create(ctx, chunk)
+def create_with(this::ent_scaffold, chunk:chunk, body):
+    if not tmpl.type:
+        return 0
+    return tmpl.create_with(this, chunk, body)
 
-def create_with(this::ent_templates, id:int, ctx:ent_scaffold, chunk:chunk, body):
-    return defs[id].create_with(ctx, chunk, body)
+def create(this::ent_scaffold, chunk:chunk):
+    return this.create_with(chunk): nil
 
 def spawn(this::spawner, chunk):
     var last_id = -1
@@ -587,9 +589,9 @@ def spawn(this::spawner, chunk):
             templates: chunk.templates,
             loc: float(at.cell()),
         }
-        let template_id = tid[spawn_id]
-        let new_id = chunk.templates.create(template_id, ctx, chunk)
-        print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + template_id)
+        ctx.use(tid[spawn_id]):
+            let new_id = ctx.create(chunk)
+            print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + tid[spawn_id])
 
 def spawn_items(this::chunk): spawner.spawn(this)
 
@@ -716,15 +718,17 @@ def build_world(chunk):
     let tree_fg_base      = color { 0.2,  0.25, 0.1,  1 }
     let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
-    build.fill_rect(size) x, y:
-        chunk.templates.create_with(floor_template, build, chunk) id:
-            let glyph = dirt.rnd_pick()
-            let bg = floor_bg_base + floor_bg_variance * rnd_float()
-            let fg = if glyph == glyph_0: color_clear else: bg + floor_fg_lift
-            chunk.ren[id] = render { bg, fg, glyph }
-        if x == 0 || y == 0 || x == size-1 || y == size-1:
-            chunk.templates.create_with(trees.rnd_pick(), build, chunk) id:
-                chunk.ren[id] = chunk.ren[id].with_fg(tree_fg_base + tree_fg_variance * rnd_float())
+    build.use(floor_template):
+        build.fill_rect(size) x, y:
+            build.create_with(chunk) id:
+                let glyph = dirt.rnd_pick()
+                let bg = floor_bg_base + floor_bg_variance * rnd_float()
+                let fg = if glyph == glyph_0: color_clear else: bg + floor_fg_lift
+                chunk.ren[id] = render { bg, fg, glyph }
+            if x == 0 || y == 0 || x == size-1 || y == size-1:
+                build.use(trees.rnd_pick()): build.create_with(chunk) id:
+                    chunk.ren[id] = chunk.ren[id].with_fg(tree_fg_base + tree_fg_variance * rnd_float())
+
     let mid = float(floor(size / 2))
     build.translate(xy_f { mid, mid }):
         let l = size / 4
@@ -733,8 +737,8 @@ def build_world(chunk):
             xy_f {  l,  l },
             xy_f {  l, -l },
             xy_f { -l, -l },
-        ]): chunk.templates.create(elements[_], build, chunk)
-        chunk.templates.create(player_template, build, chunk)
+        ]): build.use(elements[_]): build.create(chunk)
+        build.use(player_template): build.create(chunk)
 
 //// usage
 

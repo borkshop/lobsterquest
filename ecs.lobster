@@ -516,8 +516,16 @@ class ent_templates:
 class ent_scaffold:
     templates : ent_templates
 
+    tmpl = ent_template { type : ent_none }
+
     loc = xy_0            // location cell
     off = xy { 0.5, 0.5 } // sub-cell offset
+
+    def use(template_id:int, body):
+        let old_tmpl = tmpl
+        tmpl = templates.defs[template_id]
+        body()
+        tmpl = old_tmpl
 
     def at(l:xy_f, body):
         let old_loc = loc
