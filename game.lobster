@@ -520,7 +520,7 @@ def place_at(this::ent_template, chunk:chunk, id:int, pos:xyz_f):
     if tile != tile_none: chunk.tile[id] = tile
     if item != item_none: chunk.item[id] = item
 
-def elaborate(this::ent_template, chunk:chunk, id:int):
+def elaborate(this::ent_template, ctx:ent_scaffold, chunk:chunk, id:int):
     if type & ent_mind:
         chunk.minds.set_init(id, initiative)
     if type & ent_avatar: chunk.avatars.with(chunk, id) av:
@@ -541,7 +541,7 @@ def create_with(this::ent_scaffold, chunk:chunk, body):
     return chunk.create(tmpl.type) id:
         tmpl.place_at(chunk, id, xyz { loc.x + off.x, loc.y + off.x, tmpl.z })
     post id:
-        tmpl.elaborate(chunk, id)
+        tmpl.elaborate(this, chunk, id)
         body(id, this)
 
 def create(this::ent_scaffold, chunk:chunk):
