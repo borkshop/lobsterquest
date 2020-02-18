@@ -534,22 +534,22 @@ def elaborate(this::ent_template, chunk:chunk, id:int):
             sp.prob(spawn_prob.x, spawn_prob.y)
             sp.add_spawn(this.spawn_template)
 
-def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
+def create_with(this::ent_template, ctx:ent_scaffold, chunk:chunk, body):
     assert tile == tile_none or item == item_none // may have associated tile or item sheet data, but not both
     return chunk.create(type) id:
-        place_at(chunk, id, xyz { loc.x + 0.5, loc.y + 0.5, z, }) // TODO better placement
+        place_at(chunk, id, xyz { ctx.loc.x + 0.5, ctx.loc.y + 0.5, z }) // TODO better placement
     post id:
         elaborate(chunk, id)
         body(id)
 
-def create(this::ent_template, chunk:chunk, loc:xy_f):
-    return create_with(chunk, loc): nil
+def create(this::ent_template, ctx:ent_scaffold, chunk:chunk):
+    return create_with(ctx, chunk): nil
 
-def create(this::ent_templates, id:int, chunk:chunk, loc:xy_f):
-    return defs[id].create(chunk, loc)
+def create(this::ent_templates, id:int, ctx:ent_scaffold, chunk:chunk):
+    return defs[id].create(ctx, chunk)
 
-def create_with(this::ent_templates, id:int, chunk:chunk, loc:xy_f, body):
-    return defs[id].create_with(chunk, loc, body)
+def create_with(this::ent_templates, id:int, ctx:ent_scaffold, chunk:chunk, body):
+    return defs[id].create_with(ctx, chunk, body)
 
 def spawn(this::spawner, chunk):
     var last_id = -1
@@ -583,9 +583,11 @@ def spawn(this::spawner, chunk):
 
     once_each() id, spawn_id: can_spawn(spawn_id) and should_spawn(spawn_id)
     then id, spawn_id:
-        let loc = float(at.cell())
+        let ctx = ent_scaffold {
+            loc: float(at.cell()),
+        }
         let template_id = tid[spawn_id]
-        let new_id = chunk.templates.create(template_id, chunk, loc)
+        let new_id = chunk.templates.create(template_id, ctx, chunk)
         print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + template_id)
 
 def spawn_items(this::chunk): spawner.spawn(this)
@@ -712,13 +714,13 @@ def build_world(chunk):
     let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
     build.fill_rect(size) x, y:
-        chunk.templates.create_with(floor_template, chunk, build.loc) id:
+        chunk.templates.create_with(floor_template, build, chunk) id:
             let glyph = dirt.rnd_pick()
             let bg = floor_bg_base + floor_bg_variance * rnd_float()
             let fg = if glyph == glyph_0: color_clear else: bg + floor_fg_lift
             chunk.ren[id] = render { bg, fg, glyph }
         if x == 0 || y == 0 || x == size-1 || y == size-1:
-            chunk.templates.create_with(trees.rnd_pick(), chunk, build.loc) id:
+            chunk.templates.create_with(trees.rnd_pick(), build, chunk) id:
                 chunk.ren[id] = chunk.ren[id].with_fg(tree_fg_base + tree_fg_variance * rnd_float())
     let mid = float(floor(size / 2))
     build.translate(xy_f { mid, mid }):
@@ -728,8 +730,8 @@ def build_world(chunk):
             xy_f {  l,  l },
             xy_f {  l, -l },
             xy_f { -l, -l },
-        ]): chunk.templates.create(elements[_], chunk, build.loc)
-        chunk.templates.create(player_template, chunk, build.loc)
+        ]): chunk.templates.create(elements[_], build, chunk)
+        chunk.templates.create(player_template, build, chunk)
 
 //// usage
 
