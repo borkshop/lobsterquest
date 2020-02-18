@@ -534,21 +534,15 @@ def elaborate(this::ent_template, chunk:chunk, id:int):
             sp.prob(spawn_prob.x, spawn_prob.y)
             sp.add_spawn(this.spawn_template)
 
-def create_with(this::ent_template, ctx:ent_scaffold, chunk:chunk, body):
-    assert tile == tile_none or item == item_none // may have associated tile or item sheet data, but not both
-    return chunk.create(type) id:
-        place_at(chunk, id, xyz { ctx.loc.x + ctx.off.x, ctx.loc.y + ctx.off.y, z })
-    post id:
-        elaborate(chunk, id)
-        body(id)
-
-def create(this::ent_template, ctx:ent_scaffold, chunk:chunk):
-    return create_with(ctx, chunk): nil
-
 def create_with(this::ent_scaffold, chunk:chunk, body):
     if not tmpl.type:
         return 0
-    return tmpl.create_with(this, chunk, body)
+    assert tmpl.tile == tile_none or tmpl.item == item_none // may have associated tile or item sheet data, but not both
+    return chunk.create(tmpl.type) id:
+        tmpl.place_at(chunk, id, xyz { loc.x + off.x, loc.y + off.x, tmpl.z })
+    post id:
+        tmpl.elaborate(chunk, id)
+        body(id, this)
 
 def create(this::ent_scaffold, chunk:chunk):
     return this.create_with(chunk): nil
