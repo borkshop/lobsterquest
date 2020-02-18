@@ -260,9 +260,6 @@ class avatars : system
 //// shard integration
 
 class chunk : shard
-    // carries game-specific entity templates
-    templates = templates 
-
     // performance timers
     timers = timers{}
 
