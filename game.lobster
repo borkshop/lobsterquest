@@ -579,11 +579,8 @@ def spawn(this::spawner, chunk):
 
     once_each() id, spawn_id: can_spawn(spawn_id) and should_spawn(spawn_id)
     then id, spawn_id:
-        let ctx = ent_scaffold {
-            templates: chunk.templates,
-            loc: float(pos.cell()),
-        }
-        ctx.use(tid[spawn_id]):
+        let ctx = ent_scaffold { templates: chunk.templates }
+        ctx.at(float(pos.cell())): ctx.use(tid[spawn_id]):
             let new_id = ctx.create(chunk)
             print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + ctx.tmpl)
 
