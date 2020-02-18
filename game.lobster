@@ -537,7 +537,7 @@ def elaborate(this::ent_template, chunk:chunk, id:int):
 def create_with(this::ent_template, ctx:ent_scaffold, chunk:chunk, body):
     assert tile == tile_none or item == item_none // may have associated tile or item sheet data, but not both
     return chunk.create(type) id:
-        place_at(chunk, id, xyz { ctx.loc.x + 0.5, ctx.loc.y + 0.5, z }) // TODO better placement
+        place_at(chunk, id, xyz { ctx.loc.x + ctx.off.x, ctx.loc.y + ctx.off.y, z })
     post id:
         elaborate(chunk, id)
         body(id)

@@ -514,7 +514,8 @@ class ent_templates:
         return register(tmpl)
 
 class ent_scaffold:
-    loc = xy_0 // location cell
+    loc = xy_0            // location cell
+    off = xy { 0.5, 0.5 } // sub-cell offset
 
     def at(l:xy_f, body):
         let old_loc = loc
