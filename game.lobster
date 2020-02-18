@@ -510,31 +510,36 @@ class stacked_scene : system
             let cell_size = xy_f { side_size, side_size }
             for(ids): chunk.draw_ent(_, cell_size)
 
+def place_at(this::ent_template, chunk:chunk, id:int, pos:xyz_f):
+    var r = render { bg, fg, glyph }
+    if r.glyf == glyph_0:
+        if       tile != tile_none: r = r.with_glyph(tile_sprite(tile))
+        else: if item != item_none: r = r.with_glyph(item_sprite(item))
+    chunk.pos[id] = spatial { pos.x, pos.y, pos.z, size }
+    chunk.ren[id] = r
+    if tile != tile_none: chunk.tile[id] = tile
+    if item != item_none: chunk.item[id] = item
+
+def elaborate(this::ent_template, chunk:chunk, id:int):
+    if type & ent_mind:
+        chunk.minds.set_init(id, initiative)
+    if type & ent_avatar: chunk.avatars.with(chunk, id) av:
+        if avatar_helf.y     != 0:         av.helf       = avatar_helf
+        if avatar_stam.y     != 0:         av.stam       = avatar_stam
+        if avatar_gives:                   av.gives      = avatar_gives
+        if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
+        if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
+    if this.spawn_prob != xy_0i:
+        chunk.spawner.add_spawn(id) sp:
+            sp.prob(spawn_prob.x, spawn_prob.y)
+            sp.add_spawn(this.spawn_template)
+
 def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
-    // may have associated tile or item sheet data, but not both
-    assert tile == tile_none or item == item_none
+    assert tile == tile_none or item == item_none // may have associated tile or item sheet data, but not both
     return chunk.create(type) id:
-        var r = render { bg, fg, glyph }
-        if r.glyf == glyph_0:
-            if       tile != tile_none: r = r.with_glyph(tile_sprite(tile))
-            else: if item != item_none: r = r.with_glyph(item_sprite(item))
-        chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size } // TODO better placement
-        chunk.ren[id] = r
-        if tile != tile_none: chunk.tile[id] = tile
-        if item != item_none: chunk.item[id] = item
+        place_at(chunk, id, xyz { loc.x + 0.5, loc.y + 0.5, z, }) // TODO better placement
     post id:
-        if type & ent_mind:
-            chunk.minds.set_init(id, initiative)
-        if type & ent_avatar: chunk.avatars.with(chunk, id) av:
-            if avatar_helf.y     != 0:         av.helf       = avatar_helf
-            if avatar_stam.y     != 0:         av.stam       = avatar_stam
-            if avatar_gives:                   av.gives      = avatar_gives
-            if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
-            if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
-        if this.spawn_prob != xy_0i:
-            chunk.spawner.add_spawn(id) sp:
-                sp.prob(spawn_prob.x, spawn_prob.y)
-                sp.add_spawn(this.spawn_template)
+        elaborate(chunk, id)
         body(id)
 
 def create(this::ent_template, chunk:chunk, loc:xy_f):
