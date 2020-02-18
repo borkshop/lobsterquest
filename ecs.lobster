@@ -562,7 +562,7 @@ class ent_scaffold:
 class spawner : system
     ids  = []::int
     prob = []::xy_i
-    tid  = []::int
+    scaf = []::ent_scaffold
 
     def ent_changed(shard, id:int, new:entype, old:entype):
         if new == ent_none:
@@ -570,7 +570,7 @@ class spawner : system
             if n:
                 ids.remove(i, n)
                 prob.remove(i, n)
-                tid.remove(i, n)
+                scaf.remove(i, n)
         return new
 
     def clear_spawn(id:int):
@@ -578,7 +578,7 @@ class spawner : system
         if n:
             ids.remove(i, n)
             prob.remove(i, n)
-            tid.remove(i, n)
+            scaf.remove(i, n)
 
 class spawn_scaffold:
     spawner:spawner
@@ -590,11 +590,11 @@ class spawn_scaffold:
     def prob(x:int, y:int): p = xy_i { x,     y }
     def odds(x:int, y:int): p = xy_i { x, x + y }
 
-    def add_spawn(template_id:int):
-        if template_id != 0 and p.x and p.y:
+    def add_spawn(ctx:ent_scaffold):
+        if ctx.tmpl.type and p.x and p.y:
             spawner.ids.insert(next_spawn_id, id)
             spawner.prob.insert(next_spawn_id, p)
-            spawner.tid.insert(next_spawn_id, template_id)
+            spawner.scaf.insert(next_spawn_id, copy(ctx))
             next_spawn_id++
 
 def add_spawn(this::spawner, id:int, body):

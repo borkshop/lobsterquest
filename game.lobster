@@ -532,7 +532,7 @@ def elaborate(this::ent_template, ctx:ent_scaffold, chunk:chunk, id:int):
     if this.spawn_prob != xy_0i:
         chunk.spawner.add_spawn(id) sp:
             sp.prob(spawn_prob.x, spawn_prob.y)
-            sp.add_spawn(this.spawn_template)
+            ctx.use(this.spawn_template): sp.add_spawn(ctx)
 
 def create_with(this::ent_scaffold, chunk:chunk, body):
     if not tmpl.type:
@@ -564,7 +564,9 @@ def spawn(this::spawner, chunk):
 
     def can_spawn(spawn_id) -> bool:
         // TODO other constraints
-        let tmpl = chunk.templates.defs[tid[spawn_id]]
+        let ctx = scaf[spawn_id]
+        // TODO factor out def exists_at(this::ent_scaffold, chunk) -> bool
+        let tmpl = ctx.tmpl
         let there = chunk.bodys_at(pos.cell())
         // tiles are exclusive, items are unique, bodys are exclusive, otherwise ... sure?
         if tmpl.tile != tile_none: return !exists(there): chunk.tile[_] != tile_none
@@ -579,8 +581,8 @@ def spawn(this::spawner, chunk):
 
     once_each() id, spawn_id: can_spawn(spawn_id) and should_spawn(spawn_id)
     then id, spawn_id:
-        let ctx = ent_scaffold { templates: chunk.templates }
-        ctx.at(float(pos.cell())): ctx.use(tid[spawn_id]):
+        let ctx = scaf[spawn_id]
+        ctx.at(float(pos.cell())):
             let new_id = ctx.create(chunk)
             print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + ctx.tmpl)
 
