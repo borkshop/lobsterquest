@@ -585,7 +585,7 @@ def spawn(this::spawner, chunk):
         }
         ctx.use(tid[spawn_id]):
             let new_id = ctx.create(chunk)
-            print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + tid[spawn_id])
+            print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + ctx.tmpl)
 
 def spawn_items(this::chunk): spawner.spawn(this)
 
