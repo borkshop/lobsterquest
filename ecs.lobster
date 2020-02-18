@@ -514,19 +514,25 @@ class ent_templates:
         return register(tmpl)
 
 class ent_scaffold:
-    loc = xy_0
+    loc = xy_0 // location cell
 
     def at(l:xy_f, body):
-        let base = loc
+        let old_loc = loc
         loc = l
-        if body:
-            body()
-            loc = base
+        body()
+        loc = old_loc
+
+    def at_each(locs, body):
+        let old_loc = loc
+        for(locs) l, i:
+            loc = l
+            body(i)
+        loc = old_loc
 
     def translate(by:xy_f, body):
         at(loc + by, body)
 
-    def each(offsets, body):
+    def translate_each(offsets, body):
         let base = loc
         for(offsets) offset, i:
             loc = base + offset

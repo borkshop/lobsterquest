@@ -723,7 +723,7 @@ def build_world(chunk):
     let mid = float(floor(size / 2))
     build.translate(xy_f { mid, mid }):
         let l = size / 4
-        build.each([
+        build.translate_each([
             xy_f { -l,  l },
             xy_f {  l,  l },
             xy_f {  l, -l },
