@@ -533,15 +533,16 @@ def build_entity(this::ent_scaffold, chunk:chunk, id:int):
 
 def create_with(this::ent_scaffold, chunk:chunk, body):
     if not tmpl.type:
-        return 0
+        return
     assert tmpl.tile == tile_none or tmpl.item == item_none // may have associated tile or item sheet data, but not both
     let id = chunk.create(tmpl.type) _: init_entity(chunk, _)
     build_entity(chunk, id)
     body(id, this)
-    return id
 
 def create(this::ent_scaffold, chunk:chunk):
-    return this.create_with(chunk): nil
+    var id = 0
+    this.create_with(chunk) _: id = _
+    return id
 
 def spawn(this::spawner, chunk):
     var last_id = -1
