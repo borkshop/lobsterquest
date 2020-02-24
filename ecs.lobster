@@ -174,12 +174,11 @@ class shard:
         if not type.length: grow() // reserve #0
         return if free_ids.length: reuse() else: grow()
 
-    def create(t:entype, init, post):
+    def create(t:entype, init):
         let id = alloc()
         type[id] = t
         init(id)
         notify_type(id, ent_none, t)
-        if post: post(id)
         return id
 
     def set_type(id:int, t:entype):

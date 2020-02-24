@@ -535,11 +535,11 @@ def create_with(this::ent_scaffold, chunk:chunk, body):
     if not tmpl.type:
         return 0
     assert tmpl.tile == tile_none or tmpl.item == item_none // may have associated tile or item sheet data, but not both
-    return chunk.create(tmpl.type) id:
-        tmpl.place_at(chunk, id, xyz { loc.x + off.x, loc.y + off.x, tmpl.z })
-    post id:
-        tmpl.elaborate(this, chunk, id)
-        body(id, this)
+    let id = chunk.create(tmpl.type) _:
+        tmpl.place_at(chunk, _, xyz { loc.x + off.x, loc.y + off.x, tmpl.z })
+    tmpl.elaborate(this, chunk, id)
+    body(id, this)
+    return id
 
 def create(this::ent_scaffold, chunk:chunk):
     return this.create_with(chunk): nil
