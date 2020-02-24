@@ -283,6 +283,7 @@ class avatars : system
 enum_flags trace:
     trace_spawn
     trace_action
+    trace_render
     trace_all // all entities, not just ones with ent_debug set
 
 class chunk : shard
@@ -315,6 +316,21 @@ class chunk : shard
             if type[id] & ent_debug: return true
         return false
 
+    def render_ent_graph(id):
+        let debug = should_trace(id, trace_render)
+        if debug:
+            print("render " + this.tag(id))
+        this.walk_rec(id) nid, depth, descend: if type[nid] & ent_visible:
+            if debug:
+                print("... " + this.describe(nid))
+            nest_if(depth > 0) body:
+                let c = cap[par[nid]]
+                let child_size = if c == xy_0: xy_1 else: xy_1 / c
+                transform_ent(nid, child_size, body)
+            with:
+                render_ent(nid)
+                descend() // TODO z-ordering?
+
     def render_ent(id):
         let tx = tex[id]
         if tx:
@@ -334,7 +350,7 @@ class chunk : shard
         let tx_size = xy_i { int(size.x), int(size.y) }
         if !tx or gl_texture_size(tx) != tx_size:
             tx = render_to_texture(nil, tx_size, false, nil, texture_format_clamp | texture_format_nomipmap):
-                gl_scale(size): render_ent(id)
+                gl_scale(size): render_ent_graph(id)
             ksh[id] = tx
         assert tx // FIXME
         gl_set_shader("textured")
