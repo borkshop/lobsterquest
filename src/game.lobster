@@ -564,6 +564,39 @@ class chunk : shard
 
         run_actors()
 
+    def count_glyphs(id:int, where):
+        var n = 0
+        this.walk_rec(id) nid, depth, descend:
+            if where(ren[nid].glyf): n++
+            else: descend()
+        return n
+
+    def find_glyph(id:int, where, then):
+        this.walk_rec(id) nid, depth, descend:
+            if where(ren[nid].glyf):
+                then(nid, depth)
+                return
+            descend()
+
+    // XXX error: can't use named function as value: spend
+    // def transact(id:int, n:int, txn):
+    //     def spend(spent):
+    //         n -= spent
+    //         if n <= 0:
+    //             return n
+    //     this.walk_rec(id) nid, depth, descend:
+    //         txn(nid, depth, n, spend, descend)
+    //     return n
+    // def replace_glyphs(id:int, n:int, where):
+    //     return transact(id, n) nid, depth, balance, spend, descend:
+    //         let r = ren[nid]
+    //         let ng = where(r.glyf)
+    //         if ng != glyph_0:
+    //             ren[nid] = r.with_glyph(ng)
+    //             invalidate(nid)
+    //             spend(1)
+    //         else: descend()
+
 def new_chunk():
     let ch = chunk {}
     ch.systems.push(ch.minds)
