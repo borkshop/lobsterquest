@@ -178,7 +178,7 @@ class shard:
         let id = alloc()
         type[id] = t
         init(id)
-        t = notify_type(id, ent_none, t)
+        notify_type(id, ent_none, t)
         if post: post(id)
         return id
 
@@ -188,7 +188,7 @@ class shard:
 
         if t != ent_none:
             type[id] = t
-            t = notify_type(id, old, t)
+            notify_type(id, old, t)
             return
 
         type[id] = ent_none
