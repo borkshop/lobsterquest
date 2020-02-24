@@ -507,37 +507,36 @@ class stacked_scene : system
             let cell_size = xy_f { side_size, side_size }
             for(ids): chunk.draw_ent(_, cell_size)
 
-def place_at(this::ent_template, chunk:chunk, id:int, pos:xyz_f):
-    var r = render { bg, fg, glyph }
+def init_entity(this::ent_scaffold, chunk:chunk, id:int):
+    var r = render { tmpl.bg, tmpl.fg, tmpl.glyph }
     if r.glyf == glyph_0:
-        if       tile != tile_none: r = r.with_glyph(tile_sprite(tile))
-        else: if item != item_none: r = r.with_glyph(item_sprite(item))
-    chunk.pos[id] = spatial { pos.x, pos.y, pos.z, size }
+        if       tmpl.tile != tile_none: r = r.with_glyph(tile_sprite(tmpl.tile))
+        else: if tmpl.item != item_none: r = r.with_glyph(item_sprite(tmpl.item))
+    chunk.pos[id] = spatial { loc.x + off.x, loc.y + off.x, tmpl.z, tmpl.size }
     chunk.ren[id] = r
-    if tile != tile_none: chunk.tile[id] = tile
-    if item != item_none: chunk.item[id] = item
+    if tmpl.tile != tile_none: chunk.tile[id] = tmpl.tile
+    if tmpl.item != item_none: chunk.item[id] = tmpl.item
 
-def elaborate(this::ent_template, ctx:ent_scaffold, chunk:chunk, id:int):
-    if type & ent_mind:
-        chunk.minds.set_init(id, initiative)
-    if type & ent_avatar: chunk.avatars.with(chunk, id) av:
-        if avatar_helf.y     != 0:         av.helf       = avatar_helf
-        if avatar_stam.y     != 0:         av.stam       = avatar_stam
-        if avatar_gives:                   av.gives      = avatar_gives
-        if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
-        if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
-    if this.spawn_prob != xy_0i:
+def build_entity(this::ent_scaffold, chunk:chunk, id:int):
+    if tmpl.type & ent_mind:
+        chunk.minds.set_init(id, tmpl.initiative)
+    if tmpl.type & ent_avatar: chunk.avatars.with(chunk, id) av:
+        if tmpl.avatar_helf.y     != 0:         av.helf       = tmpl.avatar_helf
+        if tmpl.avatar_stam.y     != 0:         av.stam       = tmpl.avatar_stam
+        if tmpl.avatar_gives:                   av.gives      = tmpl.avatar_gives
+        if tmpl.avatar_left_hand  != item_none: av.left_hand  = tmpl.avatar_left_hand
+        if tmpl.avatar_right_hand != item_none: av.right_hand = tmpl.avatar_right_hand
+    if tmpl.spawn_prob != xy_0i:
         chunk.spawner.add_spawn(id) sp:
-            sp.prob(spawn_prob.x, spawn_prob.y)
-            ctx.use(this.spawn_template): sp.add_spawn(ctx)
+            sp.prob(tmpl.spawn_prob.x, tmpl.spawn_prob.y)
+            use(tmpl.spawn_template): sp.add_spawn(this)
 
 def create_with(this::ent_scaffold, chunk:chunk, body):
     if not tmpl.type:
         return 0
     assert tmpl.tile == tile_none or tmpl.item == item_none // may have associated tile or item sheet data, but not both
-    let id = chunk.create(tmpl.type) _:
-        tmpl.place_at(chunk, _, xyz { loc.x + off.x, loc.y + off.x, tmpl.z })
-    tmpl.elaborate(this, chunk, id)
+    let id = chunk.create(tmpl.type) _: init_entity(chunk, _)
+    build_entity(chunk, id)
     body(id, this)
     return id
 
