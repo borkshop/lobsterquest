@@ -828,10 +828,14 @@ let heart_template = new_template(ent_body | ent_visible):
     _.size = 0.5
     _.fg   = color_white
     _.glyph = ui_sprite(ui_health_heart) // ❤️
+    // TODO maybe smol?
+    // TODO ui_empty_health_heart // 🖤
 
 let stamina_heart_template = heart_template.extend():
     _.name = "stamheart"
     _.glyph = ui_sprite(ui_stamina_heart) // 💛
+    // TODO maybe smol?
+    // TODO ui_empty_stamina_heart // 🖤
 
 let char_template = new_template(ent_body | ent_visible | ent_mind):
     _.name  = "UNKNOWN character"
@@ -853,6 +857,35 @@ let player_template = char_template.extend():
     _.add_child(entrel_body, xy_f { 0.0, 0 } + off, heart_template)
     _.add_child(entrel_body, xy_f { 0.5, 0 } + off, heart_template)
     _.add_child(entrel_body, xy_f { 1.0, 0 } + off, heart_template)
+
+// XXX
+// let avatar_state_entity_ids = [
+//     avatar_content,
+//     avatar_rocket,
+//     avatar_boating,
+//     avatar_climbing,
+//     avatar_swimming,
+//     avatar_poisoned,
+//     avatar_injured,
+//     avatar_weary,
+//     avatar_cold,
+//     avatar_hot,
+//     avatar_dizzy,
+//     avatar_woozy,
+// ]
+
+// XXX
+// def faces(each):
+//     var i = 0
+//     if moji.code != 0:
+//         each(moji, i++)
+//     if state == avatar_state_content:
+//         each(avatar_sprite(avatar_state_entity_ids[0]), i++) // 🙂
+//         return
+//     for(avatar_state_entity_ids) aeid, j: if j:
+//         let q_state = avatar_state(1 << (j - 1))
+//         if state & q_state:
+//             each(avatar_sprite(aeid), i++)
 
 let gift_earth = new_template(ent_body | ent_visible):
     _.name = "gift of earth"
