@@ -622,21 +622,32 @@ let floor_template = templates.define(ent_cell | ent_visible):
     _.z    = 0.0
     _.size = 1.0
 
-let tile_template = templates.define(ent_body | ent_visible):
-    _.z    = 0.5
+let body_template = templates.define(ent_body | ent_visible):
+    _.z    = 1.0
     _.size = 1.0
+    _.fg   = color_white
 
-let item_template = templates.define(ent_body | ent_visible):
+let mind_template = templates.extend(body_template):
+    _.type = _.type | ent_mind
+    _.initiative = 1
+
+let avatar_template = templates.extend(mind_template):
+    _.type = _.type | ent_avatar
+    _.initiative = 2
+
+let tile_template = templates.extend(body_template):
+    _.z = 0.5
+
+let item_template = templates.extend(body_template):
     _.z    = 0.75
     _.size = 1.0 / 3.0
 
-let char_template = templates.define(ent_body | ent_visible | ent_avatar | ent_mind):
-    _.z    = 1.0
-    _.size = 1.0
-
-let player_template = templates.extend(char_template):
+let player_template = templates.extend(avatar_template):
     _.type = _.type | ent_input
     _.initiative = 10
+
+// FIXME tmpl_ prefix to avoid sheet constants ; ideally sheet should own these
+// definitions
 
 let tmpl_item_pine_apple = templates.extend(item_template):
     _.item = item_pine_apple
@@ -654,7 +665,7 @@ let tree_deciduous = templates.extend(tile_template):
     _.spawn_prob = xy_i { 5, 1000 }
     _.spawn_template = tmpl_item_apple
 
-let element_earth = templates.extend(char_template):
+let element_earth = templates.extend(avatar_template):
     _.glyph = item_sprite(item_clover)
     _.fg = color_dark_green
     _.initiative = 3
@@ -662,7 +673,7 @@ let element_earth = templates.extend(char_template):
     _.avatar_left_hand = item_clover
     _.avatar_right_hand = item_clover
 
-let element_water = templates.extend(char_template):
+let element_water = templates.extend(avatar_template):
     _.glyph = item_sprite(item_water)
     _.fg = color_teal
     _.initiative = 4
@@ -670,7 +681,7 @@ let element_water = templates.extend(char_template):
     _.avatar_left_hand = item_water
     _.avatar_right_hand = item_water
 
-let element_fire = templates.extend(char_template):
+let element_fire = templates.extend(avatar_template):
     _.glyph = item_sprite(item_fire)
     _.fg = color_orange
     _.initiative = 6
@@ -678,7 +689,7 @@ let element_fire = templates.extend(char_template):
     _.avatar_left_hand = item_fire
     _.avatar_right_hand = item_fire
 
-let element_air = templates.extend(char_template):
+let element_air = templates.extend(avatar_template):
     _.glyph = item_sprite(item_wind)
     _.fg = color_cyan
     _.initiative = 5
