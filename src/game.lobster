@@ -505,12 +505,12 @@ def create(this::ent_scaffold, chunk:chunk):
     this.create_with(chunk) _: id = _
     return id
 
-def may_spawn(this::ent_scaffold, chunk:chunk, l:xy_f):
-    if not tmpl.type & ent_body: return true
+def entity_exists(this::ent_scaffold, chunk:chunk, l:xy_f):
+    if not tmpl.type & ent_body: return false
     let there =
         if par: chunk.bodys_under(par)
         else:   chunk.bodys_at(int(l))
-    return !exists(there): chunk.type[_] & ent_body
+    return exists(there): chunk.type[_] & ent_body
 
 def do_spawn(this::ent_scaffold, chunk:chunk, l:xy_f, body):
     nest_if(!par): at(l, _)
@@ -533,7 +533,7 @@ def spawn(this::spawner, chunk):
 
     def can_spawn(spawn_id) -> bool:
         let ctx = scaf[spawn_id]
-        return ctx.may_spawn(chunk, loc)
+        return !ctx.entity_exists(chunk, loc)
 
     def should_spawn(spawn_id) -> bool:
         // TODO other trigger modes or distributions?
