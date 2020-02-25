@@ -546,14 +546,14 @@ def create(this::ent_scaffold, chunk:chunk):
 
 def spawn(this::spawner, chunk):
     var last_id = -1
-    var pos = spatial_0
+    var loc = xy_0
     var did = false
 
     def once_each(when, then):
         for(ids) id, spawn_id:
             if id != last_id:
                 last_id = id
-                pos = chunk.pos[id]
+                loc = float(chunk.pos[id].cell())
                 did = false
             if not did and when(id, spawn_id):
                 then(id, spawn_id)
@@ -564,7 +564,7 @@ def spawn(this::spawner, chunk):
         let ctx = scaf[spawn_id]
         // TODO factor out def exists_at(this::ent_scaffold, chunk) -> bool
         let tmpl = ctx.tmpl
-        let there = chunk.bodys_at(pos.cell())
+        let there = chunk.bodys_at(int(loc))
         // tiles are exclusive, items are unique, bodys are exclusive, otherwise ... sure?
         if tmpl.tile != tile_none: return !exists(there): chunk.tile[_] != tile_none
         if tmpl.item != item_none: return !exists(there): chunk.item[_] == tmpl.item
@@ -579,7 +579,7 @@ def spawn(this::spawner, chunk):
     once_each() id, spawn_id: can_spawn(spawn_id) and should_spawn(spawn_id)
     then id, spawn_id:
         let ctx = scaf[spawn_id]
-        ctx.at(float(pos.cell())):
+        ctx.at(loc):
             let new_id = ctx.create(chunk)
             print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + ctx.tmpl)
 
