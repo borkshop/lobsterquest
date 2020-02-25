@@ -849,13 +849,14 @@ enum ui_entity_id:
 
     ui_rest // 💤
 
+    // TODO back into sheet defn
     ui_health_heart // ❤️
+    ui_empty_health_heart // 🖤
 
     ui_stamina_heart // 💛
+    ui_empty_stamina_heart // 🖤
 
     ui_cure_heart // 💜
-
-    ui_empty_heart // 🖤
 
     ui_discard // 🚮
 
@@ -881,9 +882,10 @@ let ui_sprite_id = [
     143, // ui_west
     144, // ui_rest
     145, // ui_health_heart
+    148, // ui_empty_health_heart
     146, // ui_stamina_heart
+    148, // ui_empty_stamina_heart
     147, // ui_cure_heart
-    148, // ui_empty_heart
     149, // ui_discard
     150, // ui_left_hand
     151, // ui_right_hand
