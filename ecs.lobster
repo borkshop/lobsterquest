@@ -482,14 +482,18 @@ class ent_template:
 
     initiative = 0
 
-    spawn_prob = xy_0i
-    spawn_template = 0
+    spawn_template = []::int
+    spawn_prob     = []::xy_i
 
     avatar_helf       = xy_0i
     avatar_stam       = xy_0i
     avatar_gives      = false
     avatar_left_hand  = item_none
     avatar_right_hand = item_none
+
+    def add_spawn_sibling(template_id:int, prob:xy_i):
+        spawn_template.push(template_id)
+        spawn_prob.push(prob)
 
 let ent_0 = ent_template { type: ent_none }
 

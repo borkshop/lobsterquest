@@ -526,10 +526,12 @@ def build_entity(this::ent_scaffold, chunk:chunk, id:int):
         if tmpl.avatar_gives:                   av.gives      = tmpl.avatar_gives
         if tmpl.avatar_left_hand  != item_none: av.left_hand  = tmpl.avatar_left_hand
         if tmpl.avatar_right_hand != item_none: av.right_hand = tmpl.avatar_right_hand
-    if tmpl.spawn_prob != xy_0i:
+    if tmpl.spawn_template.length:
         chunk.spawner.add_spawn(id) sp:
-            sp.prob(tmpl.spawn_prob.x, tmpl.spawn_prob.y)
-            use(tmpl.spawn_template): sp.add_spawn(this)
+            for(tmpl.spawn_template) template_id, i:
+                let prob = tmpl.spawn_prob[i]
+                if prob != xy_0i: sp.p = prob
+                use(template_id): sp.add_spawn(this)
 
 def create_with(this::ent_scaffold, chunk:chunk, body):
     if not tmpl.type:
@@ -543,6 +545,18 @@ def create(this::ent_scaffold, chunk:chunk):
     var id = 0
     this.create_with(chunk) _: id = _
     return id
+
+def may_spawn(this::ent_scaffold, chunk:chunk, l:xy_f):
+    let there = chunk.bodys_at(int(l))
+    // tiles are exclusive, items are unique, bodys are exclusive, otherwise ... sure?
+    if tmpl.tile != tile_none: return !exists(there): chunk.tile[_] != tile_none
+    if tmpl.item != item_none: return !exists(there): chunk.item[_] == tmpl.item
+    if tmpl.type & ent_body: return !exists(there): chunk.type[_] & ent_body
+    return true
+
+def do_spawn(this::ent_scaffold, chunk:chunk, l:xy_f, body):
+    at(l):
+        create_with(chunk, body)
 
 def spawn(this::spawner, chunk):
     var last_id = -1
@@ -560,16 +574,8 @@ def spawn(this::spawner, chunk):
                 did = true
 
     def can_spawn(spawn_id) -> bool:
-        // TODO other constraints
         let ctx = scaf[spawn_id]
-        // TODO factor out def exists_at(this::ent_scaffold, chunk) -> bool
-        let tmpl = ctx.tmpl
-        let there = chunk.bodys_at(int(loc))
-        // tiles are exclusive, items are unique, bodys are exclusive, otherwise ... sure?
-        if tmpl.tile != tile_none: return !exists(there): chunk.tile[_] != tile_none
-        if tmpl.item != item_none: return !exists(there): chunk.item[_] == tmpl.item
-        if tmpl.type & ent_body: return !exists(there): chunk.type[_] & ent_body
-        return true
+        return ctx.may_spawn(chunk, loc)
 
     def should_spawn(spawn_id) -> bool:
         // TODO other trigger modes or distributions?
@@ -579,8 +585,7 @@ def spawn(this::spawner, chunk):
     once_each() id, spawn_id: can_spawn(spawn_id) and should_spawn(spawn_id)
     then id, spawn_id:
         let ctx = scaf[spawn_id]
-        ctx.at(loc):
-            let new_id = ctx.create(chunk)
+        ctx.do_spawn(chunk, loc) new_id:
             print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + ctx.tmpl)
 
 def spawn_items(this::chunk): spawner.spawn(this)
@@ -657,13 +662,11 @@ let tmpl_item_apple = templates.extend(item_template):
 
 let tree_evergreen = templates.extend(tile_template):
     _.tile = tile_pine_tree
-    _.spawn_prob = xy_i { 5, 1000 }
-    _.spawn_template = tmpl_item_pine_apple
+    _.add_spawn_sibling(tmpl_item_pine_apple, xy_i { 5, 1000 })
 
 let tree_deciduous = templates.extend(tile_template):
     _.tile = tile_apple_tree
-    _.spawn_prob = xy_i { 5, 1000 }
-    _.spawn_template = tmpl_item_apple
+    _.add_spawn_sibling(tmpl_item_apple, xy_i { 5, 1000 })
 
 let element_earth = templates.extend(avatar_template):
     _.glyph = item_sprite(item_clover)
