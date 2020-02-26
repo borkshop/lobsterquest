@@ -37,6 +37,7 @@ enum_flags entype:
     ent_none = 0    // free entity slot (if no other bits)
     ent_debug = 1   // enable debug logging on this entity
     ent_visible     // scene draw-ables
+    ent_cascade     // destroy this entity along with its parent
     ent_cell        // defines "A space"; e.g. floor entities have this
     ent_body        // has a collide-able body
     ent_mind        // participates in the action system
@@ -47,6 +48,7 @@ def entype_str(t:entype):
     let parts = []
     if t & ent_debug:   parts.push("debug")
     if t & ent_visible: parts.push("visible")
+    if t & ent_cascade: parts.push("cascade")
     if t & ent_cell:    parts.push("cell")
     if t & ent_body:    parts.push("body")
     if t & ent_mind:    parts.push("mind")
@@ -54,11 +56,30 @@ def entype_str(t:entype):
     if t & ent_avatar:  parts.push("avatar")
     return parts.concat_string("|")
 
+enum entrel:
+    entrel_shrug
+    entrel_held
+    // entrel_worn TODO equipment
+    // entrel_attached TODO upgrades?
+    entrel_body
+    entrel_status
+
+def entrel_str(r:entrel):
+    switch r:
+        case entrel_shrug:  return "shrug"
+        case entrel_held:   return "held"
+        case entrel_body:   return "body"
+        case entrel_status: return "status"
+    return "unknown<" + r + ">"
+
 //// systems
 
 class system:
     def ent_changed(shard, id:int, new:entype, old:entype):
         return new
+
+    def ent_linked(shard, id:int, pid:int, ex_pid:int):
+        nil
 
 //// toplevel components
 
@@ -129,6 +150,13 @@ class shard:
     type = []::entype
     name = []::string
 
+    // id-linked graph structure
+    par   = []::int    // id of parent
+    rel   = []::entrel // relation to parent
+    next  = []::int    // id of next sibling
+    prev  = []::int    // id of previous sibling
+    first = []::int    // id of first child
+
     // global data relevant to any entity
     pos = []::spatial   // spatial position
     ren = []::render    // colored glyph with an optional background
@@ -155,6 +183,7 @@ class shard:
             emit(tag(id))
             describe_intrinsics(id, emit)
             describe_draw(id, emit)
+            describe_graph(id, emit)
 
     def describe_intrinsics(id, emit):
         emit(entype_str(type[id]))
@@ -172,11 +201,24 @@ class shard:
         if tex[id]: emit("tex:" + tex[id])
         if ksh[id]: emit("ksh:" + ksh[id])
 
+    def describe_graph(id, emit):
+        if par[id]:
+            emit("par" + tag(par[id]))
+            emit("rel:" + rel[id])
+        if prev[id]: emit("prev" + tag(prev[id]))
+        if next[id]: emit("next" + tag(next[id]))
+        if first[id]: emit("first" + tag(first[id]))
+
     def alloc() -> int:
         def grow():
             let id = type.length
             type.push(ent_none)
             name.push("")
+            par.push(0)
+            rel.push(entrel_shrug)
+            next.push(0)
+            prev.push(0)
+            first.push(0)
             pos.push(spatial_0)
             ren.push(render_0)
             tex.push(nil)
@@ -188,6 +230,11 @@ class shard:
             let id = free_ids.remove_obj(free_ids.min())
             type[id] = ent_none
             name[id] = ""
+            par[id] = 0
+            rel[id] = entrel_shrug
+            next[id] = 0
+            prev[id] = 0
+            first[id] = 0
             pos[id] = spatial_0
             ren[id] = render_0
             tex[id] = nil
@@ -197,6 +244,124 @@ class shard:
             return id
         if not type.length: grow() // reserve #0
         return if free_ids.length: reuse() else: grow()
+
+    def add_child(pid:int, r:entrel, cid:int):
+        assert pid and cid
+        unlink(cid)
+        link_after(pid, r, cid, 0)
+
+    def add_sibling(sid:int, r:entrel, cid:int):
+        assert sid and cid
+        let pid = par[sid]
+        assert pid
+        unlink(cid)
+        link_after(pid, r, cid, sid)
+
+    def link_after(pid:int, r:entrel, cid:int, sid:int):
+        let fid = first[pid]
+        let ex_pid = par[cid]
+        if fid:
+            if not sid: sid = prev[fid]
+            assert par[sid] == pid
+            let nid = next[sid]
+            // [sid] <=> [cid] <=> [nid]
+            par[cid] = pid
+            rel[cid] = r
+            next[cid] = nid
+            prev[cid] = sid
+            next[sid] = cid
+            prev[nid] = cid
+        else:
+            assert not sid
+            // [cid] <=> [cid]
+            par[cid] = pid
+            rel[cid] = r
+            next[cid] = cid
+            prev[cid] = cid
+            first[pid] = cid
+        notify_par(cid, pid, ex_pid)
+
+    def link_before(pid:int, r:entrel, cid:int, sid:int):
+        let fid = first[pid]
+        let ex_pid = par[cid]
+        if fid:
+            if not sid: sid = fid
+            assert par[sid] == pid
+            let rid = prev[sid]
+            // [rid] <=> [cid] <=> [sid]
+            par[cid] = pid
+            rel[cid] = r
+            next[cid] = sid
+            prev[cid] = rid
+            next[rid] = cid
+            prev[sid] = cid
+        else:
+            assert not sid
+            // [cid] <=> [cid]
+            par[cid] = pid
+            rel[cid] = r
+            next[cid] = cid
+            prev[cid] = cid
+            first[pid] = cid
+        notify_par(cid, pid, ex_pid)
+
+    def unlink(id:int):
+        let pid = par[id]
+        if pid:
+            let fid = first[pid]
+            var sid = next[id]
+            var rid = prev[id]
+            if sid == id: sid = 0
+            if rid == id: rid = 0
+            par[id] = 0
+            rel[id] = entrel_shrug
+            next[id] = 0
+            prev[id] = 0
+            next[rid] = sid
+            prev[sid] = rid
+            if fid == id: first[pid] = sid
+            notify_par(id, 0, pid)
+
+    def unlink_children(id:int, body):
+        let cids = collect(): walk_next(first[id], _)
+        first[id] = 0
+        if cids.length:
+            for(cids): par[_] = 0
+            for(cids): rel[_] = entrel_shrug
+            for(cids): next[_] = 0
+            for(cids): prev[_] = 0
+            for(cids): notify_par(_, 0, id)
+            body(cids)
+
+    def root_of(id:int):
+        let fid = id
+        while(id):
+            let pid = par[id]
+            if not pid or pid == id or pid == fid: return id
+            id = pid
+        return 0
+
+    def walk_par(id:int, body):
+        let fid = id
+        while(id):
+            let nid = par[id]
+            if not nid or nid == id or nid == fid: return
+            body(id = nid)
+
+    def walk_next(id:int, body):
+        let fid = id
+        while(id):
+            body(id)
+            let nid = next[id]
+            if nid == fid: return
+            id = nid
+
+    def walk_rec(id:int, body):
+        def rec(nid:int, depth:int):
+            body(nid, depth):
+                let nd = depth + 1
+                walk_next(first[nid]): rec(_, nd)
+        rec(id, 0)
 
     def create(t:entype, init):
         let id = alloc()
@@ -208,20 +373,40 @@ class shard:
     def set_type(id:int, t:entype):
         let old = type[id]
         if old == t: return
-
-        if t != ent_none:
+        if t == ent_none: destroy(id) else:
             type[id] = t
             notify_type(id, old, t)
-            return
 
-        type[id] = ent_none
-        notify_type(id, old, ent_none)
-        free_ids.push(id)
+    def destroy(id:int):
+        // unlink any cascaded children, building a list of gone ids for later reclamation
+        let gone = collect() que:
+            def rec(nid):
+                que(nid)
+                // this is unlink_children, sans notify_par...
+                let cids = collect(): walk_next(first[nid], _)
+                first[nid] = 0
+                if cids.length:
+                    for(cids): par[_] = 0
+                    for(cids): rel[_] = entrel_shrug
+                    for(cids): next[_] = 0
+                    for(cids): prev[_] = 0
+                    // for(cids): notify_par(_, 0, nid) ... assumed redundant with notify_type below
+                    let descend = cids.filter(): type[_] & ent_cascade
+                    for(descend) cid: rec(cid)
+            rec(id)
+        // finally unlink the subject id...
+        unlink(id)
+        // ...then reclaim it and any cascaded children
+        let old_types = map(gone): type[_]
+        for(gone): type[_] = ent_none
+        for(gone) gid, i: notify_type(gid, old_types[i], ent_none)
+        for(gone): free_ids.push(_)
 
     def add_type(id:int, t:entype): set_type(id, type[id] |  t)
     def del_type(id:int, t:entype): set_type(id, type[id] & ~t)
 
     def notify_type(id:int, old:entype, new:entype) -> entype:
+        invalidate(id)
         for(systems):
             let prior = new
             new = _.ent_changed(this, id, new, old)
@@ -229,8 +414,15 @@ class shard:
                 type[id] = new
         return new
 
+    def notify_par(id:int, pid:int, ex_pid:int):
+        invalidate(id)
+        if ex_pid: invalidate(ex_pid)
+        for(systems):
+            _.ent_linked(this, id, pid, ex_pid)
+
     def invalidate(id:int):
         ksh[id] = nil
+        walk_par(id) pid: ksh[pid] = nil
 
 //// ancillary component: spatial animation
 
@@ -502,6 +694,9 @@ class ent_template:
     z     = 0.0
     size  = 1.0
 
+    rel_in  = entrel_shrug // sets scaffold rel when creating if non-shrug
+    rel_out = entrel_shrug // sets scaffold rel when descending if non-shrug
+
     tile = tile_none
     item = item_none
 
@@ -509,6 +704,8 @@ class ent_template:
 
     spawn_template = []::int
     spawn_prob     = []::xy_i
+    spawn_rel      = []::entrel
+    spawn_at       = []::xy_f
 
     avatar_helf       = xy_0i
     avatar_stam       = xy_0i
@@ -516,22 +713,48 @@ class ent_template:
     avatar_left_hand  = item_none
     avatar_right_hand = item_none
 
+    child_at = []::xy_f
+    childrel = []::entrel
+    children = []::ent_template
+
     def dupe():
         let tmpl = copy(this)
         tmpl.spawn_template = copy(tmpl.spawn_template)
         tmpl.spawn_prob = copy(tmpl.spawn_prob)
+        tmpl.spawn_rel = copy(tmpl.spawn_rel)
+        tmpl.spawn_at = copy(tmpl.spawn_at)
+        tmpl.child_at = copy(tmpl.child_at)
+        tmpl.childrel = copy(tmpl.childrel)
+        tmpl.children = copy(tmpl.children)
         return tmpl
 
-    def init_entity(shard:shard, id:int, loc:xy_f):
+    def init_entity(shard:shard, id:int, pid:int, r:entrel, loc:xy_f):
         shard.name[id] = name
-        shard.pos[id] = spatial { loc.x, loc.y, z, size }
         shard.ren[id] = render { bg, fg, glyph }
         if tile != tile_none: shard.tile[id] = tile
         if item != item_none: shard.item[id] = item
+        shard.pos[id] = spatial { loc.x, loc.y, z, size }
+        if pid:
+            shard.link_after(pid, r, id, 0)
+            if shard.type[pid] & ent_debug:
+                shard.type[id] |= ent_debug
+
+    def add_child(rel:entrel, at:xy_f, tmpl:ent_template):
+        let child_id = children.length
+        child_at.push(at)
+        childrel.push(rel)
+        children.push(tmpl) // TODO should copy?
+        return child_id
 
     def add_spawn_sibling(template_id:int, prob:xy_i):
         spawn_template.push(template_id)
         spawn_prob.push(prob)
+
+    def add_spawn_child(template_id:int, prob:xy_i, rel:entrel, at:xy_f):
+        spawn_template.push(template_id)
+        spawn_prob.push(prob)
+        spawn_rel.push(rel)
+        spawn_at.push(at)
 
 let ent_0 = ent_template { type: ent_none }
 
@@ -556,11 +779,32 @@ class ent_scaffold:
 
     tmpl = ent_template { type : ent_none }
 
-    loc = xy_0            // location cell
-    off = xy { 0.5, 0.5 } // sub-cell offset
+    loc = xy_0            // location cell in parent or world
+    off = xy { 0.5, 0.5 } // sub-cell offset for root entities
+
+    par = 0            // graph parent
+    rel = entrel_shrug // graph relation
+
+    def under(id:int, body):
+        let old_par = par
+        let old_off = off
+        par = id
+        off = xy { 0.5, 0.5 } // reset sub-cell offset at each level
+        body()
+        par = old_par
+        off = old_off
+
+    def with_rel(r:entrel, body):
+        if r: // non-shrug
+            let old_rel = rel
+            rel = r
+            body()
+            rel = old_rel
+        else:
+            body()
 
     def init_entity(shard:shard, id:int):
-        tmpl.init_entity(shard, id, loc + off)
+        tmpl.init_entity(shard, id, par, rel, loc + off)
 
     def use(template:ent_template, body):
         let old_tmpl = tmpl
