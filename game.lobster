@@ -517,11 +517,7 @@ def build_entity(this::ent_scaffold, chunk:chunk, id:int):
         if tmpl.avatar_left_hand  != item_none: av.left_hand  = tmpl.avatar_left_hand
         if tmpl.avatar_right_hand != item_none: av.right_hand = tmpl.avatar_right_hand
     if tmpl.spawn_template.length:
-        chunk.spawner.add_spawn(id) sp:
-            for(tmpl.spawn_template) template_id, i:
-                let prob = tmpl.spawn_prob[i]
-                if prob != xy_0i: sp.p = prob
-                use(template_id): sp.add_spawn(this)
+        chunk.spawner.add_spawns(id, this)
 
 def create_with(this::ent_scaffold, chunk:chunk, body):
     if not tmpl.type:

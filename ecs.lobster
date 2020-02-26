@@ -613,6 +613,18 @@ class spawn_scaffold:
             spawner.scaf.insert(next_spawn_id, copy(ctx))
             next_spawn_id++
 
+def add_spawns(this::spawner, id:int, ctx:ent_scaffold):
+    let n, spawn_id = ids.binary_search(id)
+    let sp = spawn_scaffold {
+        spawner: this,
+        id: id,
+        next_spawn_id: spawn_id,
+    }
+    for(ctx.tmpl.spawn_template) template_id, i:
+        let p = ctx.tmpl.spawn_prob[i]
+        if p != xy_0i: sp.p = p
+        ctx.use(template_id): sp.add_spawn(ctx)
+
 def add_spawn(this::spawner, id:int, body):
     let n, spawn_id = ids.binary_search(id)
     body(spawn_scaffold {
