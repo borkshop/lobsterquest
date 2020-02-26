@@ -42,6 +42,8 @@ enum_flags entype:
     ent_body        // has a collide-able body
     ent_mind        // participates in the action system
     ent_input       // receives player input
+    ent_holds       // can contain other entities (up to cap)
+    ent_acts        // used to act upon the world
     ent_avatar      // has avatar
 
 def entype_str(t:entype):
@@ -54,6 +56,8 @@ def entype_str(t:entype):
     if t & ent_mind:    parts.push("mind")
     if t & ent_input:   parts.push("input")
     if t & ent_avatar:  parts.push("avatar")
+    if t & ent_holds:  parts.push("holds")
+    if t & ent_acts:  parts.push("acts")
     return parts.concat_string("|")
 
 enum entrel:
@@ -158,7 +162,8 @@ class shard:
     first = []::int    // id of first child
 
     // global data relevant to any entity
-    pos = []::spatial   // spatial position
+    pos = []::spatial   // outer spatial position and size
+    cap = []::xy_f      // inner spatial capacity
     ren = []::render    // colored glyph with an optional background
     tex = []::resource? // render texture overrides any glyph
     ksh = []::resource? // cached render to texture
@@ -202,6 +207,7 @@ class shard:
         if ksh[id]: emit("ksh:" + ksh[id])
 
     def describe_graph(id, emit):
+        if cap[id] != xy_0: emit("cap:" + cap[id])
         if par[id]:
             emit("par" + tag(par[id]))
             emit("rel:" + rel[id])
@@ -220,6 +226,7 @@ class shard:
             prev.push(0)
             first.push(0)
             pos.push(spatial_0)
+            cap.push(xy_0)
             ren.push(render_0)
             tex.push(nil)
             ksh.push(nil)
@@ -236,6 +243,7 @@ class shard:
             prev[id] = 0
             first[id] = 0
             pos[id] = spatial_0
+            cap[id] = xy_0
             ren[id] = render_0
             tex[id] = nil
             ksh[id] = nil
@@ -576,7 +584,7 @@ def animate(this::anims, id:int, over:float, body):
         time:  over,
     }.with(body)
 
-//// ancillary component: bodys collide
+//// ancillary component: root bodys collide
 
 class bodys : system
     ids:[int] = []
@@ -588,10 +596,16 @@ class bodys : system
         ids.remove(body_id, 1)
 
     def ent_changed(shard, id:int, new:entype, old:entype):
-        if (old ^ new) & ent_body:
+        if shard.par[id] == 0 and  (old ^ new) & ent_body:
             if       new & ent_body: this.enter(id)
             else: if old & ent_body: this.exit(id)
         return new
+
+    def ent_linked(shard, id:int, pid:int, ex_pid:int):
+        if pid == 0:
+            if shard.type[id] & ent_body: this.enter(id)
+        else: if ex_pid == 0:
+            if shard.type[id] & ent_body: this.exit(id)
 
 //// ancillary component: minds take action
 
@@ -693,6 +707,7 @@ class ent_template:
     glyph = glyph_0
     z     = 0.0
     size  = 1.0
+    cap   = xy_0
 
     rel_in  = entrel_shrug // sets scaffold rel when creating if non-shrug
     rel_out = entrel_shrug // sets scaffold rel when descending if non-shrug
@@ -730,6 +745,7 @@ class ent_template:
 
     def init_entity(shard:shard, id:int, pid:int, r:entrel, loc:xy_f):
         shard.name[id] = name
+        shard.cap[id] = cap
         shard.ren[id] = render { bg, fg, glyph }
         if tile != tile_none: shard.tile[id] = tile
         if item != item_none: shard.item[id] = item
@@ -749,6 +765,8 @@ class ent_template:
     def add_spawn_sibling(template_id:int, prob:xy_i):
         spawn_template.push(template_id)
         spawn_prob.push(prob)
+        spawn_rel.push(entrel_shrug)
+        spawn_at.push(xy_0)
 
     def add_spawn_child(template_id:int, prob:xy_i, rel:entrel, at:xy_f):
         spawn_template.push(template_id)
@@ -892,10 +910,15 @@ def add_spawns(this::spawner, id:int, ctx:ent_scaffold):
         id: id,
         next_spawn_id: spawn_id,
     }
-    for(ctx.tmpl.spawn_template) template_id, i:
+    ctx.under(id): for(ctx.tmpl.spawn_template) template_id, i:
         let p = ctx.tmpl.spawn_prob[i]
         if p != xy_0i: sp.p = p
-        ctx.use_id(template_id): sp.add_spawn(ctx)
+        let spawn_rel = ctx.tmpl.spawn_rel[i]
+        nest_if(spawn_rel) body:
+            ctx.with_rel(spawn_rel):
+                ctx.at(ctx.tmpl.spawn_at[i]):
+                    body()
+        with: ctx.use_id(template_id): sp.add_spawn(ctx)
 
 def add_spawn(this::spawner, id:int, body):
     let n, spawn_id = ids.binary_search(id)
