@@ -491,6 +491,16 @@ class ent_template:
     avatar_left_hand  = item_none
     avatar_right_hand = item_none
 
+    def init_entity(shard:shard, id:int, loc:xy_f):
+        var r = render { bg, fg, glyph }
+        if r.glyf == glyph_0:
+            if       tile != tile_none: r = r.with_glyph(tile_sprite(tile))
+            else: if item != item_none: r = r.with_glyph(item_sprite(item))
+        shard.pos[id] = spatial { loc.x, loc.y, z, size }
+        shard.ren[id] = r
+        if tile != tile_none: shard.tile[id] = tile
+        if item != item_none: shard.item[id] = item
+
     def add_spawn_sibling(template_id:int, prob:xy_i):
         spawn_template.push(template_id)
         spawn_prob.push(prob)
@@ -523,6 +533,9 @@ class ent_scaffold:
 
     loc = xy_0            // location cell
     off = xy { 0.5, 0.5 } // sub-cell offset
+
+    def init_entity(shard:shard, id:int):
+        tmpl.init_entity(shard, id, loc + off)
 
     def use(template_id:int, body):
         let old_tmpl = tmpl

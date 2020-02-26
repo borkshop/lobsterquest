@@ -507,16 +507,6 @@ class stacked_scene : system
             let cell_size = xy_f { side_size, side_size }
             for(ids): chunk.draw_ent(_, cell_size)
 
-def init_entity(this::ent_scaffold, chunk:chunk, id:int):
-    var r = render { tmpl.bg, tmpl.fg, tmpl.glyph }
-    if r.glyf == glyph_0:
-        if       tmpl.tile != tile_none: r = r.with_glyph(tile_sprite(tmpl.tile))
-        else: if tmpl.item != item_none: r = r.with_glyph(item_sprite(tmpl.item))
-    chunk.pos[id] = spatial { loc.x + off.x, loc.y + off.x, tmpl.z, tmpl.size }
-    chunk.ren[id] = r
-    if tmpl.tile != tile_none: chunk.tile[id] = tmpl.tile
-    if tmpl.item != item_none: chunk.item[id] = tmpl.item
-
 def build_entity(this::ent_scaffold, chunk:chunk, id:int):
     if tmpl.type & ent_mind:
         chunk.minds.set_init(id, tmpl.initiative)
@@ -537,7 +527,7 @@ def create_with(this::ent_scaffold, chunk:chunk, body):
     if not tmpl.type:
         return
     assert tmpl.tile == tile_none or tmpl.item == item_none // may have associated tile or item sheet data, but not both
-    let id = chunk.create(tmpl.type) _: init_entity(chunk, _)
+    let id = chunk.create(tmpl.type): this.init_entity(chunk, _)
     build_entity(chunk, id)
     body(id, this)
 
