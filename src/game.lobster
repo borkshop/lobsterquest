@@ -282,11 +282,12 @@ class avatars : system
 
 enum_flags trace:
     trace_spawn
+    trace_action
     trace_all // all entities, not just ones with ent_debug set
 
 class chunk : shard
     // debug tracing
-    trace = trace(0) // TODO trace_avatar
+    trace = trace_action
 
     // performance timers
     timers = timers{}
@@ -347,6 +348,126 @@ class chunk : shard
         anims.update(this, dt)
         avatars.update_any(this)
 
+    def walk_rec_sizes(id, body):
+        var size = xy_1
+        this.walk_rec(id) nid, depth, descend:
+            body(nid, size):
+                let c = cap[nid]
+                if c.x != 0 and c.y != 0:
+                    let scale = xy_1 / c * pos[nid].w
+                    size *= scale
+                    descend()
+                    size /= scale
+
+    def actor_at(id, at):
+        let debug = should_trace(id, trace_action)
+
+        /*
+
+        take rule:
+            WHEN ( # acts:size=act ) + ( # holds>_:size ) + ( @ holds>X:size )
+             AND size <= act
+             AND size.sq <= avail
+            THEN holds>X
+             MAX size
+             MIN avail
+            WITH avail = holds:cap.sq - sum( holds>*:size.sq )
+
+        */
+
+        let acts = []::int
+        let acts_size = []::xy_f
+        this.walk_rec_sizes(id) nid, size, descend:
+            if type[nid] & ent_acts:
+                acts.push(nid)
+                acts_size.push(size)
+            else:
+                descend()
+
+        // TODO further capability evaluation
+        if !acts.length:
+            return
+        if debug:
+            print(this.tag(id) + " acts:" + acts + " sz:" + acts_size)
+
+        var max_act = xy_0
+        for(acts_size) size:
+            if max_act.x * max_act.y < size.x * size.y:
+                max_act = size
+
+        let at_held = []::int
+        let at_held_size = []::xy_f
+        for(at) atid: this.walk_rec_sizes(atid) nid, size, descend:
+            if type[nid] & ent_holds:
+                let child_size = size / cap[nid] * pos[nid].w
+                this.walk_next(first[nid]) cid: if rel[cid] == entrel_held:
+                    let sz = child_size * pos[cid].w
+                    // TODO further capability evaluation
+                    if max(max_act) >= min(sz):
+                        at_held.push(cid)
+                        at_held_size.push(sz)
+            else:
+                descend()
+
+        // TODO further capability evaluation
+        if !at_held.length:
+            return
+        if debug:
+            print("@" + at + " held:" + at_held + " sz:" + at_held_size)
+
+        let holds = []::int
+        let holds_cell = []::xy_f
+        let holds_size = []::xy_f
+        let holds_avail = []::float
+        this.walk_rec_sizes(id) nid, size, descend:
+            if type[nid] & ent_holds:
+                let c = cap[nid]
+                let child_size = size / c * pos[nid].w
+                var avail = size.x * size.y
+                this.walk_next(first[nid]) cid: if rel[cid] == entrel_held:
+                    let sz = child_size * pos[cid].w
+                    avail -= sz.x * sz.y
+                if avail > 0:
+                    holds.push(nid)
+                    holds_cell.push(child_size)
+                    holds_size.push(size)
+                    holds_avail.push(avail)
+            else:
+                descend()
+
+        // TODO further capability evaluation
+        if !holds.length:
+            return
+        if debug:
+            print(this.tag(id) + " holds:" + holds + " holds_cell:" + holds_cell + " holds_avail:" + holds_avail + " holds_size:" + holds_size)
+
+        var take_id = -1
+        var into_id = -1
+        var take_size = xy_0
+        for(at_held_size) size, i: if take_size.x * take_size.y < size.x * size.y:
+            var into_avail = 0.0
+            for(holds_avail) avail, j:
+                if into_avail == 0 or into_avail > avail:
+                    into_avail = avail
+                    into_id = j
+            if into_id >= 0:
+                into_id = holds[into_id]
+                take_size = size
+                take_id = i
+        if take_id >= 0:
+            take_id = at_held[take_id]
+            if type[id] & ent_debug:
+                let root_id = this.root_of(take_id)
+                type[root_id] = type[root_id] | ent_debug
+            this.add_child(into_id, entrel_held, take_id)
+            let p = pos[take_id]
+            var sz = p.w // TODO scale!
+            let loc = xy_0 // TODO placement!
+            pos[take_id] = spatial { loc.x + 0.5, loc.y + 0.5, p.z, sz }
+
+            if debug:
+                print(this.tag(id) + " take " + this.tag(take_id) + " into " + this.tag(into_id) + " pos " + p + " => " + pos[take_id])
+
     def actor_move(id, actor_id):
         // animate actor movement, adding to hit group if successful
         let group_id = group_ids[actor_id]
@@ -364,6 +485,9 @@ class chunk : shard
         if at.length == 1 and at[0] == id:
             // TODO special case self action?
             return
+
+        if at.length: // have at!
+            actor_at(id, at)
 
         anims.animate(id, movement_time) anim:
             anim.blocking = true
@@ -386,7 +510,11 @@ class chunk : shard
 
     def bodys_at(loc):
         // TODO spatial query
-        return filter(bodys.ids) id: pos[id].cell() == loc
+        return filter(bodys.ids) id: par[id] == 0 and pos[id].cell() == loc
+
+    def bodys_under(id:int):
+        return collect() each: this.walk_next(first[id]) cid:
+            if type[cid] & ent_body: each(cid)
 
     def step(input:input_fun):
         timers.record_time(0):
@@ -514,10 +642,16 @@ class stacked_scene : system
         zs.remove(scene_id, 1)
 
     def ent_changed(shard, id:int, new:entype, old:entype):
-        if (old ^ new) & ent_visible:
+        if shard.par[id] == 0 and (old ^ new) & ent_visible:
             if       new & ent_visible: this.enter(shard, id)
             else: if old & ent_visible: this.exit(id)
         return new
+
+    def ent_linked(shard, id:int, pid:int, ex_pid:int):
+        if pid == 0:
+            if shard.type[id] & ent_visible: this.enter(shard, id)
+        else: if ex_pid == 0:
+            if shard.type[id] & ent_visible: this.exit(id)
 
     // TODO update_z
 
@@ -561,13 +695,19 @@ def create_with(this::ent_scaffold, chunk:chunk, body):
     if not tmpl.type:
         return
     assert tmpl.tile == tile_none or tmpl.item == item_none // may have associated tile or item sheet data, but not both
-    let id = chunk.create(tmpl.type): this.init_entity(chunk, _)
-    let r = chunk.ren[id]
-    if r.glyf == glyph_0:
-        if       tmpl.tile != tile_none: chunk.ren[id] = r.with_glyph(tile_sprite(tmpl.tile))
-        else: if tmpl.item != item_none: chunk.ren[id] = r.with_glyph(item_sprite(tmpl.item))
-    build_entity(chunk, id)
-    body(id, this)
+    with_rel(tmpl.rel_in):
+        let id = chunk.create(tmpl.type): this.init_entity(chunk, _)
+        let r = chunk.ren[id]
+        if r.glyf == glyph_0:
+            if       tmpl.tile != tile_none: chunk.ren[id] = r.with_glyph(tile_sprite(tmpl.tile))
+            else: if tmpl.item != item_none: chunk.ren[id] = r.with_glyph(item_sprite(tmpl.item))
+        build_entity(chunk, id)
+        under(id): with_rel(tmpl.rel_out):
+            at_each(tmpl.child_at) child_id:
+                let childrel = tmpl.childrel[child_id]
+                nest_if(childrel) _: with_rel(childrel): _()
+                with: use(tmpl.children[child_id]): this.create_with(chunk): nil
+            body(id, this)
 
 def create(this::ent_scaffold, chunk:chunk):
     var id = 0
@@ -575,7 +715,9 @@ def create(this::ent_scaffold, chunk:chunk):
     return id
 
 def may_spawn(this::ent_scaffold, chunk:chunk, l:xy_f):
-    let there = chunk.bodys_at(int(l))
+    let there =
+        if par: chunk.bodys_under(par)
+        else:   chunk.bodys_at(int(l))
     // tiles are exclusive, items are unique, bodys are exclusive, otherwise ... sure?
     if tmpl.tile != tile_none: return !exists(there): chunk.tile[_] != tile_none
     if tmpl.item != item_none: return !exists(there): chunk.item[_] == tmpl.item
@@ -583,8 +725,8 @@ def may_spawn(this::ent_scaffold, chunk:chunk, l:xy_f):
     return true
 
 def do_spawn(this::ent_scaffold, chunk:chunk, l:xy_f, body):
-    at(l):
-        create_with(chunk, body)
+    nest_if(!par): at(l, _)
+    with: create_with(chunk, body)
 
 def spawn(this::spawner, chunk):
     var last_id = -1
