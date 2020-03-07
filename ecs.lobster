@@ -519,6 +519,8 @@ class ent_templates:
 
     def extend(base_id, body):
         let tmpl = copy(defs[base_id])
+        tmpl.spawn_template = copy(tmpl.spawn_template)
+        tmpl.spawn_prob = copy(tmpl.spawn_prob)
         body(tmpl)
         return register(tmpl)
 
