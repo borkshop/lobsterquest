@@ -492,12 +492,8 @@ class ent_template:
     avatar_right_hand = item_none
 
     def init_entity(shard:shard, id:int, loc:xy_f):
-        var r = render { bg, fg, glyph }
-        if r.glyf == glyph_0:
-            if       tile != tile_none: r = r.with_glyph(tile_sprite(tile))
-            else: if item != item_none: r = r.with_glyph(item_sprite(item))
         shard.pos[id] = spatial { loc.x, loc.y, z, size }
-        shard.ren[id] = r
+        shard.ren[id] = render { bg, fg, glyph }
         if tile != tile_none: shard.tile[id] = tile
         if item != item_none: shard.item[id] = item
 

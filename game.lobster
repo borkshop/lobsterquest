@@ -524,6 +524,10 @@ def create_with(this::ent_scaffold, chunk:chunk, body):
         return
     assert tmpl.tile == tile_none or tmpl.item == item_none // may have associated tile or item sheet data, but not both
     let id = chunk.create(tmpl.type): this.init_entity(chunk, _)
+    let r = chunk.ren[id]
+    if r.glyf == glyph_0:
+        if       tmpl.tile != tile_none: chunk.ren[id] = r.with_glyph(tile_sprite(tmpl.tile))
+        else: if tmpl.item != item_none: chunk.ren[id] = r.with_glyph(item_sprite(tmpl.item))
     build_entity(chunk, id)
     body(id, this)
 
