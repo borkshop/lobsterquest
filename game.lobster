@@ -250,7 +250,7 @@ class avatars : system
         if (old ^ new) & ent_avatar:
             if       new & ent_avatar: this.enter(shard, id, new)
             else: if old & ent_avatar: this.exit(shard, id)
-        else: if (old ^ new) & ent_input:
+        else: if shard.type[id] & ent_avatar and (old ^ new) & ent_input:
             let show = if new & ent_input: true else: false
             this.with(shard, id) av:
                 av.show_hearts = show
