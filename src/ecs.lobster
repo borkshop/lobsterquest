@@ -169,10 +169,6 @@ class shard:
     ksh = []::resource? // cached render to texture
     // TODO drop tex aspect, once we switch fully to graph-structured drawing into ksh
 
-    // any associated rule sheet data
-    tile = []::tile_entity_id
-    item = []::item_entity_id
-
     systems = []::system
 
     free_ids = []::int
@@ -195,8 +191,6 @@ class shard:
         emit("@<" + pos[id].x + ", " + pos[id].y + ">")
         emit("z:" + pos[id].z)
         if pos[id].w: emit("size:" + pos[id].w)
-        if tile[id]: emit("" + tile[id])
-        if item[id]: emit("" + item[id])
 
     def describe_draw(id, emit):
         if ren[id].bg != color_clear: emit("bg:" + color_to_hex(ren[id].bg))
@@ -230,8 +224,6 @@ class shard:
             ren.push(render_0)
             tex.push(nil)
             ksh.push(nil)
-            tile.push(tile_none)
-            item.push(item_none)
             return id
         def reuse():
             let id = free_ids.remove_obj(free_ids.min())
@@ -247,8 +239,6 @@ class shard:
             ren[id] = render_0
             tex[id] = nil
             ksh[id] = nil
-            tile[id] = tile_none
-            item[id] = item_none
             return id
         if not type.length: grow() // reserve #0
         return if free_ids.length: reuse() else: grow()
@@ -712,9 +702,6 @@ class ent_template:
     rel_in  = entrel_shrug // sets scaffold rel when creating if non-shrug
     rel_out = entrel_shrug // sets scaffold rel when descending if non-shrug
 
-    tile = tile_none
-    item = item_none
-
     initiative = 0
 
     spawn_template = []::int
@@ -747,8 +734,6 @@ class ent_template:
         shard.name[id] = name
         shard.cap[id] = cap
         shard.ren[id] = render { bg, fg, glyph }
-        if tile != tile_none: shard.tile[id] = tile
-        if item != item_none: shard.item[id] = item
         shard.pos[id] = spatial { loc.x, loc.y, z, size }
         if pid:
             shard.link_after(pid, r, id, 0)
