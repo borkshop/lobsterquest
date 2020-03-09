@@ -617,11 +617,6 @@ let floor_template = templates.define(ent_cell | ent_visible):
     _.z    = 0.0
     _.size = 1.0
 
-let tile_template = templates.define(ent_body | ent_visible):
-    _.z    = 0.5
-    _.size = 1.0
-    _.fg   = color_white
-
 let item_template = templates.define(ent_body | ent_visible):
     _.z    = 0.75
     _.size = 1.0 / 3.0
@@ -636,11 +631,17 @@ let tmpl_item_pine_apple = templates.extend(item_template):
 let tmpl_item_apple = templates.extend(item_template):
     _.item = item_apple
 
-let tree_evergreen = templates.extend(tile_template):
+let tree_evergreen = templates.define(ent_body | ent_visible):
+    _.z    = 0.5
+    _.size = 1.0
+    _.fg   = color_white
     _.tile = tile_pine_tree
     _.add_spawn_sibling(tmpl_item_pine_apple, xy_i { 5, 1000 })
 
-let tree_deciduous = templates.extend(tile_template):
+let tree_deciduous = templates.define(ent_body | ent_visible):
+    _.z    = 0.5
+    _.size = 1.0
+    _.fg   = color_white
     _.tile = tile_apple_tree
     _.add_spawn_sibling(tmpl_item_apple, xy_i { 5, 1000 })
 
