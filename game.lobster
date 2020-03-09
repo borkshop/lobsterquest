@@ -644,17 +644,15 @@ let tree_deciduous = templates.extend(tile_template):
     _.tile = tile_apple_tree
     _.add_spawn_sibling(tmpl_item_apple, xy_i { 5, 1000 })
 
-let avatar_template = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+let player_template = templates.define(ent_body | ent_visible | ent_mind | ent_avatar | ent_input):
     _.z    = 1.0
     _.size = 1.0
     _.fg   = color_white
-    _.initiative = 2
-
-let player_template = templates.extend(avatar_template):
-    _.type = _.type | ent_input
     _.initiative = 10
 
-let element_earth = templates.extend(avatar_template):
+let element_earth = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.z    = 1.0
+    _.size = 1.0
     _.glyph = item_sprite(item_clover)
     _.fg = color_dark_green
     _.initiative = 3
@@ -662,7 +660,9 @@ let element_earth = templates.extend(avatar_template):
     _.avatar_left_hand = item_clover
     _.avatar_right_hand = item_clover
 
-let element_water = templates.extend(avatar_template):
+let element_water = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.z    = 1.0
+    _.size = 1.0
     _.glyph = item_sprite(item_water)
     _.fg = color_teal
     _.initiative = 4
@@ -670,7 +670,9 @@ let element_water = templates.extend(avatar_template):
     _.avatar_left_hand = item_water
     _.avatar_right_hand = item_water
 
-let element_fire = templates.extend(avatar_template):
+let element_fire = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.z    = 1.0
+    _.size = 1.0
     _.glyph = item_sprite(item_fire)
     _.fg = color_orange
     _.initiative = 6
@@ -678,7 +680,9 @@ let element_fire = templates.extend(avatar_template):
     _.avatar_left_hand = item_fire
     _.avatar_right_hand = item_fire
 
-let element_air = templates.extend(avatar_template):
+let element_air = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.z    = 1.0
+    _.size = 1.0
     _.glyph = item_sprite(item_wind)
     _.fg = color_cyan
     _.initiative = 5
