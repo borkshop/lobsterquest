@@ -617,18 +617,19 @@ let floor_template = templates.define(ent_cell | ent_visible):
     _.z    = 0.0
     _.size = 1.0
 
-let item_template = templates.define(ent_body | ent_visible):
-    _.z    = 0.75
-    _.size = 1.0 / 3.0
-    _.fg   = color_white
-
 // FIXME tmpl_ prefix to avoid sheet constants ; ideally sheet should own these
 // definitions
 
-let tmpl_item_pine_apple = templates.extend(item_template):
+let tmpl_item_pine_apple = templates.define(ent_body | ent_visible):
+    _.z    = 0.75
+    _.size = 1.0 / 3.0
+    _.fg   = color_white
     _.item = item_pine_apple
 
-let tmpl_item_apple = templates.extend(item_template):
+let tmpl_item_apple = templates.define(ent_body | ent_visible):
+    _.z    = 0.75
+    _.size = 1.0 / 3.0
+    _.fg   = color_white
     _.item = item_apple
 
 let tree_evergreen = templates.define(ent_body | ent_visible):
