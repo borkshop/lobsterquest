@@ -535,11 +535,14 @@ class ent_scaffold:
     def init_entity(shard:shard, id:int):
         tmpl.init_entity(shard, id, loc + off)
 
-    def use(template_id:int, body):
+    def use(template:ent_template, body):
         let old_tmpl = tmpl
-        tmpl = templates.defs[template_id]
+        tmpl = template
         body()
         tmpl = old_tmpl
+
+    def use_id(template_id:int, body):
+        use(templates.defs[template_id], body)
 
     def at(l:xy_f, body):
         let old_loc = loc
@@ -621,7 +624,7 @@ def add_spawns(this::spawner, id:int, ctx:ent_scaffold):
     for(ctx.tmpl.spawn_template) template_id, i:
         let p = ctx.tmpl.spawn_prob[i]
         if p != xy_0i: sp.p = p
-        ctx.use(template_id): sp.add_spawn(ctx)
+        ctx.use_id(template_id): sp.add_spawn(ctx)
 
 def add_spawn(this::spawner, id:int, body):
     let n, spawn_id = ids.binary_search(id)
