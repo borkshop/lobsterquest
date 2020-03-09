@@ -622,24 +622,12 @@ let body_template = templates.define(ent_body | ent_visible):
     _.size = 1.0
     _.fg   = color_white
 
-let mind_template = templates.extend(body_template):
-    _.type = _.type | ent_mind
-    _.initiative = 1
-
-let avatar_template = templates.extend(mind_template):
-    _.type = _.type | ent_avatar
-    _.initiative = 2
-
 let tile_template = templates.extend(body_template):
     _.z = 0.5
 
 let item_template = templates.extend(body_template):
     _.z    = 0.75
     _.size = 1.0 / 3.0
-
-let player_template = templates.extend(avatar_template):
-    _.type = _.type | ent_input
-    _.initiative = 10
 
 // FIXME tmpl_ prefix to avoid sheet constants ; ideally sheet should own these
 // definitions
@@ -657,6 +645,18 @@ let tree_evergreen = templates.extend(tile_template):
 let tree_deciduous = templates.extend(tile_template):
     _.tile = tile_apple_tree
     _.add_spawn_sibling(tmpl_item_apple, xy_i { 5, 1000 })
+
+let mind_template = templates.extend(body_template):
+    _.type = _.type | ent_mind
+    _.initiative = 1
+
+let avatar_template = templates.extend(mind_template):
+    _.type = _.type | ent_avatar
+    _.initiative = 2
+
+let player_template = templates.extend(avatar_template):
+    _.type = _.type | ent_input
+    _.initiative = 10
 
 let element_earth = templates.extend(avatar_template):
     _.glyph = item_sprite(item_clover)
