@@ -594,22 +594,8 @@ class chunk : shard
                     else:
                         print(this.tag(id) + " shrug at " + this.tag(object_id))
                     return false
-                let tile_id = tile[object_id]
-                let item_id = item[object_id]
-                if item_id != item_none:
-                    if av.take(item_id):
-                        this.set_type(object_id, ent_none)
-                        print(this.tag(id) + " took " + item_id + " from " + this.tag(object_id))
-                        return true
-                    else:
-                        print(this.tag(id) + " pass " + item_id + " from " + this.tag(object_id))
-                else: if tile_id != tile_none:
-                    // TODO gathering from tiles, climbing onto tiles, entering
-                    // vehicle tiles, enter any inner space, ...
-                    print(this.tag(id) + " TODO " + tile_id + " from " + this.tag(object_id))
-                else:
-                    // TODO avatar state (hand items) X object
-                    print(this.tag(id) + " booped an unknown type:" + entype_str(t) + " from " + this.tag(object_id))
+                // TODO avatar state (hand items) X object
+                print(this.tag(id) + " booped an unknown type:" + entype_str(t) + " from " + this.tag(object_id))
                 return false
 
             switch act.act:
@@ -708,15 +694,8 @@ def build_entity(this::ent_scaffold, chunk:chunk, id:int):
         chunk.spawner.add_spawns(id, this)
 
 def create_with(this::ent_scaffold, chunk:chunk, body):
-    if not tmpl.type:
-        return
-    assert tmpl.tile == tile_none or tmpl.item == item_none // may have associated tile or item sheet data, but not both
-    with_rel(tmpl.rel_in):
+    if tmpl.type: with_rel(tmpl.rel_in):
         let id = chunk.create(tmpl.type): this.init_entity(chunk, _)
-        let r = chunk.ren[id]
-        if r.glyf == glyph_0:
-            if       tmpl.tile != tile_none: chunk.ren[id] = r.with_glyph(tile_sprite(tmpl.tile))
-            else: if tmpl.item != item_none: chunk.ren[id] = r.with_glyph(item_sprite(tmpl.item))
         build_entity(chunk, id)
         under(id): with_rel(tmpl.rel_out):
             at_each(tmpl.child_at) child_id:
@@ -731,14 +710,11 @@ def create(this::ent_scaffold, chunk:chunk):
     return id
 
 def may_spawn(this::ent_scaffold, chunk:chunk, l:xy_f):
+    if not tmpl.type & ent_body: return true
     let there =
         if par: chunk.bodys_under(par)
         else:   chunk.bodys_at(int(l))
-    // tiles are exclusive, items are unique, bodys are exclusive, otherwise ... sure?
-    if tmpl.tile != tile_none: return !exists(there): chunk.tile[_] != tile_none
-    if tmpl.item != item_none: return !exists(there): chunk.item[_] == tmpl.item
-    if tmpl.type & ent_body: return !exists(there): chunk.type[_] & ent_body
-    return true
+    return !exists(there): chunk.type[_] & ent_body
 
 def do_spawn(this::ent_scaffold, chunk:chunk, l:xy_f, body):
     nest_if(!par): at(l, _)
@@ -820,32 +796,41 @@ let floor_template = templates.define(ent_cell | ent_visible):
 let tmpl_item_pine_apple = templates.define(ent_body | ent_visible):
     _.name = "pineapple"
     _.z    = 0.75
-    _.size = 1.0 / 3.0
+    _.size = 1.0
     _.fg   = color_white
-    _.item = item_pine_apple
+    _.glyph = item_sprite(item_pine_apple)
 
 let tmpl_item_apple = templates.define(ent_body | ent_visible):
     _.name = "apple"
     _.z    = 0.75
-    _.size = 1.0 / 3.0
+    _.size = 1.0
     _.fg   = color_white
-    _.item = item_apple
+    _.glyph = item_sprite(item_apple)
 
-let tree_evergreen = templates.define(ent_body | ent_visible):
+let tree_evergreen = templates.define(ent_body | ent_visible | ent_holds):
     _.name = "evergreen tree"
     _.z    = 0.5
     _.size = 1.0
     _.fg   = color_white
-    _.tile = tile_pine_tree
-    _.add_spawn_sibling(tmpl_item_pine_apple, xy_i { 5, 1000 })
+    _.glyph = tile_sprite(tile_pine_tree)
+    _.cap = xy_f { 3, 4 }
+    _.add_spawn_child(tmpl_item_pine_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 0 })
+    _.add_spawn_child(tmpl_item_pine_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 1 })
+    _.add_spawn_child(tmpl_item_pine_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 2 })
 
-let tree_deciduous = templates.define(ent_body | ent_visible):
+let tree_deciduous = templates.define(ent_body | ent_visible | ent_holds):
     _.name = "deciduous tree"
     _.z    = 0.5
     _.size = 1.0
     _.fg   = color_white
-    _.tile = tile_apple_tree
-    _.add_spawn_sibling(tmpl_item_apple, xy_i { 5, 1000 })
+    _.glyph = tile_sprite(tile_apple_tree)
+    _.cap = xy_f { 6, 6 }
+    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 2 })
+    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 2, 2 })
+    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 3, 2 })
+    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 4, 2 })
+    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 2, 3 })
+    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 3, 3 })
 
 let player_template = templates.define(ent_body | ent_visible | ent_mind | ent_avatar | ent_input | ent_debug):
     _.name = "player"
