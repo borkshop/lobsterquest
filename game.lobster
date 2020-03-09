@@ -644,14 +644,10 @@ let tree_deciduous = templates.extend(tile_template):
     _.tile = tile_apple_tree
     _.add_spawn_sibling(tmpl_item_apple, xy_i { 5, 1000 })
 
-let mind_template = templates.define(ent_body | ent_visible | ent_mind):
+let avatar_template = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
     _.z    = 1.0
     _.size = 1.0
     _.fg   = color_white
-    _.initiative = 1
-
-let avatar_template = templates.extend(mind_template):
-    _.type = _.type | ent_avatar
     _.initiative = 2
 
 let player_template = templates.extend(avatar_template):
