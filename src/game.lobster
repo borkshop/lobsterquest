@@ -92,192 +92,6 @@ def for_from(xs, i, body):
         body(xs[i], i)
         i++
 
-//// ancillary component: avatars represent character state
-
-class avatar:
-    retex      = false
-    state      = avatar_state_content
-    moji       = glyph_0
-    helf       = xy { 3, 3 } // ❤️
-    stam       = xy { 0, 0 } // 💛
-    gives      = false
-    left_hand  = item_none
-    right_hand = item_none
-    // TODO worn item
-    // TODO back item
-
-    show_hearts = false
-    show_status = false
-
-    def offer() -> item_entity_id:
-        if not gives:
-            return item_none
-        if right_hand != item_none: return right_hand
-        if  left_hand != item_none: return left_hand
-        return item_none
-
-    def offer_taken():
-        if gives:
-            if right_hand != item_none:
-                right_hand = left_hand
-                left_hand = item_none
-            else: if  left_hand != item_none:
-                left_hand = item_none
-
-    def take(id:item_entity_id) -> bool:
-        if id == item_none:
-            return false
-        if right_hand != item_none:
-            if left_hand != item_none:
-                return false
-            left_hand = right_hand
-        right_hand = id
-        return true
-
-    def drop() -> item_entity_id:
-        if right_hand != item_none:
-            let r = right_hand
-            right_hand = item_none
-            print("dropped right hand " + r)
-            return r
-        if left_hand != item_none:
-            let r = left_hand
-            left_hand = item_none
-            print("dropped left hand " + r)
-            return r
-        return item_none
-
-    def swap():
-        let tmp = right_hand
-        right_hand = left_hand
-        left_hand = tmp
-
-    def use_hand():
-        if right_hand != item_none:
-            print("TODO use " + right_hand) // TODO implement
-            return
-        if left_hand != item_none:
-            right_hand = left_hand
-            left_hand = item_none
-            print("use fault swap")
-            return
-
-    def combine_hands():
-        if right_hand == item_none: return
-        if  left_hand == item_none: return
-        print("TODO combine " + right_hand + " + " + left_hand) // TODO implement
-
-    def faces(each):
-        var i = 0
-        if moji.code != 0:
-            each(moji, i++)
-        if state == avatar_state_content:
-            each(avatar_sprite(avatar_state_entity_ids[0]), i++) // 🙂
-            return
-        for(avatar_state_entity_ids) aeid, j: if j:
-            let q_state = avatar_state(1 << (j - 1))
-            if state & q_state:
-                each(avatar_sprite(aeid), i++)
-
-    def hearts(each):
-        let e = ui_sprite(ui_empty_heart)
-        let h = ui_sprite(ui_health_heart)
-        let s = ui_sprite(ui_stamina_heart)
-        var i = 0
-        for(         helf.x): each(h, i++, 0)
-        for(helf.y - helf.x): each(e, i++, 0)
-        i = 0
-        for(         stam.x): each(h, i++, 1)
-        for(stam.y - stam.x): each(e, i++, 1)
-
-    def draw_tile():
-        let face = xy_1 * 2.0 / 3.0
-        let icon = xy_1 * 1.0 / 5.0
-        let hand = xy_1 * 1.0 / 3.0
-        gl_set_shader("textured")
-        def unit(glyf):
-            gl_set_primitive_texture(0, glyf.get_texture())
-            gl_unit_square()
-        faces() glyf, i:
-            if i == 0:
-                gl_translate(xy_1 / 6): gl_scale(face):
-                    unit(glyf)
-            else: if show_status:
-                gl_scale(icon):
-                    gl_translate(xy_f { 4 - (i - 1) / 3, (i - 1) % 3 }):
-                        unit(glyf)
-        if show_hearts:
-            hearts() heart, x, y:
-                gl_scale(icon):
-                    gl_translate(xy_f { y, x }):
-                        unit(heart)
-        gl_scale(hand): gl_translate(xy_f { 0, 2 }):
-            unit(if left_hand: item_sprite(left_hand)
-                 else:         ui_sprite(ui_left_hand))
-        gl_scale(hand): gl_translate(xy_f { 2, 2 }):
-            unit(if right_hand: item_sprite(right_hand)
-                 else:          ui_sprite(ui_right_hand))
-
-class avatars : system
-    ids     = []::int
-    avatars = []::avatar
-
-    res = xy_i { 144, 144 }
-
-    def update_tex(shard, av, id):
-        shard.tex[id] = sprite_render(res):
-            gl_scale(float(res)):
-                av.draw_tile()
-        av.retex = false
-        shard.invalidate(id)
-
-    def update_any(shard):
-        for(avatars) av, avatar_id: if av.retex:
-            update_tex(shard, av, ids[avatar_id])
-
-    def get(id:int) -> avatar?:
-        let n, avatar_id = ids.binary_search(id)
-        return if n: avatars[avatar_id] else: nil
-
-    def with(shard, id:int, body):
-        shard.add_type(id, ent_avatar)
-        let n, avatar_id = ids.binary_search(id)
-        assert n
-        let av = avatars[avatar_id]
-        body(av)
-        av.retex = true
-
-    def enter(shard, id, type):
-        let n, avatar_id = ids.binary_search(id)
-        if not n:
-            let show = if shard.type[id] & ent_input: true else: false
-            ids.insert(avatar_id, id)
-            avatars.insert(avatar_id, avatar {
-                moji:        shard.ren[id].glyf,
-                retex:       true,
-                show_hearts: show,
-                show_status: show,
-            })
-
-    def exit(shard, id):
-        let n, avatar_id = ids.binary_search(id)
-        if n:
-            ids.remove(avatar_id, n)
-            avatars.remove(avatar_id, n)
-            shard.tex[id] = nil
-            shard.invalidate(id)
-
-    def ent_changed(shard, id:int, new:entype, old:entype):
-        if (old ^ new) & ent_avatar:
-            if       new & ent_avatar: this.enter(shard, id, new)
-            else: if old & ent_avatar: this.exit(shard, id)
-        else: if shard.type[id] & ent_avatar and (old ^ new) & ent_input:
-            let show = if new & ent_input: true else: false
-            this.with(shard, id) av:
-                av.show_hearts = show
-                av.show_status = show
-        return new
-
 //// shard integration
 
 enum_flags trace:
@@ -288,7 +102,7 @@ enum_flags trace:
 
 class chunk : shard
     // debug tracing
-    trace = trace_action
+    trace = trace(0)
 
     // performance timers
     timers = timers{}
@@ -297,7 +111,6 @@ class chunk : shard
     spawner = spawner {}
     minds   = minds {}
     bodys   = bodys {}
-    avatars = avatars {}
     anims   = anims {}
 
     movement_time = 1.0 / 4
@@ -362,7 +175,6 @@ class chunk : shard
 
     def update(dt:float):
         anims.update(this, dt)
-        avatars.update_any(this)
 
     def walk_rec_sizes(id, body):
         var size = xy_1
@@ -377,6 +189,12 @@ class chunk : shard
 
     def actor_at(id, at):
         let debug = should_trace(id, trace_action)
+        if debug: print_list(this.tag(id) + " interacts with", 0) level, print_item:
+            for(at) at_id:
+                let item = build_string() emit:
+                    emit(this.tag(at_id))
+                    this.describe_intrinsics(at_id, emit)
+                print_item(item)
 
         /*
 
@@ -400,11 +218,12 @@ class chunk : shard
             else:
                 descend()
 
-        // TODO further capability evaluation
+        // TODO further capability evaluation; especially abilities conferred from held items
         if !acts.length:
             return
-        if debug:
-            print(this.tag(id) + " acts:" + acts + " sz:" + acts_size)
+        if debug: print_list("acts with one of", 1) level, print_item:
+            for(acts) act_id, i: print_item(this.tag(act_id) +
+                " size:" + acts_size[i])
 
         var max_act = xy_0
         for(acts_size) size:
@@ -428,8 +247,10 @@ class chunk : shard
         // TODO further capability evaluation
         if !at_held.length:
             return
-        if debug:
-            print("@" + at + " held:" + at_held + " sz:" + at_held_size)
+        if debug: print_list("at held items", 1) level, print_item:
+            for(at_held) held_id, i: print_item(this.tag(held_id) +
+                " size:" + at_held_size[i] +
+                " in:" + this.tag(this.par[held_id]))
 
         let holds = []::int
         let holds_cell = []::xy_f
@@ -454,8 +275,11 @@ class chunk : shard
         // TODO further capability evaluation
         if !holds.length:
             return
-        if debug:
-            print(this.tag(id) + " holds:" + holds + " holds_cell:" + holds_cell + " holds_avail:" + holds_avail + " holds_size:" + holds_size)
+        if debug: print_list("take into one of", 1) level, print_item:
+            for(holds) hold_id, i: print_item(this.tag(hold_id) +
+                " holds_cell:" + holds_cell[i] +
+                " holds_avail:" + holds_avail[i] +
+                " holds_size:" + holds_size[i])
 
         var take_id = -1
         var into_id = -1
@@ -463,26 +287,36 @@ class chunk : shard
         for(at_held_size) size, i: if take_size.x * take_size.y < size.x * size.y:
             var into_avail = 0.0
             for(holds_avail) avail, j:
-                if into_avail == 0 or into_avail > avail:
+                if into_avail == 0 or into_avail < avail:
                     into_avail = avail
                     into_id = j
-            if into_id >= 0:
-                into_id = holds[into_id]
-                take_size = size
+            if into_avail > 0:
                 take_id = i
-        if take_id >= 0:
+                take_size = size
+
+        if take_id >= 0 and into_id >= 0:
             take_id = at_held[take_id]
-            if type[id] & ent_debug:
-                let root_id = this.root_of(take_id)
-                type[root_id] = type[root_id] | ent_debug
+            let root_id = this.root_of(take_id)
+            if debug: print("  -" +
+                " take:" + this.tag(take_id) +
+                " from:" + this.tag(root_id) +
+                " size:" + take_size)
+
+            into_id = holds[into_id]
+            if debug: print("  -" +
+                " into:" + this.tag(into_id) +
+                " of:" + this.tag(this.root_of(into_id)) +
+                " avail:" + holds_avail[into_id])
+
             this.add_child(into_id, entrel_held, take_id)
             let p = pos[take_id]
-            var sz = p.w // TODO scale!
-            let loc = xy_0 // TODO placement!
-            pos[take_id] = spatial { loc.x + 0.5, loc.y + 0.5, p.z, sz }
+            let loc = xy_0 // TODO place in a free cell
+            pos[take_id] = spatial { loc.x + 0.5, loc.y + 0.5, p.z, p.w }
 
-            if debug:
-                print(this.tag(id) + " take " + this.tag(take_id) + " into " + this.tag(into_id) + " pos " + p + " => " + pos[take_id])
+            if debug: print("  -" +
+                " beheld:" + this.tag(take_id))
+            else:
+                print(this.tag(id) + " took " + this.tag(take_id) + " from " + this.tag(root_id))
 
     def actor_move(id, actor_id):
         // animate actor movement, adding to hit group if successful
@@ -570,52 +404,20 @@ class chunk : shard
             for(groups) actors:
                 for(actors) actor_id:
                     let id = actor_ids[actor_id]
-                    if type[id] & ent_avatar:
-                        avatar_move(id, actor_id)
-                    else:
-                        actor_move(id, actor_id)
-
-    def avatar_move(id, actor_id):
-        avatars.with(this, id) av:
-            let act = actions[actor_id]
-            def boop(object_id) -> bool:
-                // TODO take av.right_hand into account? combat? digging? crafting-at?
-                let t = type[object_id]
-                if t & ent_avatar: avatars.with(this, object_id) other_av:
-                    let offered = other_av.offer()
-                    if offered:
-                        // TODO could open offered modal
-                        if av.take(offered):
-                            other_av.offer_taken()
-                            print(this.tag(id) + " took offered " + offered + " from " + this.tag(object_id))
-                            return true
-                        else:
-                            print(this.tag(id) + " decline offered " + offered + " from " + this.tag(object_id))
-                    else:
-                        print(this.tag(id) + " shrug at " + this.tag(object_id))
-                    return false
-                // TODO avatar state (hand items) X object
-                print(this.tag(id) + " booped an unknown type:" + entype_str(t) + " from " + this.tag(object_id))
-                return false
-
-            switch act.act:
-                case action_none:         nil
-                case action_hand_drop:    av.drop()
-                case action_hand_swap:    av.swap()
-                case action_hand_use:     av.use_hand()
-                case action_hand_combine: av.combine_hands()
-                case action_move:
-                    if act.dir == xy_0:
-                        print(this.tag(id) + " rest...") // TODO and then...
-                    else:
-                        actor_find_at(actor_id) object_id: boop(object_id)
-                        actor_move(id, actor_id)
+                    // XXX
+                    // switch act.act:
+                    //     case action_none:         nil
+                    //     case action_hand_drop:    av.drop()
+                    //     case action_hand_swap:    av.swap()
+                    //     case action_hand_use:     av.use_hand()
+                    //     case action_hand_combine: av.combine_hands()
+                    //     case action_move:
+                    actor_move(id, actor_id)
 
 def new_chunk():
     let ch = chunk {}
     ch.systems.push(ch.minds)
     ch.systems.push(ch.bodys)
-    ch.systems.push(ch.avatars)
     ch.systems.push(ch.spawner)
 
     ch.timers.add("step", 64)             // 0
@@ -684,12 +486,6 @@ class stacked_scene : system
 def build_entity(this::ent_scaffold, chunk:chunk, id:int):
     if tmpl.type & ent_mind:
         chunk.minds.set_init(id, tmpl.initiative)
-    if tmpl.type & ent_avatar: chunk.avatars.with(chunk, id) av:
-        if tmpl.avatar_helf.y     != 0:         av.helf       = tmpl.avatar_helf
-        if tmpl.avatar_stam.y     != 0:         av.stam       = tmpl.avatar_stam
-        if tmpl.avatar_gives:                   av.gives      = tmpl.avatar_gives
-        if tmpl.avatar_left_hand  != item_none: av.left_hand  = tmpl.avatar_left_hand
-        if tmpl.avatar_right_hand != item_none: av.right_hand = tmpl.avatar_right_hand
     if tmpl.spawn_template.length:
         chunk.spawner.add_spawns(id, this)
 
@@ -832,56 +628,158 @@ let tree_deciduous = templates.define(ent_body | ent_visible | ent_holds):
     _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 2, 3 })
     _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 3, 3 })
 
-let player_template = templates.define(ent_body | ent_visible | ent_mind | ent_avatar | ent_input | ent_debug):
-    _.name = "player"
+let left_hand_template = templates.define(ent_body | ent_visible | ent_holds | ent_acts):
+    _.name = "left hand"
     _.z    = 1.0
     _.size = 1.0
     _.fg   = color_white
+    _.glyph = ui_sprite(ui_left_hand)
+    _.cap = xy_f { 1, 1 }
+
+let right_hand_template = templates.define(ent_body | ent_visible | ent_holds | ent_acts):
+    _.name = "right hand"
+    _.z    = 1.0
+    _.size = 1.0
+    _.fg   = color_white
+    _.glyph = ui_sprite(ui_right_hand)
+    _.cap = xy_f { 1, 1 }
+
+let heart_template = templates.define(ent_body | ent_visible):
+    _.name = "heart"
+    _.z    = 1.0
+    _.size = 0.5
+    _.fg   = color_white
+    _.glyph = ui_sprite(ui_health_heart) // ❤️
+
+let stamina_heart_template = templates.define(ent_body | ent_visible):
+    _.name = "stamheart"
+    _.z    = 1.0
+    _.size = 0.5
+    _.fg   = color_white
+    _.glyph = ui_sprite(ui_stamina_heart) // 💛
+
+let player_template = templates.define(ent_body | ent_visible | ent_mind | ent_input | ent_debug):
+    _.name  = "player"
+    _.glyph = avatar_sprite(avatar_content) // 🙂
+    _.fg    = color_white
+    _.z     = 1.0
+    _.size  = 1.0
+    _.cap   = xy_f { 3, 3 }
     _.initiative = 10
 
-let element_earth = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
-    _.name = "earth elemental"
-    _.z    = 1.0
-    _.size = 1.0
+    _.add_child(entrel_body, xy_f { 0, 2 }, templates.defs[left_hand_template])
+    _.add_child(entrel_body, xy_f { 2, 2 }, templates.defs[right_hand_template])
+
+    // TODO would it be better to have a heart-container?
+    let off = xy_f { -0.25, -0.25 }
+    let heart = templates.defs[heart_template]
+    _.add_child(entrel_body, xy_f { 0.0, 0 } + off, heart)
+    _.add_child(entrel_body, xy_f { 0.5, 0 } + off, heart)
+    _.add_child(entrel_body, xy_f { 1.0, 0 } + off, heart)
+
+let gift_earth = templates.define(ent_body | ent_visible):
+    _.name = "gift of earth"
+    _.z     = 0.75
+    _.size  = 1.0
     _.glyph = item_sprite(item_clover)
-    _.fg = color_dark_green
-    _.initiative = 3
-    _.avatar_gives = true
-    _.avatar_left_hand = item_clover
-    _.avatar_right_hand = item_clover
+    _.fg    = color_dark_green
 
-let element_water = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
-    _.name = "water elemental"
-    _.z    = 1.0
-    _.size = 1.0
+let gift_water = templates.define(ent_body | ent_visible):
+    _.name = "gift of water"
+    _.z     = 0.75
+    _.size  = 1.0
     _.glyph = item_sprite(item_water)
-    _.fg = color_teal
-    _.initiative = 4
-    _.avatar_gives = true
-    _.avatar_left_hand = item_water
-    _.avatar_right_hand = item_water
+    _.fg    = color_teal
 
-let element_fire = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
-    _.name = "fire elemental"
-    _.z    = 1.0
-    _.size = 1.0
+let gift_fire = templates.define(ent_body | ent_visible):
+    _.name = "gift of fire"
+    _.z     = 0.75
+    _.size  = 1.0
     _.glyph = item_sprite(item_fire)
-    _.fg = color_orange
-    _.initiative = 6
-    _.avatar_gives = true
-    _.avatar_left_hand = item_fire
-    _.avatar_right_hand = item_fire
+    _.fg    = color_orange
 
-let element_air = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
-    _.name = "air elemental"
-    _.z    = 1.0
-    _.size = 1.0
+let gift_air = templates.define(ent_body | ent_visible):
+    _.name = "gift of air"
+    _.z     = 0.75
+    _.size  = 1.0
     _.glyph = item_sprite(item_wind)
-    _.fg = color_cyan
+    _.fg    = color_cyan
+
+let element_earth = templates.define(ent_body | ent_visible | ent_mind):
+    _.name  = "earth elemental"
+    _.glyph = item_sprite(item_clover)
+    _.fg    = color_dark_green
+    _.z     = 1.0
+    _.size  = 1.0
+    _.cap   = xy_f { 3, 3 }
+    _.initiative = 3
+
+    let left_hand  = templates.defs[left_hand_template].dupe()
+    let right_hand = templates.defs[right_hand_template].dupe()
+    let gift       = templates.defs[gift_earth]
+    left_hand.glyph = glyph_0
+    right_hand.glyph = glyph_0
+    left_hand.add_child(entrel_held, xy_0, gift)
+    right_hand.add_child(entrel_held, xy_0, gift)
+    _.add_child(entrel_body, xy_f { 0, 2 }, left_hand)
+    _.add_child(entrel_body, xy_f { 2, 2 }, right_hand)
+
+let element_water = templates.define(ent_body | ent_visible | ent_mind):
+    _.name  = "water elemental"
+    _.glyph = item_sprite(item_water)
+    _.fg    = color_teal
+    _.z     = 1.0
+    _.size  = 1.0
+    _.cap   = xy_f { 3, 3 }
+    _.initiative = 4
+
+    let left_hand  = templates.defs[left_hand_template].dupe()
+    let right_hand = templates.defs[right_hand_template].dupe()
+    let gift       = templates.defs[gift_water]
+    left_hand.glyph = glyph_0
+    right_hand.glyph = glyph_0
+    left_hand.add_child(entrel_held, xy_0, gift)
+    right_hand.add_child(entrel_held, xy_0, gift)
+    _.add_child(entrel_body, xy_f { 0, 2 }, left_hand)
+    _.add_child(entrel_body, xy_f { 2, 2 }, right_hand)
+
+let element_fire = templates.define(ent_body | ent_visible | ent_mind):
+    _.name  = "fire elemental"
+    _.glyph = item_sprite(item_fire)
+    _.fg    = color_orange
+    _.z     = 1.0
+    _.size  = 1.0
+    _.cap   = xy_f { 3, 3 }
     _.initiative = 5
-    _.avatar_gives = true
-    _.avatar_left_hand = item_wind
-    _.avatar_right_hand = item_wind
+
+    let left_hand  = templates.defs[left_hand_template].dupe()
+    let right_hand = templates.defs[right_hand_template].dupe()
+    let gift       = templates.defs[gift_fire]
+    left_hand.glyph = glyph_0
+    right_hand.glyph = glyph_0
+    left_hand.add_child(entrel_held, xy_0, gift)
+    right_hand.add_child(entrel_held, xy_0, gift)
+    _.add_child(entrel_body, xy_f { 0, 2 }, left_hand)
+    _.add_child(entrel_body, xy_f { 2, 2 }, right_hand)
+
+let element_air = templates.define(ent_body | ent_visible | ent_mind):
+    _.name  = "air elemental"
+    _.glyph = item_sprite(item_wind)
+    _.fg    = color_cyan
+    _.z     = 1.0
+    _.size  = 1.0
+    _.cap   = xy_f { 3, 3 }
+    _.initiative = 6
+
+    let left_hand  = templates.defs[left_hand_template].dupe()
+    let right_hand = templates.defs[right_hand_template].dupe()
+    let gift       = templates.defs[gift_air]
+    left_hand.glyph = glyph_0
+    right_hand.glyph = glyph_0
+    left_hand.add_child(entrel_held, xy_0, gift)
+    right_hand.add_child(entrel_held, xy_0, gift)
+    _.add_child(entrel_body, xy_f { 0, 2 }, left_hand)
+    _.add_child(entrel_body, xy_f { 2, 2 }, right_hand)
 
 def build_world(chunk):
     let size = 12

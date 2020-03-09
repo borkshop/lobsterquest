@@ -44,7 +44,6 @@ enum_flags entype:
     ent_input       // receives player input
     ent_holds       // can contain other entities (up to cap)
     ent_acts        // used to act upon the world
-    ent_avatar      // has avatar
 
 def entype_str(t:entype):
     let parts = []
@@ -55,7 +54,6 @@ def entype_str(t:entype):
     if t & ent_body:    parts.push("body")
     if t & ent_mind:    parts.push("mind")
     if t & ent_input:   parts.push("input")
-    if t & ent_avatar:  parts.push("avatar")
     if t & ent_holds:  parts.push("holds")
     if t & ent_acts:  parts.push("acts")
     return parts.concat_string("|")
@@ -708,12 +706,6 @@ class ent_template:
     spawn_prob     = []::xy_i
     spawn_rel      = []::entrel
     spawn_at       = []::xy_f
-
-    avatar_helf       = xy_0i
-    avatar_stam       = xy_0i
-    avatar_gives      = false
-    avatar_left_hand  = item_none
-    avatar_right_hand = item_none
 
     child_at = []::xy_f
     childrel = []::entrel
