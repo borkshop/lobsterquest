@@ -491,6 +491,12 @@ class ent_template:
     avatar_left_hand  = item_none
     avatar_right_hand = item_none
 
+    def dupe():
+        let tmpl = copy(this)
+        tmpl.spawn_template = copy(tmpl.spawn_template)
+        tmpl.spawn_prob = copy(tmpl.spawn_prob)
+        return tmpl
+
     def init_entity(shard:shard, id:int, loc:xy_f):
         shard.pos[id] = spatial { loc.x, loc.y, z, size }
         shard.ren[id] = render { bg, fg, glyph }
@@ -518,9 +524,7 @@ class ent_templates:
         return register(tmpl)
 
     def extend(base_id, body):
-        let tmpl = copy(defs[base_id])
-        tmpl.spawn_template = copy(tmpl.spawn_template)
-        tmpl.spawn_prob = copy(tmpl.spawn_prob)
+        let tmpl = defs[base_id].dupe()
         body(tmpl)
         return register(tmpl)
 
