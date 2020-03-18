@@ -327,6 +327,10 @@ class chunk : shard
             w: a.w,
         }
 
+        if at.length == 1 and at[0] == id:
+            // TODO special case self action?
+            return
+
         anims.animate(id, movement_time) anim:
             anim.blocking = true
             anim.after(0): anim.pos = a
