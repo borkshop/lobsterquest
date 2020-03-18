@@ -260,6 +260,9 @@ class avatars : system
 //// shard integration
 
 class chunk : shard
+    // debug tracing
+    trace = false
+
     // performance timers
     timers = timers{}
 
@@ -580,7 +583,8 @@ def spawn(this::spawner, chunk):
     then id, spawn_id:
         let ctx = scaf[spawn_id]
         ctx.do_spawn(chunk, loc) new_id:
-            print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + ctx.tmpl)
+            if chunk.trace:
+                print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + ctx.tmpl)
 
 def spawn_items(this::chunk): spawner.spawn(this)
 
