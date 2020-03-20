@@ -265,7 +265,7 @@ enum_flags trace:
 
 class chunk : shard
     // debug tracing
-    trace = trace(0)
+    trace = trace(0) // TODO trace_avatar
 
     // performance timers
     timers = timers{}
@@ -668,7 +668,7 @@ let tree_deciduous = templates.define(ent_body | ent_visible):
     _.tile = tile_apple_tree
     _.add_spawn_sibling(tmpl_item_apple, xy_i { 5, 1000 })
 
-let player_template = templates.define(ent_body | ent_visible | ent_mind | ent_avatar | ent_input):
+let player_template = templates.define(ent_body | ent_visible | ent_mind | ent_avatar | ent_input | ent_debug):
     _.name = "player"
     _.z    = 1.0
     _.size = 1.0
