@@ -259,9 +259,12 @@ class avatars : system
 
 //// shard integration
 
+enum_flags trace:
+    trace_spawn
+
 class chunk : shard
     // debug tracing
-    trace = false
+    trace = trace(0)
 
     // performance timers
     timers = timers{}
@@ -282,6 +285,11 @@ class chunk : shard
     group_ids = []::int
     groups    = []::[int]
     hits      = []::[int]
+
+    def should_trace(id, mask):
+        if trace & mask:
+            return true
+        return false
 
     def render_ent(id):
         let tx = tex[id]
@@ -583,7 +591,7 @@ def spawn(this::spawner, chunk):
     then id, spawn_id:
         let ctx = scaf[spawn_id]
         ctx.do_spawn(chunk, loc) new_id:
-            if chunk.trace:
+            if chunk.should_trace(id, trace_spawn):
                 print(chunk.tag(id) + " spawn_id:" + spawn_id + " spawned " + chunk.tag(new_id) + " template:" + ctx.tmpl)
 
 def spawn_items(this::chunk): spawner.spawn(this)
