@@ -132,9 +132,12 @@ class shard:
 
     free_ids = []::int
 
+    def tag(id:int) -> string:
+        return "#" + id
+
     def describe(id:int) -> string:
         let parts = vector_reserve(typeof [string], 16)
-        parts.push("#" + id)
+        parts.push(tag(id))
         parts.push(entype_str(type[id]))
         parts.push("@<" + pos[id].x + ", " + pos[id].y + ">")
         parts.push("z:" + pos[id].z)
