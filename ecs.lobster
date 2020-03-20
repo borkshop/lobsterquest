@@ -116,6 +116,7 @@ let render_0 = render { color_clear, color_clear, glyph_0 }
 class shard:
     // entity type
     type = []::entype
+    name = []::string
 
     // global data relevant to any entity
     pos = []::spatial   // spatial position
@@ -133,7 +134,10 @@ class shard:
     free_ids = []::int
 
     def tag(id:int) -> string:
-        return "#" + id
+        if name[id] != "":
+            return "[" + name[id] + "]#" + id
+        else:
+            return "#" + id
 
     def describe(id:int) -> string:
         let parts = vector_reserve(typeof [string], 16)
@@ -156,6 +160,7 @@ class shard:
         def grow():
             let id = type.length
             type.push(ent_none)
+            name.push("")
             pos.push(spatial_0)
             ren.push(render_0)
             tex.push(nil)
@@ -166,6 +171,7 @@ class shard:
         def reuse():
             let id = free_ids.pop()
             type[id] = ent_none
+            name[id] = ""
             pos[id] = spatial_0
             ren[id] = render_0
             tex[id] = nil
@@ -473,6 +479,7 @@ class minds : system
 
 class ent_template:
     type  : entype
+    name  = ""
     bg    = color_clear
     fg    = color_clear
     glyph = glyph_0
@@ -500,6 +507,7 @@ class ent_template:
         return tmpl
 
     def init_entity(shard:shard, id:int, loc:xy_f):
+        shard.name[id] = name
         shard.pos[id] = spatial { loc.x, loc.y, z, size }
         shard.ren[id] = render { bg, fg, glyph }
         if tile != tile_none: shard.tile[id] = tile
