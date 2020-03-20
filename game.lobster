@@ -261,6 +261,7 @@ class avatars : system
 
 enum_flags trace:
     trace_spawn
+    trace_all // all entities, not just ones with ent_debug set
 
 class chunk : shard
     // debug tracing
@@ -288,7 +289,8 @@ class chunk : shard
 
     def should_trace(id, mask):
         if trace & mask:
-            return true
+            if trace & trace_all: return true
+            if type[id] & ent_debug: return true
         return false
 
     def render_ent(id):

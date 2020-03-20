@@ -26,7 +26,8 @@ def while_first_index(xs, x, body):
 
 enum_flags entype:
     ent_none = 0    // free entity slot (if no other bits)
-    ent_visible = 1 // scene draw-ables
+    ent_debug = 1   // enable debug logging on this entity
+    ent_visible     // scene draw-ables
     ent_cell        // defines "A space"; e.g. floor entities have this
     ent_body        // has a collide-able body
     ent_mind        // participates in the action system
@@ -35,6 +36,7 @@ enum_flags entype:
 
 def entype_str(t:entype):
     let parts = []
+    if t & ent_debug:   parts.push("debug")
     if t & ent_visible: parts.push("visible")
     if t & ent_cell:    parts.push("cell")
     if t & ent_body:    parts.push("body")
