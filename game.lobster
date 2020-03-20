@@ -412,29 +412,29 @@ class chunk : shard
                         // TODO could open offered modal
                         if av.take(offered):
                             other_av.offer_taken()
-                            print("#" + id + " took offered " + offered + " from #" + object_id)
+                            print(this.tag(id) + " took offered " + offered + " from " + this.tag(object_id))
                             return true
                         else:
-                            print("#" + id + " decline offered " + offered + " from #" + object_id)
+                            print(this.tag(id) + " decline offered " + offered + " from " + this.tag(object_id))
                     else:
-                        print("#" + id + " shrug at #" + object_id)
+                        print(this.tag(id) + " shrug at " + this.tag(object_id))
                     return false
                 let tile_id = tile[object_id]
                 let item_id = item[object_id]
                 if item_id != item_none:
                     if av.take(item_id):
                         this.set_type(object_id, ent_none)
-                        print("#" + id + " took " + item_id + " from #" + object_id)
+                        print(this.tag(id) + " took " + item_id + " from " + this.tag(object_id))
                         return true
                     else:
-                        print("#" + id + " pass " + item_id + " from #" + object_id)
+                        print(this.tag(id) + " pass " + item_id + " from " + this.tag(object_id))
                 else: if tile_id != tile_none:
                     // TODO gathering from tiles, climbing onto tiles, entering
                     // vehicle tiles, enter any inner space, ...
-                    print("#" + id + " TODO " + tile_id + " from #" + object_id)
+                    print(this.tag(id) + " TODO " + tile_id + " from " + this.tag(object_id))
                 else:
                     // TODO avatar state (hand items) X object
-                    print("#" + id + " booped an unknown type:" + entype_str(t) + " from #" + object_id)
+                    print(this.tag(id) + " booped an unknown type:" + entype_str(t) + " from " + this.tag(object_id))
                 return false
 
             switch act.act:
@@ -445,7 +445,7 @@ class chunk : shard
                 case action_hand_combine: av.combine_hands()
                 case action_move:
                     if act.dir == xy_0:
-                        print("#" + id + " rest...") // TODO and then...
+                        print(this.tag(id) + " rest...") // TODO and then...
                     else:
                         actor_find_at(actor_id) object_id: boop(object_id)
                         actor_move(id, actor_id)
@@ -584,7 +584,7 @@ def spawn(this::spawner, chunk):
         let ctx = scaf[spawn_id]
         ctx.do_spawn(chunk, loc) new_id:
             if chunk.trace:
-                print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + ctx.tmpl)
+                print(chunk.tag(id) + " spawn_id:" + spawn_id + " spawned " + chunk.tag(new_id) + " template:" + ctx.tmpl)
 
 def spawn_items(this::chunk): spawner.spawn(this)
 
