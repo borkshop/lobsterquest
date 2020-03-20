@@ -133,12 +133,11 @@ class shard:
     free_ids = []::int
 
     def describe(id:int) -> string:
-        let parts = [
-            "#" + id,
-            entype_str(type[id]),
-            "@<" + pos[id].x + ", " + pos[id].y + ">",
-            "z:" + pos[id].z,
-        ]
+        let parts = vector_reserve(typeof [string], 16)
+        parts.push("#" + id)
+        parts.push(entype_str(type[id]))
+        parts.push("@<" + pos[id].x + ", " + pos[id].y + ">")
+        parts.push("z:" + pos[id].z)
         if pos[id].w: parts.push("size:" + pos[id].w)
         if ren[id].bg != color_clear: parts.push("bg:" + color_to_hex(ren[id].bg))
         if ren[id].glyf != glyph_0:
