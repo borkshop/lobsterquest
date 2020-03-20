@@ -629,18 +629,21 @@ let floor_template = templates.define(ent_cell | ent_visible):
 // definitions
 
 let tmpl_item_pine_apple = templates.define(ent_body | ent_visible):
+    _.name = "pineapple"
     _.z    = 0.75
     _.size = 1.0 / 3.0
     _.fg   = color_white
     _.item = item_pine_apple
 
 let tmpl_item_apple = templates.define(ent_body | ent_visible):
+    _.name = "apple"
     _.z    = 0.75
     _.size = 1.0 / 3.0
     _.fg   = color_white
     _.item = item_apple
 
 let tree_evergreen = templates.define(ent_body | ent_visible):
+    _.name = "evergreen tree"
     _.z    = 0.5
     _.size = 1.0
     _.fg   = color_white
@@ -648,6 +651,7 @@ let tree_evergreen = templates.define(ent_body | ent_visible):
     _.add_spawn_sibling(tmpl_item_pine_apple, xy_i { 5, 1000 })
 
 let tree_deciduous = templates.define(ent_body | ent_visible):
+    _.name = "deciduous tree"
     _.z    = 0.5
     _.size = 1.0
     _.fg   = color_white
@@ -655,12 +659,14 @@ let tree_deciduous = templates.define(ent_body | ent_visible):
     _.add_spawn_sibling(tmpl_item_apple, xy_i { 5, 1000 })
 
 let player_template = templates.define(ent_body | ent_visible | ent_mind | ent_avatar | ent_input):
+    _.name = "player"
     _.z    = 1.0
     _.size = 1.0
     _.fg   = color_white
     _.initiative = 10
 
 let element_earth = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.name = "earth elemental"
     _.z    = 1.0
     _.size = 1.0
     _.glyph = item_sprite(item_clover)
@@ -671,6 +677,7 @@ let element_earth = templates.define(ent_body | ent_visible | ent_mind | ent_ava
     _.avatar_right_hand = item_clover
 
 let element_water = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.name = "water elemental"
     _.z    = 1.0
     _.size = 1.0
     _.glyph = item_sprite(item_water)
@@ -681,6 +688,7 @@ let element_water = templates.define(ent_body | ent_visible | ent_mind | ent_ava
     _.avatar_right_hand = item_water
 
 let element_fire = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.name = "fire elemental"
     _.z    = 1.0
     _.size = 1.0
     _.glyph = item_sprite(item_fire)
@@ -691,6 +699,7 @@ let element_fire = templates.define(ent_body | ent_visible | ent_mind | ent_avat
     _.avatar_right_hand = item_fire
 
 let element_air = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.name = "air elemental"
     _.z    = 1.0
     _.size = 1.0
     _.glyph = item_sprite(item_wind)
