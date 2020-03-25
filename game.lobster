@@ -35,6 +35,27 @@ import ecs
 
 */
 
+def print_list(title, level, body):
+    var first = true
+    var last = ""
+    var indent = repeat_string(" ", 2*level)
+    body(level) item:
+        if last != "":
+            if first:
+                first = false
+                print(indent + "- " + title + ":")
+                level++
+                indent = repeat_string(" ", 2*level)
+            print(indent + "- " + last)
+        last = item
+    if first:
+        if last == "":
+            print(indent + "- " + title + ": --none--")
+        else:
+            print(indent + "- " + title + ": " + last)
+    else: if last != "":
+        print(indent + "- " + last)
+
 // TODO eject data templates into separate module
 let templates = ent_templates {}
 
