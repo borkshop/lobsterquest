@@ -4,6 +4,15 @@ import vec
 import sprites
 import sheets // TODO invert ecs -> sheets dep
 
+def build_string(body):
+    var s = ""
+    body() part:
+        if s.length():
+            s = s + " " + part
+        else:
+            s = s + part
+    return s
+
 def color_to_hex(c:color) -> string: return "#" +
     number_to_string(int(c.red   * 255), 16, 2) +
     number_to_string(int(c.green * 255), 16, 2) +
@@ -142,21 +151,26 @@ class shard:
             return "#" + id
 
     def describe(id:int) -> string:
-        let parts = vector_reserve(typeof [string], 16)
-        parts.push(tag(id))
-        parts.push(entype_str(type[id]))
-        parts.push("@<" + pos[id].x + ", " + pos[id].y + ">")
-        parts.push("z:" + pos[id].z)
-        if pos[id].w: parts.push("size:" + pos[id].w)
-        if ren[id].bg != color_clear: parts.push("bg:" + color_to_hex(ren[id].bg))
+        return build_string() emit:
+            emit(tag(id))
+            describe_intrinsics(id, emit)
+            describe_draw(id, emit)
+
+    def describe_intrinsics(id, emit):
+        emit(entype_str(type[id]))
+        emit("@<" + pos[id].x + ", " + pos[id].y + ">")
+        emit("z:" + pos[id].z)
+        if pos[id].w: emit("size:" + pos[id].w)
+        if tile[id]: emit("" + tile[id])
+        if item[id]: emit("" + item[id])
+
+    def describe_draw(id, emit):
+        if ren[id].bg != color_clear: emit("bg:" + color_to_hex(ren[id].bg))
         if ren[id].glyf != glyph_0:
-            parts.push("fg:" + color_to_hex(ren[id].fg))
-            parts.push("" + ren[id].glyf)
-        if tex[id]: parts.push("tex:" + tex[id])
-        if ksh[id]: parts.push("ksh:" + ksh[id])
-        if tile[id]: parts.push("" + tile[id])
-        if item[id]: parts.push("" + item[id])
-        return parts.concat_string(" ")
+            emit("fg:" + color_to_hex(ren[id].fg))
+            emit("" + ren[id].glyf)
+        if tex[id]: emit("tex:" + tex[id])
+        if ksh[id]: emit("ksh:" + ksh[id])
 
     def alloc() -> int:
         def grow():
