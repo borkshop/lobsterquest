@@ -45,7 +45,7 @@ To update spreadsheets, download the [spreadsheets] into the `data` directory.
 Run `generate-assets` to update generated code.
 
   [peruacru]: https://peruacru.then.land
-  [bork]: https://børk.com
+  [bork]: http://børk.com
   [discord]: https://discordapp.com/channels/692076552514699426/692076553017884723
   [spreadsheets]: https://docs.google.com/spreadsheets/d/1U8JJM-g7Br0ePrjH7kg7tJ3N2eb0Mab2y5GDiJo1Tx8/edit#gid=97282066
   [web]: https://github.com/borkshop/emojiquest.app
