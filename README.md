@@ -35,7 +35,8 @@ data.
 
 Run `edice` to edit the tile map of Daia, the world of EmojiQuest.
 
-Lobster, OpenMoji, and game data spreadsheets are checked in.
+[Lobster][lobster], [OpenMoji][openmoji], and game data [spreadsheets] are
+checked in.
 
 To update Lobster, run `update-lobster [ref]`.
 Run `build-lobster`.
@@ -53,3 +54,4 @@ Run `generate-assets` to update generated code.
   [web]: https://github.com/borkshop/emojiquest.app
   [lobster]: http://strlen.com/lobster/
   [patreon]: https://www.patreon.com/kriskowal
+  [openmoji]: https://openmoji.org
