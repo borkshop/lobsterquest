@@ -1,10 +1,10 @@
 
 # 🧙‍♀️ Emoji Quest 🧝‍♂️
 
-🌈&nbsp;**Mojick** has faded from the world of **Dice**🎲.
-🐉&nbsp;**Mojical creatures**🦄 have been lost for an age🕰.
-You, 😬&nbsp;**Adventurer**, are charged to wander the faces of Daia to find
-and restore the **💨&nbsp;essences&nbsp;💦 of 🔥&nbsp;mojick&nbsp;⚡️**,
+🌈&nbsp;**Mojick** has faded from the world of **Dice**&nbsp;🎲.
+🐉&nbsp;**Mojical creatures**&nbsp;🦄 have been lost for an age&nbsp;🕰.
+You, 😬&nbsp;**Adventurer**&nbsp;😲, are charged to wander the faces of Daia to
+find and restore the **💨&nbsp;essences&nbsp;💦 of 🔥&nbsp;mojick&nbsp;⚡️**,
 interrogating, 🪓&nbsp;harvesting, ✂️&nbsp;crafting, and, where the cause is
 just, ⚔️&nbsp;fighting **emojis** to restore mojick to all the lands.
 
