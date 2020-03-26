@@ -170,6 +170,8 @@ int updatedragpos(SDL_TouchFingerEvent &e, Uint32 et) {
     return 0;
 }
 
+string dropped_file;
+string &GetDroppedFile() { return dropped_file; }
 
 string SDLError(const char *msg) {
     string s = string_view(msg) + ": " + SDL_GetError();
@@ -244,8 +246,7 @@ void SDLRequireGLVersion(int major, int minor) {
     #endif
 };
 
-string SDLInit(string_view title, const int2 &desired_screensize, bool isfullscreen, int vsync,
-               int samples) {
+string SDLInit(string_view title, const int2 &desired_screensize, InitFlags flags, int samples) {
     MakeDPIAware();
     //SDL_SetMainReady();
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER /* | SDL_INIT_AUDIO*/) < 0) {
@@ -272,15 +273,18 @@ string SDLInit(string_view title, const int2 &desired_screensize, bool isfullscr
 
     //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);      // set this if we're in 2D mode for speed on mobile?
     SDL_GL_SetAttribute(SDL_GL_RETAINED_BACKING, 1);    // because we redraw the screen each frame
-
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    #ifndef __EMSCRIPTEN__ // FIXME: https://github.com/emscripten-ports/SDL2/issues/86
+        if (flags & INIT_LINEAR_COLOR) SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
+    #endif
 
     LOG_INFO("SDL about to figure out display mode...");
 
+    // FIXME: for emscripten, this picks screen size, not browser window size, and doesn't resize.
     #ifdef PLATFORM_ES3
         landscape = desired_screensize.x >= desired_screensize.y;
         int modes = SDL_GetNumDisplayModes(0);
-        screensize = int2(1920, 1080);
+        screensize = int2(320, 200);
         for (int i = 0; i < modes; i++) {
             SDL_DisplayMode mode;
             SDL_GetDisplayMode(0, i, &mode);
@@ -289,17 +293,16 @@ string SDLInit(string_view title, const int2 &desired_screensize, bool isfullscr
                 screensize = int2(mode.w, mode.h);
             }
         }
-
         LOG_INFO("chosen resolution: ", screensize.x, " ", screensize.y);
         LOG_INFO("SDL about to create window...");
-
+        auto wflags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS;
+        #ifdef __EMSCRIPTEN__
+            wflags |= SDL_WINDOW_RESIZABLE;
+        #endif
         _sdl_window = SDL_CreateWindow(null_terminated(title),
-                                        0, 0,
-                                        screensize.x, screensize.y,
-                                        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
-
+                                       SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                       screensize.x, screensize.y, wflags);
         LOG_INFO(_sdl_window ? "SDL window passed..." : "SDL window FAILED...");
-
         if (landscape) SDL_SetHint("SDL_HINT_ORIENTATIONS", "LandscapeLeft LandscapeRight");
     #else
         int display = 0;  // FIXME: we're not dealing with multiple displays.
@@ -318,7 +321,9 @@ string SDLInit(string_view title, const int2 &desired_screensize, bool isfullscr
                                        screensize.x, screensize.y,
                                        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE |
                                        SDL_WINDOW_ALLOW_HIGHDPI |
-                                            (isfullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
+                                            (flags & INIT_FULLSCREEN
+                                                ? SDL_WINDOW_FULLSCREEN_DESKTOP
+                                                : 0));
     #endif
     ScreenSizeChanged();
     LOG_INFO("obtained resolution: ", screensize.x, " ", screensize.y);
@@ -336,7 +341,7 @@ string SDLInit(string_view title, const int2 &desired_screensize, bool isfullscr
     LOG_INFO("SDL OpenGL context created...");
 
     #ifndef __IOS__
-        SDL_GL_SetSwapInterval(vsync);
+        SDL_GL_SetSwapInterval(flags & INIT_NO_VSYNC ? 0 : 1);
     #endif
 
     SDL_JoystickEventState(SDL_ENABLE);
@@ -357,7 +362,7 @@ string SDLInit(string_view title, const int2 &desired_screensize, bool isfullscr
 
     lasttime = -0.02f;    // ensure first frame doesn't get a crazy delta
 
-    OpenGLInit(samples);
+    OpenGLInit(samples, flags & INIT_LINEAR_COLOR);
 
     return "";
 }
@@ -391,6 +396,7 @@ bool SDLFrame() {
 
     mousewheeldelta = 0;
     clearfingers(true);
+    dropped_file.clear();
 
     if (minimized) {
         SDL_Delay(10);  // save CPU/battery
@@ -550,6 +556,11 @@ bool SDLFrame() {
                 #endif
                 minimized = false;
                 */
+                break;
+
+            case SDL_DROPFILE:
+                dropped_file = event.drop.file;
+                SDL_free(event.drop.file);
                 break;
         }
     }

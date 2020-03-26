@@ -79,7 +79,8 @@ struct Type {
     union {
         const Type *sub;         // V_VECTOR | V_NIL | V_VAR | V_TYPEID
         SubFunction *sf;         // V_FUNCTION | V_COROUTINE
-        SpecUDT *su;             // V_CLASS | V_STRUCT_*
+        SpecUDT *spec_udt;       // V_UUDT
+        UDT *udt;                // V_CLASS | V_STRUCT_*
         Enum *e;                 // V_INT
         vector<TupleElem> *tup;  // V_TUPLE
         TypeVariable *tv;        // V_TYPEVAR
@@ -89,7 +90,8 @@ struct Type {
     explicit Type(ValueType _t)          : t(_t),        sub(nullptr) {}
     Type(ValueType _t, const Type *_s)   : t(_t),        sub(_s)      {}
     Type(ValueType _t, SubFunction *_sf) : t(_t),        sf(_sf)      {}
-    Type(ValueType _t, SpecUDT *_su)     : t(_t),        su(_su)      {}
+    Type(SpecUDT *_su)                   : t(V_UUDT),    spec_udt(_su){}
+    Type(ValueType _t, UDT *_udt)        : t(_t),        udt(_udt)    {}
     Type(Enum *_e)                       : t(V_INT),     e(_e)        {}
     Type(TypeVariable *_tv)              : t(V_TYPEVAR), tv(_tv)      {}
 
@@ -191,6 +193,11 @@ class TypeRef {
     bool Null() const { return type == nullptr; }
 };
 
+struct UnresolvedTypeRef {
+    TypeRef utr;
+};
+
+
 extern TypeRef type_int;
 extern TypeRef type_float;
 extern TypeRef type_string;
@@ -199,7 +206,6 @@ extern TypeRef type_vector_int;
 extern TypeRef type_vector_float;
 extern TypeRef type_function_null;
 extern TypeRef type_function_cocl;
-extern TypeRef type_function_void;
 extern TypeRef type_coroutine;
 extern TypeRef type_resource;
 extern TypeRef type_typeid;
@@ -211,16 +217,15 @@ TypeRef WrapKnown(TypeRef elem, ValueType with);
 
 enum ArgFlags {
     AF_NONE               = 0,
-    AF_EXPFUNVAL          = 1 << 0,
-    NF_SUBARG1            = 1 << 1,
-    NF_SUBARG2            = 1 << 2,
-    NF_SUBARG3            = 1 << 3,
-    NF_ANYVAR             = 1 << 4,
-    NF_CORESUME           = 1 << 5,
-    AF_WITHTYPE           = 1 << 6,
-    NF_CONVERTANYTOSTRING = 1 << 7,
-    NF_PUSHVALUEWIDTH     = 1 << 8,
-    NF_BOOL               = 1 << 9,
+    NF_SUBARG1            = 1 << 0,
+    NF_SUBARG2            = 1 << 1,
+    NF_SUBARG3            = 1 << 2,
+    NF_ANYVAR             = 1 << 3,
+    NF_CORESUME           = 1 << 4,
+    AF_WITHTYPE           = 1 << 5,
+    NF_CONVERTANYTOSTRING = 1 << 6,
+    NF_PUSHVALUEWIDTH     = 1 << 7,
+    NF_BOOL               = 1 << 8,
 };
 DEFINE_BITWISE_OPERATORS_FOR_ENUM(ArgFlags)
 
@@ -267,7 +272,6 @@ struct Narg : Typed {
                 case '2': flags = flags | NF_SUBARG2; break;
                 case '3': flags = flags | NF_SUBARG3; break;
                 case '*': flags = flags | NF_ANYVAR; break;
-                case '@': flags = flags | AF_EXPFUNVAL; break;
                 case '%': flags = flags | NF_CORESUME; break; // FIXME: make a vm op.
                 case 's': flags = flags | NF_CONVERTANYTOSTRING; break;
                 case 'w': flags = flags | NF_PUSHVALUEWIDTH; break;

@@ -4,10 +4,12 @@ import vec
 import color
 import texture
 import util3d
+import gl
 
 let vrmode = vr_init()
 
-fatal(gl_window(if vrmode: "VR Test" else: "No VR device", 1280, 640, false, vrmode, 16 /*samples*/))
+fatal(gl_window(if vrmode: "VR Test" else: "No VR device", 1280, 640,
+                if vrmode: gl_window_init_no_vsync else: 0, 16 /*samples*/))
 
 // Make a quick sample scene out of some trees.
 

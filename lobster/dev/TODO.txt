@@ -1,4 +1,4 @@
-- how does keepvar work with inlined functions?
+- remove multiple lambda args -> move function arg checking to tc.
 
 - We are probably not checking if T every gets bound to a scalar in T?, in fact are we doing
   this for regular V_VAR?
@@ -43,14 +43,22 @@
   Also, maybe have the case where LT adjust does nothing (e.g. for integer) then subtype coercion
   to e.g. string suddenly needs a different LT than the initial TT.
 
+- Builtin overload resolution could be simplified:
+  https://github.com/aardappel/lobster/issues/89
+
 - Explicit genericity for functions.
-  - Would be good if the type of "this" on a A<T> class would be A<T>, not A.
-    See also IsGeneric that has to explicitly test A to see if it has unbound generics.
+  - overload resolution still doesn't use giventypes.
   - if we had T() as a cast, we could fix the enum type problem in gui_multiselect.
     - that is yet another form of function call in the parser.. better first refactor that.
   - weighted_pick: being able to write "T is float" would be cool.
   - See typetest.lobster: Explicit generic mixed with dynamic dispatch doesn't seem to work.
   - Generics for function types? See use of R in std.
+  - currently can't specialize with itself:
+    class X = Y<Y,..>
+    Useful with e.g. astar_node that doesn't need new fields.
+    Workaround is to subclass instead.
+  - Also using nested classes might not work well with generics since we resolved in non-nested
+    fashion field types at the beginning of the type checker.
 
 - kriskowal: adopt Python's "pass" statement, a void nop (better than nil idiom).
 
@@ -105,10 +113,17 @@
     the function? It seems to already work for some calls:
     def foo(fun):
       fun() x: print x
+  - SharedField can be removed, only needed in deciding how to parse x.y and x.y(
+
 
 - kriskowal: a non-allocating version of copy() with a second destination arg.
 
 - kriskowal: might be fun to have gl_cube and other simple 3d primitives, for quick prototyping?
+
+- if you write def(): return 1, it appears as a function of 0 return values since it works the
+  same as other anonymous blocks (the return actually goes to the enclosing function).
+  This is probably unexpected, but how to do this better?
+  Maybe specialized warning for this case since it makes no sense?
 
 - replace co-routines by stackless object syntactic sugar? how to resume? how to store temps?
   - unlikely to work: even if you can guarantee to inline all the hofs a yield may sit in,
@@ -129,6 +144,10 @@
 
 - jcorbin: a basis_spline equivalent of cardinal_spline
 
+- Upgrade CI to more recent compilers, to support e.g. to_chars.
+- Move CI to github actions?
+  - Currently still on Clang 6, gcc 7.4??
+
 - See if a tail-call based interpreter would be a speed-up:
   https://github.com/soundandform/m3
 
@@ -138,6 +157,9 @@
 - default/tagged args for functions.
 
 - remove logvars?
+
+- consider adding optional {}.. it really seems to bother people.
+  make it such you can only use one style per file
 
 - run coverage to see where more tests are needed.
 
@@ -175,13 +197,47 @@
     and assign them to "locals" to really speed up Wasm/C++ modes.
     - This may need to first change how we deal with variables on the stack in the first place.
 
+- Good errors are increasingly an important programming language feature, should at some point
+  invest in an overhaul. See Rust and Elm in particular.
+  https://blog.rust-lang.org/2016/08/10/Shape-of-errors-to-come.html
+  https://elm-lang.org/news/the-syntax-cliff
+  - Make line refs ranges rather than locations.
+  - Allow printing of not just one but multiple references to what errors refer to.
+  - Somehow collect stats on what errors occur a lot, and add more detail to them.
+
 - Should add template arg types also to regular functions.
   - an example is gui_multiselect called with enum type for selected.
+
+- SRGB support:
+  - Update imgui once this merges: https://github.com/ocornut/imgui/pull/2943
 
 - Optimize out variables that are not used.
   This in particular will be good for vec/color.lobster that create a lot of globals,
   also means they don't show up in stack traces / debug windows etc.
   and can reduce function usage as well, if they're in initializers
+
+- jacob: something to allow HOFs that need to undo state, i.e. a non-local return thru
+    var state = 0.0
+    def translate(dx, body):
+        state += dx
+        body()
+        state -= dx
+  Is going to produce hard to understand bugs, yet also natural to write code this way.
+  Built-ins like gl_translate also suffer from this issue.
+  https://github.com/aardappel/lobster/issues/93
+  Solutions:
+  - a "defer" statement. Simple, but requires the programmer to remember to use it, does not
+    stop the above natural code being written.
+  - Some form of RAII. That is even more complicated, and still requires the programmer to
+    be smart about it.
+  - A way to annotate the body() call as not allowed to be returned out of. This is really
+    simple since this can all be detected statically, doesn't require any runtime support.
+    At least it stops the user of this code making mistakes, but still requires the
+    programmer to know when to use it.
+    Also it would be a bit weird if some global error function can't be called from within
+    a translate.. (actually could still allow `return from program`)
+  - Just leave it as is. Prefer not to write HOFs that modify state, and if they do, well,
+    the user needs to be aware changes don't get undone with non-local returns.
 
 - Inline structs, further improvements:
   - These were immutable in the past, because values were shared by pointer, but now there
@@ -209,6 +265,14 @@
 - FlatBuffers implementation:
   - once we have mixed scalar/ref: make accessor handles into structs.
   - Make builder offset struct into specialized structs for the type? Maybe not necessary?
+
+- It often crashes in creating the stack trace when values are corrupt.
+  If this results in another error, it perculates up the exception, but no such help for asserts.
+  - Would be good to print to stack trace incrementally rather than accumulating in a string first,
+    with some kind of callback? so output can happen before the crash.
+  - Make reading values more robust.
+    - If VM is in an "error" state, ignore any bad values and just return empty defaults.
+      - this has to sadly be done at every callsite since Error is not expected to return.
 
 - --to-cpp mode: VS /LTCG is very weak in terms on inlining, doesn't appear to inline any of
   the VM ops, gets only 30% or so speedup vs interpreted (compared to LLVM LTO getting 2.5x).
@@ -265,6 +329,9 @@
 
 - We support implicit this.member in multi-assign, but not explicit.
   See mretfields test.
+
+- should support scalar op vector, not just vector op scalar
+  - that requires yet more vector vm ops, at least for - /
 
 - detect a + b + c etc and emit better string concat op in codegen
 
@@ -362,6 +429,9 @@
 
 - factor out TypeCheckDynCall for DynCall to be part of GenericCall so it can be made into
   Call/Yield/CallType
+  - Also, when optimizer inlines a function that has an arg used as a function for DynCall
+    but called statically, it still introduces this unused variable.
+    - probably want to remove this arg generally.
 
 - should have slaballoc use indices so allocation granularity can always be smaller?
   especially when using 32-bit emulation.
@@ -371,9 +441,6 @@
 
 - contribute Lobster syntax highlighting to:
   https://github.com/github/linguist/blob/master/CONTRIBUTING.md#fixing-syntax-highlighting
-
-- should support scalar op vector, not just vector op scalar
-  - that requires yet more vector vm ops, at least for - /
 
 - add support for pure functions.
   introduce functions with e.g. "fun" instead of "def" to indicate they are pure (much like

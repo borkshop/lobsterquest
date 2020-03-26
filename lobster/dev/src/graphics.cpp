@@ -139,16 +139,14 @@ Value SetUniform(VM &vm, const Value &name, const float *data, int len) {
 
 void AddGraphics(NativeRegistry &nfr) {
 
-nfr("gl_window", "title,xs,ys,fullscreen,novsync,samples", "SIII?I?I?", "S?",
+nfr("gl_window", "title,xs,ys,flags,samples", "SIII?I?", "S?",
     "opens a window for OpenGL rendering. returns error string if any problems, nil"
-    " otherwise.",
-    [](VM &vm, Value &title, Value &xs, Value &ys, Value &fullscreen, Value &novsync,
-                          Value &samples) {
+    " otherwise. For flags, see modules/gl.lobster",
+    [](VM &vm, Value &title, Value &xs, Value &ys, Value &flags, Value &samples) {
         if (graphics_initialized)
             vm.BuiltinError("cannot call gl_window() twice");
         string err = SDLInit(title.sval()->strv(), int2(intp2(xs.ival(), ys.ival())),
-                             fullscreen.ival() != 0, novsync.ival() == 0,
-                             max(1, samples.intval()));
+                             (InitFlags)flags.intval(), max(1, samples.intval()));
         if (err.empty()) {
             err = LoadMaterialFile("data/shaders/default.materials");
         }
@@ -253,7 +251,7 @@ nfr("gl_grab", "on", "B", "B",
 nfr("gl_button", "name", "S", "I",
     "returns the state of a key/mousebutton/finger."
     " isdown: >= 1, wentdown: == 1, wentup: == 0, isup: <= 0."
-    " (pass a string like mouse1/mouse2/mouse3/escape/space/up/down/a/b/f1 etc."
+    " (pass a string like mouse1/mouse2/mouse3/escape/space/up/down/a/b/f1/joy1 etc."
     " mouse11 and on are additional fingers)",
     [](VM &, Value &name) {
         auto ks = GetKS(name.sval()->strv());
@@ -367,8 +365,9 @@ nfr("gl_color", "col,body", "F}:4L?", "",
     "sets the current color. when a body is given, restores the previous color afterwards",
     [](VM &vm) {
         auto body = vm.Pop();
-        curcolor = vm.PopVec<float4>();
+        auto newcolor = vm.PopVec<float4>();
         if (body.True()) vm.PushAnyAsString(curcolor);
+        curcolor = newcolor;
         vm.Push(body);
     }, [](VM &vm) {
         vm.PopAnyFromString(curcolor);
@@ -852,7 +851,7 @@ nfr("gl_uniform_buffer_object", "name,value,ssbo", "SF}:4]I", "I",
         for (int i = 0; i < vec.vval()->len; i++)
             vals[i] = ValueToFLT<4>(vec.vval()->AtSt(i), vec.vval()->width);
         auto id = UniformBufferObject(currentshader, vals.data()->data(),
-                                      4 * sizeof(float) * vals.size(),
+                                      4 * sizeof(float) * vals.size(), -1,
                                       name.sval()->strv(), ssbo.True(), 0);
         return Value((int)id);
     });
@@ -866,7 +865,7 @@ nfr("gl_uniform_buffer_object", "name,value,ssbo", "SSI", "I",
     [](VM &vm, Value &name, Value &vec, Value &ssbo) {
     TestGL(vm);
     auto id = UniformBufferObject(currentshader, vec.sval()->strv().data(),
-                                  vec.sval()->strv().size(),
+                                  vec.sval()->strv().size(), -1,
                                   name.sval()->strv(), ssbo.True(), 0);
     return Value((int)id);
 });
@@ -887,7 +886,7 @@ nfr("gl_bind_mesh_to_compute", "mesh,name", "R?S", "",
     [](VM &vm, Value &mesh, Value &name) {
         TestGL(vm);
         if (mesh.True()) GetMesh(vm, mesh).geom->BindAsSSBO(currentshader, name.sval()->strv());
-        else UniformBufferObject(currentshader, nullptr, 0, name.sval()->strv(), true, 0);
+        else UniformBufferObject(currentshader, nullptr, 0, -1, name.sval()->strv(), true, 0);
         return Value();
     });
 
@@ -1128,5 +1127,11 @@ nfr("gl_screenshot", "filename", "S", "B",
         return Value(ok);
     });
 
-}  // AddFont
+nfr("gl_dropped_file", "", "", "S",
+    "if a file was dropped on the window this frame, the filename, otherwise empty",
+    [](VM &vm) {
+        return Value(vm.NewString(GetDroppedFile()));
+    });
+
+}  // AddGraphics
 

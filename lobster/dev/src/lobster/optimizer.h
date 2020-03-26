@@ -29,7 +29,7 @@ struct Optimizer {
                 if (sf && sf->typechecked) {
                     for (; sf; sf = sf->next) if (sf->body) {
                         cursf = sf;
-                        auto nb = sf->body->Optimize(*this, nullptr);
+                        auto nb = sf->body->Optimize(*this);
                         assert(nb == sf->body);
                         (void)nb;
                     }
@@ -48,48 +48,54 @@ struct Optimizer {
     }
 };
 
-Node *Node::Optimize(Optimizer &opt, Node * /*parent_maybe*/) {
+Node *Node::Optimize(Optimizer &opt) {
     for (size_t i = 0; i < Arity(); i++)
-        Children()[i] = Children()[i]->Optimize(opt, this);
+        Children()[i] = Children()[i]->Optimize(opt);
     return this;
 }
 
-Node *If::Optimize(Optimizer &opt, Node * /*parent_maybe*/) {
+Node *IfThen::Optimize(Optimizer &opt) {
     // This optimzation MUST run, since it deletes untypechecked code.
-    condition = condition->Optimize(opt, this);
+    condition = condition->Optimize(opt);
     Value cval;
     if (condition->ConstVal(opt.tc, cval)) {
-        auto &branch = cval.True() ? truepart : falsepart;
-        auto other  = cval.True() ? falsepart : truepart;
-        auto r = branch->Optimize(opt, this);
-        branch = nullptr;
-        if (auto call = Is<Call>(other)) {
-            if (!call->sf->typechecked) {
-                // Typechecker did not typecheck this function for use in this if-then,
-                // but neither did any other instances, so it can be removed.
-                // Since this function is not specialized, it may be referenced by
-                // multiple specialized parents, so we don't care if it was already
-                // removed.
-                call->sf->parent->RemoveSubFunction(call->sf);
-                call->sf = nullptr;
-            }
-        } else if (Is<DefaultVal>(other)) {
+        Node *r = nullptr;
+        if (cval.True()) {
+            r = truepart->Optimize(opt);
+            truepart = nullptr;
         } else {
-            assert(false);  // deal with coercions.
+            r = opt.Typed(type_void, LT_ANY, new DefaultVal(line));
         }
         delete this;
         opt.Changed();
         return r;
     } else {
-        truepart = truepart->Optimize(opt, this);
-        falsepart = falsepart->Optimize(opt, this);
+        truepart = AssertIs<Block>(truepart->Optimize(opt));
         return this;
     }
 }
 
-Node *IsType::Optimize(Optimizer &opt, Node *parent_maybe) {
+Node *IfElse::Optimize(Optimizer &opt) {
+    // This optimzation MUST run, since it deletes untypechecked code.
+    condition = condition->Optimize(opt);
     Value cval;
-    child = child->Optimize(opt, this);
+    if (condition->ConstVal(opt.tc, cval)) {
+        auto &branch = cval.True() ? truepart : falsepart;
+        auto r = branch->Optimize(opt);
+        branch = nullptr;
+        delete this;
+        opt.Changed();
+        return r;
+    } else {
+        truepart = AssertIs<Block>(truepart->Optimize(opt));
+        falsepart = AssertIs<Block>(falsepart->Optimize(opt));
+        return this;
+    }
+}
+
+Node *IsType::Optimize(Optimizer &opt) {
+    Value cval;
+    child = child->Optimize(opt);
     if (ConstVal(opt.tc, cval)) {
         auto r = opt.Typed(exptype, LT_ANY, new IntConstant(line, cval.ival()));
         if (child->HasSideEffects()) {
@@ -99,14 +105,15 @@ Node *IsType::Optimize(Optimizer &opt, Node *parent_maybe) {
         }
         delete this;
         opt.Changed();
-        return r->Optimize(opt, parent_maybe);
+        return r->Optimize(opt);
     }
     return this;
 }
 
-Node *DynCall::Optimize(Optimizer &opt, Node *parent_maybe) {
-    Node::Optimize(opt, parent_maybe);
+Node *DynCall::Optimize(Optimizer &opt) {
+    Node::Optimize(opt);
     if (!sf) return this;
+    assert(sf->numcallers > 0);
     // This optimization MUST run, to remove redundant arguments.
     // Note that sf is not necessarily the same as sid->type->sf, since a
     // single function variable may have 1 specialization per call.
@@ -118,9 +125,6 @@ Node *DynCall::Optimize(Optimizer &opt, Node *parent_maybe) {
     }
     children.resize(sf->parent->nargs());
     // Now convert it to a Call if possible. This also allows it to be inlined.
-    // We rely on all these DynCalls being converted in the first pass, and only
-    // potentially inlined in the second for this increase to not cause problems.
-    sf->numcallers++;
     if (sf->parent->istype) return this;
     auto c = new Call(line, sf);
     c->children.insert(c->children.end(), children.begin(), children.end());
@@ -128,24 +132,21 @@ Node *DynCall::Optimize(Optimizer &opt, Node *parent_maybe) {
     auto r = opt.Typed(exptype, lt, c);
     delete this;
     opt.Changed();
-    return r->Optimize(opt, parent_maybe);
+    return r->Optimize(opt);
 }
 
-Node *Call::Optimize(Optimizer &opt, Node *parent_maybe) {
-    Node::Optimize(opt, parent_maybe);
+Node *Call::Optimize(Optimizer &opt) {
+    Node::Optimize(opt);
+    assert(sf->numcallers > 0);
     // Check if we should inline this call.
     // FIXME: Reduce these requirements where possible.
-    // FIXME: currently a function called 10x whose body is only a gigantic for loop will be inlined,
-    // because the for body does not count towards its nodes. maybe inline all fors first?
-    // Always inline for bodies.
-    if (!parent_maybe || typeid(*parent_maybe) != typeid(For)) {
-        if (!sf->parent->anonymous ||
-            sf->num_returns > 1 ||       // Implied by anonymous, but here for clarity.
-            vtable_idx >= 0 ||
-            sf->iscoroutine ||
-            sf->returntype->NumValues() > 1 ||
-            (sf->numcallers > 1 && sf->body->Count() >= 8))  // FIXME: configurable.
-            return this;
+    if (!sf->parent->anonymous ||
+        sf->num_returns > 1 ||       // Implied by anonymous, but here for clarity.
+        vtable_idx >= 0 ||
+        sf->iscoroutine ||
+        sf->returntype->NumValues() > 1 ||
+        (sf->numcallers > 1 && sf->body->Count() >= 8)) { // FIXME: configurable.
+        return this;
     }
     auto AddToLocals = [&](const ArgVector &av) {
         for (auto &arg : av.v) {
@@ -161,15 +162,17 @@ Node *Call::Optimize(Optimizer &opt, Node *parent_maybe) {
     AddToLocals(sf->args);
     AddToLocals(sf->locals);
     int ai = 0;
-    auto list = new Inlined(line);
+    auto list = new Block(line);
     for (auto c : children) {
         auto &arg = sf->args.v[ai];
-        list->Add(opt.Typed(type_void, LT_ANY, new Define(line, arg.sid, c)));
+        auto def = new Define(line, c);
+        def->sids.push_back({ arg.sid, { arg.type } });
+        list->Add(opt.Typed(type_void, LT_ANY, def));
         ai++;
     }
     // TODO: triple-check this similar in semantics to what happens in CloneFunction() in the
     // typechecker.
-    if (sf->numcallers <= 1) {
+    if (sf->numcallers == 1) {
         list->children.insert(list->children.end(), sf->body->children.begin(),
                               sf->body->children.end());
         sf->body->children.clear();
@@ -182,16 +185,29 @@ Node *Call::Optimize(Optimizer &opt, Node *parent_maybe) {
             list->children.push_back(nc);
             nc->Iterate([](Node *i) {
                 if (auto call = Is<Call>(i)) call->sf->numcallers++;
+                if (auto dcall = Is<DynCall>(i)) if (dcall->sf) dcall->sf->numcallers++;
             });
         }
-        sf->numcallers--;
     }
+    sf->numcallers--;
     // Remove single return statement pointing to function that is now gone.
-    auto ret = Is<Return>(list->children.back());
-    assert(ret);
+    auto ret = AssertIs<Return>(list->children.back());
     if (ret->sf == sf) {
         assert(ret->child->exptype->NumValues() <= 1);
         assert(sf->num_returns <= 1);
+        // This is not great: having to undo the optimization in Return::TypeCheck where this
+        // flag was set.
+        // Since the caller generally expects to keep the return value of the now inlined
+        // function, and since the variables of this function are not dead yet (they can be called
+        // multiple times if inside a loop body or inlined multiple times, which may cause the
+        // var to be decreffed when overwritten on second use), we have to incref.
+        // TODO: investigate if setting them to null at scope exit would be an alternative?
+        auto ir = Is<IdentRef>(ret->child);
+        if (ir && ir->sid->consume_on_last_use) {
+            ir->sid->consume_on_last_use = false;
+            ret->child = opt.Typed(ret->child->exptype, LT_KEEP,
+                new ToLifetime(ret->child->line, ret->child, 1, 0));
+        }
         list->children.back() = ret->child;
         ret->child = nullptr;
         delete ret;
@@ -200,7 +216,7 @@ Node *Call::Optimize(Optimizer &opt, Node *parent_maybe) {
     children.clear();
     delete this;
     opt.Changed();
-    return r->Optimize(opt, parent_maybe);
+    return r->Optimize(opt);
 }
 
 }  // namespace lobster

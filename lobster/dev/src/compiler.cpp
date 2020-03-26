@@ -43,7 +43,6 @@ const Type g_type_resource(V_RESOURCE);
 const Type g_type_typeid(V_TYPEID, &g_type_any);
 const Type g_type_typeid_vec(V_TYPEID, &g_type_vector_any);
 const Type g_type_void(V_VOID);
-const Type g_type_function_void(V_VOID, &g_type_function_null);
 const Type g_type_undefined(V_UNDEFINED);
 
 TypeRef type_int = &g_type_int;
@@ -59,7 +58,6 @@ TypeRef type_resource = &g_type_resource;
 TypeRef type_typeid = &g_type_typeid;
 TypeRef type_typeid_vec = &g_type_typeid_vec;
 TypeRef type_void = &g_type_void;
-TypeRef type_function_void = &g_type_function_void;
 TypeRef type_undefined = &g_type_undefined;
 
 const Type g_type_vector_string(V_VECTOR, &g_type_string);
@@ -75,7 +73,7 @@ TypeRef WrapKnown(TypeRef elem, ValueType with) {
             case V_FLOAT:  return type_vector_float;
             case V_STRING: return &g_type_vector_string;
             case V_VECTOR: switch (elem->sub->t) {
-                case V_INT:   return &g_type_vector_vector_int;
+                case V_INT:   return elem->sub->e ? nullptr : &g_type_vector_vector_int;
                 case V_FLOAT: return &g_type_vector_vector_float;
                 case V_VECTOR: switch (elem->sub->sub->t) {
                     case V_FLOAT: return &g_type_vector_vector_vector_float;
@@ -95,7 +93,7 @@ TypeRef WrapKnown(TypeRef elem, ValueType with) {
             case V_RESOURCE:  { static const Type t(V_NIL, &g_type_resource); return &t; }
             case V_COROUTINE: { static const Type t(V_NIL, &g_type_coroutine); return &t; }
             case V_VECTOR: switch (elem->sub->t) {
-                case V_INT:    { static const Type t(V_NIL, &g_type_vector_int); return &t; }
+                case V_INT:    { static const Type t(V_NIL, &g_type_vector_int); return elem->sub->e ? nullptr : &t; }
                 case V_FLOAT:  { static const Type t(V_NIL, &g_type_vector_float); return &t; }
                 case V_STRING: { static const Type t(V_NIL, &g_type_vector_string); return &t; }
                 default: return nullptr;
@@ -313,7 +311,7 @@ void Compile(NativeRegistry &nfr, string_view fn, string_view stringsource, stri
     Parser parser(nfr, fn, st, stringsource);
     parser.Parse();
     TypeChecker tc(parser, st, return_value);
-    // Optimizer is not optional, must always run at least one pass, since TypeChecker and CodeGen
+    // Optimizer is not optional, must always run, since TypeChecker and CodeGen
     // rely on it culling const if-thens and other things.
     Optimizer opt(parser, st, tc);
     if (parsedump) *parsedump = parser.DumpAll(true);
@@ -422,7 +420,8 @@ SubFunction::~SubFunction() { delete body; }
 Field::~Field() { delete defaultval; }
 
 Field::Field(const Field &o)
-    : type(o.type), id(o.id), defaultval(o.defaultval ? o.defaultval->Clone() : nullptr) {}
+    : giventype(o.giventype), resolvedtype(o.resolvedtype), id(o.id),
+      defaultval(o.defaultval ? o.defaultval->Clone() : nullptr) {}
 
 }
 

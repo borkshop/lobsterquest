@@ -9,6 +9,7 @@ import color
 import imgui
 import std
 import vec
+import gl
 
 enum shuffle_mode:
     shuffle_none = 0
@@ -108,7 +109,7 @@ var color_domain_hi = log(M / N * 3)
 
 def reshuffle():
     for(N) i: for(N) j: matrix[N*i + j] = 0
-    for(M):
+    for M:
         let array = map(N): _
         shuffle(array)
         for(array) i, j:
@@ -123,7 +124,7 @@ def reshuffle():
 var shuffling = true
 
 fatal(gl_window("Will It Shuffle?", 640, 480))
-check(gl_set_font_name("data/fonts/US101/US101.TTF") and gl_set_font_size(32), "cannot load gl font")
+check(gl_set_font_name("data/fonts/US101/US101.ttf") and gl_set_font_size(32), "cannot load gl font")
 
 def shuffle_routine(next):
     var last_n = 0

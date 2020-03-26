@@ -18,21 +18,28 @@
 
 #include "lobster/octree.h"
 
+#include "lobster/glinterface.h"
+
 namespace lobster {
 
 inline ResourceType *GetOcTreeType() {
-    static ResourceType voxel_type = { "octree", [](void *v) { delete (OcTree<OcVal> *)v; } };
+    static ResourceType voxel_type = { "octree", [](void *v) { delete (OcTree *)v; } };
     return &voxel_type;
 }
 
-inline OcTree<OcVal> &GetOcTree(VM &vm, const Value &res) {
-    return *GetResourceDec<OcTree<OcVal> *>(vm, res, GetOcTreeType());
+inline OcTree &GetOcTree(VM &vm, const Value &res) {
+    return *GetResourceDec<OcTree *>(vm, res, GetOcTreeType());
 }
 
 const int cur_version = 3;
 
 }  // namespace lobster
 
+
+
+bool FileWriteBytes(FILE *f, const void *v, size_t len) {
+    return fwrite(v, len, 1, f) == 1;
+}
 
 template<typename T> bool FileWriteVal(FILE *f, const T &v) {
     return fwrite(&v, sizeof(T), 1, f) == 1;
@@ -52,6 +59,8 @@ template<typename T> void ReadVec(const uchar *&p, T &v) {
 }
 
 using namespace lobster;
+
+static const char *magic = "CWFF";
 
 void AddOcTree(NativeRegistry &nfr) {
 
@@ -74,12 +83,12 @@ nfr("oc_load", "name", "S", "R?", "",
         auto r = LoadFile(name.sval()->strv(), &buf);
         if (r < 0) return Value();
         auto p = (const uchar *)buf.c_str();
-        auto magic = ReadMemInc<uint>(p);
-        if (magic != 'CWFF') return Value();
+        if (strncmp((const char *)p, magic, strlen(magic))) return Value();
+        p += strlen(magic);
         auto version = ReadMemInc<int>(p);
         if (version > cur_version) return Value();
         auto bits = ReadMemInc<int>(p);
-        auto ocworld = new OcTree<OcVal>(bits);
+        auto ocworld = new OcTree(bits);
         ReadVec(p, ocworld->nodes);
         ReadVec(p, ocworld->freelist);
         assert(p == (void *)(buf.data() + buf.size()));
@@ -91,7 +100,7 @@ nfr("oc_save", "octree,name", "RS", "B", "",
         auto &ocworld = GetOcTree(vm, oc);
         auto f = OpenForWriting(name.sval()->strv(), true);
         if (!f) return Value(false);
-        auto ok = FileWriteVal(f, (uint)'CWFF') &&
+        auto ok = FileWriteBytes(f, magic, strlen(magic)) &&
             FileWriteVal(f, cur_version) &&
             FileWriteVal(f, ocworld.world_bits) &&
             FileWriteVec(f, ocworld.nodes) &&
@@ -100,9 +109,9 @@ nfr("oc_save", "octree,name", "RS", "B", "",
         return Value(ok);
     });
 
-nfr("oc_new", "bits", "I", "R", "",
-    [](VM &vm, Value &bits) {
-        auto ocworld = new OcTree<OcVal>(bits.intval());
+nfr("oc_new", "world_bits,fix_bits", "II?", "R", "",
+    [](VM &vm, Value &world_bits, Value &fix_bits) {
+        auto ocworld = new OcTree(world_bits.intval(), fix_bits.intval());
         return Value(vm.NewResource(ocworld, GetOcTreeType()));
     });
 
@@ -123,4 +132,31 @@ nfr("oc_get", "octree,pos", "RI}:3", "I", "",
         vm.Push(ocworld.nodes[ocworld.Get(pos).first].LeafData());
     });
 
+nfr("oc_buffer_update", "octree,uname,ssbo", "RSI", "I", "",
+    [](VM &vm) {
+        auto ssbo = vm.Pop().True();
+        auto name = vm.Pop().sval()->strv();
+        auto &ocworld = GetOcTree(vm, vm.Pop());
+        extern Shader *currentshader;
+        intp num_updates = 0;
+        if (ocworld.all_dirty) {
+            // Can't do partial update.
+            UniformBufferObject(currentshader, ocworld.nodes.data(),
+                sizeof(OcVal) * ocworld.nodes.size(), -1, name, ssbo, 0);
+            num_updates = -1;
+            ocworld.all_dirty = false;
+        } else {
+            for (auto [i, is_dirty] : enumerate(ocworld.dirty)) {
+                if (!is_dirty) continue;
+                num_updates++;
+                // TODO: experiment with uploading more data per call.
+                auto offset = i * OcTree::NODES_PER_DIRTY_BIT * OcTree::ELEMENTS_PER_NODE + OcTree::ROOT_INDEX;
+                auto size = min((size_t)OcTree::NODES_PER_DIRTY_BIT * OcTree::ELEMENTS_PER_NODE, ocworld.nodes.size() - offset);
+                UniformBufferObject(currentshader, ocworld.nodes.data() + offset,
+                    sizeof(OcVal) * size, offset * sizeof(OcVal), name, ssbo, 0);
+            }
+        }
+        ocworld.dirty.clear();
+        vm.Push(num_updates);
+    });
 }

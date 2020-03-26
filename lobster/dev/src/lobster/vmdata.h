@@ -102,6 +102,7 @@ enum ValueType : int {
     V_TYPEID,           // [typechecker only] a typetable offset.
     V_VOID,             // [typechecker/codegen only] this exp does not produce a value.
     V_TUPLE,            // [typechecker/codegen only] this exp produces >1 value.
+    V_UUDT,             // [parser/typechecker only] udt with unresolved generics.
     V_UNDEFINED,        // [typechecker only] this type should never be accessed.
     V_MAXVMTYPES
 };
@@ -117,7 +118,6 @@ inline bool IsRuntime(ValueType t) { return t < V_VAR; }
 inline bool IsRuntimePrintable(ValueType t) { return t <= V_FLOAT; }
 inline bool IsStruct(ValueType t) { return t == V_STRUCT_R || t == V_STRUCT_S; }
 inline bool IsUDT(ValueType t) { return t == V_CLASS || IsStruct(t); }
-inline bool IsNillable(ValueType t) { return IsRef(t) && t != V_STRUCT_R; }
 
 inline string_view BaseTypeName(ValueType t) {
     static const char *typenames[] = {
@@ -125,8 +125,8 @@ inline string_view BaseTypeName(ValueType t) {
         "struct_ref",
         "resource", "coroutine", "string", "class", "vector",
         "nil", "int", "float", "function", "yield_function", "struct_scalar",
-        "variable", "type_variable", "typeid", "void",
-        "tuple", "undefined",
+        "unknown", "type_variable", "typeid", "void",
+        "tuple", "unresolved_udt", "undefined",
     };
     if (t <= V_MINVMTYPES || t >= V_MAXVMTYPES) {
         assert(false);
@@ -812,6 +812,11 @@ struct VM : VMArgs {
     vector<thread> workers;
     TupleSpace *tuple_space = nullptr;
 
+    // A runtime error triggers code that does extensive stack trace & variable dumping, which
+    // for certain errors could trigger yet more errors. These vars ensure that we don't.
+    bool error_has_occured = false;  // Don't error again.
+    bool error_vm_inconsistent_state = false;  // Don't trust the contents of vm state.
+
     VM(VMArgs &&args);
     ~VM();
 
@@ -844,10 +849,10 @@ struct VM : VMArgs {
     LString *NewString(string_view s1, string_view s2);
     LString *ResizeString(LString *s, intp size, int c, bool back);
 
-    Value Error(string err, const RefObj *a = nullptr, const RefObj *b = nullptr);
+    Value Error(string err);
     Value BuiltinError(string err) { return Error(err); }
+    Value SeriousError(string err) { error_vm_inconsistent_state = true; return Error(err); }
     void VMAssert(const char *what);
-    void VMAssert(const char *what, const RefObj *a, const RefObj *b);
 
     int DumpVar(string &sd, const Value &x, size_t idx);
 

@@ -211,13 +211,6 @@ run_test("misc"):
     try():
         recursive_exceptions(10)
 
-    // Define your own HOFs with lazy expressions, much like the built-in while loop:
-    def whilenot(cond:lazy_expression, body):
-        while not cond(): body()
-    var wnt = 0
-    whilenot wnt == 10: wnt++
-    assert wnt == 10
-
     let starttime = seconds_elapsed()
     for 10:
         7.factorial
@@ -235,3 +228,11 @@ run_test("misc"):
 
     // Unicode in strings: either as escape code, or also direct, if your editor supports it.
     assert "⺆㋇䬈" == "\u2E86\u32C7\u4B08"
+
+    // Bitwise assignment ops.
+    var bit = 1
+    assert (bit |= 2) == 3
+    assert (bit &= ~2) == 1
+    assert (bit ^= 3) == 2
+    assert (bit <<= 1) == 4
+    assert (bit >>= 1) == 2
