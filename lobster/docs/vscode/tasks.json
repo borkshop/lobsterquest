@@ -1,0 +1,42 @@
+{
+    // See https://code.visualstudio.com/docs/editor/tasks
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "taskName": "Lobster",
+            "windows": {
+                "command": "bin\\lobster.exe"
+            },
+            "linux": {
+                "command": "bin/lobster"
+            },
+            "osx": {
+                "command": "bin/lobster"
+            },
+            "type": "shell",
+            "args": [ "${file}" ],
+            "presentation": {
+                "reveal": "silent",
+                "echo": true,
+                "panel": "shared",
+                "focus": false
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": {
+                "owner": "lobster",
+                "fileLocation": [ "relative", "${fileDirname}" ],
+                "pattern": {
+                    "regexp": "^(.*)\\((.+)\\): (warning|error): (.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "severity": 3,
+                    "message": 4
+                }
+            }
+        }
+    ]
+}

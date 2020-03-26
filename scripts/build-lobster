@@ -1,0 +1,5 @@
+#!/bin/bash
+DIR=$(dirname -- "${BASH_SOURCES[0]}")
+cd "$DIR"/lobster/dev
+cmake -DCMAKE_BUILD_TYPE=Release
+make -j8

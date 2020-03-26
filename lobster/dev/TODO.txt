@@ -1,0 +1,1954 @@
+- how does keepvar work with inlined functions?
+
+- We are probably not checking if T every gets bound to a scalar in T?, in fact are we doing
+  this for regular V_VAR?
+
+- jcorbin: improved random number generation:
+  - swappable generators such as xorshift, pcg32/64, and even just a generic lcg
+  - a good lobster choice may be to abstract them as coroutines, or at least a
+    higher order `def generator(consume):` protocol
+  - especially so since insatiable random generators (to get multiple
+    independent streams) would be great in addition to / instead of a shared
+    global generator
+- doug currie: rnd(9223372036854775807) always returns 1.
+  rnd only works in 32-bit currently. could make it use 64-bit, but this will change the
+  results for existing code..
+
+- jg/jcorbin: should allow function values to be other than just variables, any exp.
+  currently not even `f()` works if `f` is a member variable.
+  _ as function value doesn't even work even though explicit var does for loop.
+  maybe this feature is easier to introduce after refactoring what happens in the parser.
+
+- jg: it's pretty easy to define a function value with an escaping free variable that gets
+  caught neither at compile time nor at runtime.
+  We need to somehow protect users expecting closures from this, yet we don't want to blanket
+  forbid free variables when something becomes a dynamic function value, since there are plenty
+  of useful cases of accessing top level variables etc.
+  Maybe somehow tie the scope of free variables to the function type?
+
+- General order of typechecking is:
+  * child TT
+  * child LT adjust
+  * subtype coercion
+  This can be problematic in some cases, what really needs to happen is:
+  * child TT
+  * child LT adjust for coercion
+  * subtype coercion
+  * child LT adjust for recipient
+  This is already done manually in a few places, but would be good to do more consistently.
+  Recent example:
+  def multirettyped() -> float, string: return 1, "a"
+  This first causes a LT adjust on the MultiReturn, which the can't have coercion applied to it
+  anymore in Subtype (see end of TypeCheck::Return).
+  Also, maybe have the case where LT adjust does nothing (e.g. for integer) then subtype coercion
+  to e.g. string suddenly needs a different LT than the initial TT.
+
+- Explicit genericity for functions.
+  - Would be good if the type of "this" on a A<T> class would be A<T>, not A.
+    See also IsGeneric that has to explicitly test A to see if it has unbound generics.
+  - if we had T() as a cast, we could fix the enum type problem in gui_multiselect.
+    - that is yet another form of function call in the parser.. better first refactor that.
+  - weighted_pick: being able to write "T is float" would be cool.
+  - See typetest.lobster: Explicit generic mixed with dynamic dispatch doesn't seem to work.
+  - Generics for function types? See use of R in std.
+
+- kriskowal: adopt Python's "pass" statement, a void nop (better than nil idiom).
+
+- kriskowal: maybe replace gl_button string with an enum.
+
+- docs: explain about unbound variables, and what causes:
+  type variable does not have field: size
+
+- It would be better if we could leave the decision wether something is a builtin or a user
+  defined function to the type checker, since that would allow user defined types to have
+  a length function, or anything else that clashes with builtins.
+  Problem is, we rely on deciding this in the parser for things like parsing lambda args,
+  and optional things etc.
+  Maybe if both are available, we could simply require that the user function corresponds to
+  the builtin one in terms of these features, and otherwise error?
+- the parser deciding between a field or function upon x.y is very brittle, the moment someone adds a field
+  called "length" anywhere, suddenly all calls to length() don't work anymore.
+  Only way to fix this is to delay this decision until typechecking.
+- should overhaul ParseFunctionCall, it contains way too much special purpose logic that may
+  clash with typechecking.
+  - this would also allow defining methods with the same name as builtins, which is sorely needed.
+  - after cleaning up parser, for every top level definition should mark from which file it comes,
+    and then each use should make sure that file has been included in the current file, to avoid
+    suprises when things are included independently.
+  - if we can delay looking up the function to the type checker, then we can allow
+    "functions as environments", e.g.
+    def env(f):
+        v := 1
+        def m(): return v++
+        f()
+    env():
+        for 10: print m()
+        env():
+            m()  // increments different variable!
+    This is kinda like "with" or dynamic scope, and could benefit match.lobster, gui.lobster.
+    The type checker already supports this, its just the parser lookup!
+    Using this recursively will make it harder to optimize stack frame usage in the future,
+    though neither match nor gui is properly recursive, it is all instantiated.
+  - example of deciding between different methods going wrong:
+    class foo:
+        def f(): g(3)
+        def g(n): print(n)
+    class bar:
+        def f(): g(3, 4)
+        def g(n, m): print(n + " " + m)
+    bar{}.f()
+    bar{}.g(1, 2)
+    foo{}.f()
+    foo{}.g(1)
+    error: "g" (1st argument) requires type: foo, got: int
+  - can things like closures be parsed conservatively after a function call without knowing
+    the function? It seems to already work for some calls:
+    def foo(fun):
+      fun() x: print x
+
+- kriskowal: a non-allocating version of copy() with a second destination arg.
+
+- kriskowal: might be fun to have gl_cube and other simple 3d primitives, for quick prototyping?
+
+- replace co-routines by stackless object syntactic sugar? how to resume? how to store temps?
+  - unlikely to work: even if you can guarantee to inline all the hofs a yield may sit in,
+    there's loop temps, keepvars, and other stack tracking stuff we'd now have to back up in
+    a struct to be able to resume, making this more complicated than the current solution.
+  - if co-routines ever become an obstruction to optimisation, this will force us to have
+    a "slow" fall-back for stack frames, similar to what we have now.
+  - Should we consider removing co-routines? They're a "sexy" feature everyone always seems
+    excited about, but in practice in games they are not all that useful.
+    I end up never using them, and when I do, it is for uses that can easily be replaced by
+    a class with an update function.
+    Having cross-frame state in locals is really not as nice as in member vars.
+    It could be cool in complex multi-stage animations.. but even for those it is questionable,
+    as code that interrupts/changes these animations then becomes more complex.
+    Fundamentally, state that survives a frame needs to be carefully managed regardless.
+    Co-routines have also been an endless source of complexity in the VM, and don't fit
+    with Lobster's new focus on efficiency.
+
+- jcorbin: a basis_spline equivalent of cardinal_spline
+
+- See if a tail-call based interpreter would be a speed-up:
+  https://github.com/soundandform/m3
+
+- stack & variable access is becoming a bottleneck in native backends, should think of a
+  way such that they can easily be swapped out for native locals when possible.
+
+- default/tagged args for functions.
+
+- remove logvars?
+
+- run coverage to see where more tests are needed.
+
+- Remove exceptions completely by making each function call always check for a target function,
+  and then make runtime errors use the same mechanism
+  - fun way to make this fast: if an exception occurs, decrement the return_ip field in all
+    stackframes by N, and insert an exit function jump after each call, and before the regular
+    continuation. Then the code can unwind without conditionals.
+    Though not easy to do in C++/Wasm backend mode.
+  - alternatively: each call supplies 2 return ips, the regular and error paths.
+
+- do more inlining:
+  - mark certain functions as un-inlinable.
+  - for the remainder, compute a) the cumulative size if everything beneath it got inlined,
+    then b) the number of callers
+  - now based on this cumulative number for the root function, determine a maximum blow-up
+    amount that is desirable. Then mark as not in-lineable the function that would make the
+    biggest reduction in code size according to a*b. Recompute sizes of parents.
+    Repeat until desired code size is reached.
+  - now blindly inline absolutely everything else that remains.
+  - for programs that don't contain any combinatorial patterns, this will allow everything
+    to be inline.
+  - need to see what consequences this has for making the lifetimes of variables longer.
+
+- speed plan:
+  - should really try the "inline all" feature above, especially since the current inlining
+    is not great, and any further optimisations depend on it. Though can first try to more
+    maximally inline traditionally also. Then work on doing better high level optimisation
+    of the remainder.
+  - then for further speed, if the interpreter loop overhead on VC is only 15% or so, then
+    doubling instructions is only a further 15% cost, which can be offsets by the instructions
+    being more specialized. Then C++ and Wasm modes can get much faster with inling at
+    the instruction level.
+  - and for more speed, analyze functions that are not participating in being free vars etc,
+    and assign them to "locals" to really speed up Wasm/C++ modes.
+    - This may need to first change how we deal with variables on the stack in the first place.
+
+- Should add template arg types also to regular functions.
+  - an example is gui_multiselect called with enum type for selected.
+
+- Optimize out variables that are not used.
+  This in particular will be good for vec/color.lobster that create a lot of globals,
+  also means they don't show up in stack traces / debug windows etc.
+  and can reduce function usage as well, if they're in initializers
+
+- Inline structs, further improvements:
+  - These were immutable in the past, because values were shared by pointer, but now there
+    really is no reason to anymore, as they're always copied, so modifying a field of
+    a struct that sits in a variable would totally be fine and useful.
+    - allow fields in a struct to be preceded by var, and similarly in a class by let
+      to change their respective defaults.
+    - Will greatly expand the zero abstraction use cases where
+    - once structs are mutable, maybe introduce a way to annotate both structs and classes
+      as immutable?
+  - can maybe simplify some of type checker now that certain ops don't ever deal with refs,
+    for anything vector related, like MathCheckVector
+  - finally split builtins into one op per len.
+    - get rid of ToVStruct etc.
+    - get rid of most of GenValueSize
+  - look which ops are most frequent, then specialize them to 1/2/3/4/v widths, as even
+    ts_memcpy still has a cost.
+  - push() for non-struct has superfluous pushint 1.
+  - Support mixed refc/scalar fields in structs.
+    - then use this for FlatBuffers handles.
+  - Extend functionality of having different sized values to also allow 8/16/32/64 bits items,
+    especially in vectors, then structs..
+  - somehow not store LVector::width.
+
+- FlatBuffers implementation:
+  - once we have mixed scalar/ref: make accessor handles into structs.
+  - Make builder offset struct into specialized structs for the type? Maybe not necessary?
+
+- --to-cpp mode: VS /LTCG is very weak in terms on inlining, doesn't appear to inline any of
+  the VM ops, gets only 30% or so speedup vs interpreted (compared to LLVM LTO getting 2.5x).
+  Even including vm.cpp in the compiled code and __forceinline does nothing.
+
+- think about special casing parsing of if/while/for, that way some crazy syntax features can be
+  reduced
+  - if can gain an elseif
+  - if's typical ambiguity with if x + f(): in terms of the closure can now be default to
+    the close being part of the if?
+  - while can be the sole user of exp as closure..
+    - also can fix issues with lifetimes
+  - for can lose the brackets?
+  - what features could we remove from function calling that are unnecessary?
+    - maybe _ args?
+  - besides the syntax, the question is should it also change the bodies from
+    functions into inlined blocks?
+    - pro: simplifies a lot of code in the type checker, reduces pressure on
+      inlining, makes ast more readable etc.
+    - con: some logic related to functions will need to be duplicated for blocks.
+    on the whole I think its worth it, but do it seperate from syntax.
+    probably while condition can be made into a non-function first.
+  - can consider also making higher order functions introduce the lambda with a keyword to
+    make it all more parsable.
+    map xs do x: body
+    map x in xs: body  // Python-esque, sadly in an odd order.
+  - more discussion in: https://github.com/aardappel/lobster/issues/56
+    options:
+    - if a ( follows a function call, it must be without space, and thus it effectively forces
+      there to be two of them.
+    - allow function to declare that they take their first are without ()
+      - now spacing doesn't matter
+      - but we don't even want to allow `for (` necessarily.
+
+- remove V_NIL from elemtypes and ElemTypeS, no users need this information, in fact all are
+  working around it.
+  - Also maybe replace uses that just want to know if its a ref or not by a table that lists
+    all refs. could be two lists for nil and non-nil?
+  - For vectors can just stick a bool in TypeInfo to speed up this case?
+    - does its type-info even need vector wrapped?
+
+- remove or bound LT_ANY, it makes checks for keep/borrow fragile and can perculate.
+  - check for any == LT_KEEP etc, since != LT_BORROW (and vice versa) is safer
+
+- improve docs.
+  - better "why should I want this language" intro rather than just a list of features.
+  - maybe more of a document that is meant to show the best of the language, with
+    examples, kind of like whats on the home page but more extensive.
+  - have selectable examples like e.g. https://dlang.org/ https://ziglang.org/
+    https://gobyexample.com/
+  - redo philosophy doc.
+
+- move all string formatting and parsing to to_chars and from_chars
+
+- We support implicit this.member in multi-assign, but not explicit.
+  See mretfields test.
+
+- detect a + b + c etc and emit better string concat op in codegen
+
+- LIFETIME related TODO. Initial version exists, what is needed to make it better?
+  - AssignList with instance variables probably doesn't work.
+  - on calls like qsort([..]) the xs arg will be KEEP, but the recursive call will be borrow,
+    so now you end up with 2 specializations.
+  - split up incref/decref in VM for needing nil check and not, since we have this information
+  - improvements to compile time lifetime analysis for reference counting.
+    - things like "while n: ..." (see astar) are a source of unnecessary inc/dec
+      see While::TypeCheck
+    - make indexing and for do LT_KEEP and all-element borrow respectively.
+      (see notes on sound lifetimes)
+    - need to track last use of variable, so that the variable can turn from own->borrow there
+      and potentially pass on the value for free.
+      - we already do this as a special case for "return var".
+      - another special case we should do: last lexical use of a var that has never been used
+        as a free variable, thus deals with the exceptions below.
+      - would at some point be great to do this more general:
+      - ensure that this deals with last use in both if branches, or in a for loop (no last use).
+      - needs to happen during TT because free vars in calls can be in non-source code order.
+        - this makes it hard to detect the last use when it happens.
+          - can lift ownership checking into seperate pass, possibly with duplication.
+          - or can do an approximation, track last lexical use in parser, and only allow it
+            to straddle known anonymous functions, such as if/while/for?
+          - or, count the number of uses in parser, so TC can recognize last use even if out of
+            order.
+            - though this still doesn't take care of freevar in function called twice
+      - may need a way to allow programmer to force a function argument to LT_KEEP as this is
+        an easy way to fix assign while borrowed errors
+      - or, for assign while borrowed, could "cache" these errors, and only issue them
+        if a later use is found.
+        - but it can be borrowed in all sorts of ways so this is also not an exact science.
+      - or, for owned variables (with no refcount) where recip wants to own, allow ownership to
+        transfer, but mark variable as dead so any further uses can be errors.
+    - go thru an AST dump and check that where lifetime changes happen makes sense.
+    - somehow get rid of ownedvars in FUNSTART. generally clean up function calling.
+  - could omit the check for refc==1 at end of scope if we know variable has never had a
+    refc inc/dec statically.
+  - add language features that make use of this new system:
+  - allow variables/fields/types? to be annotated as single owner, such that these can also
+    lose their reference count (but stay heap allocated). Instead if incref they error.
+  - optimize other remaining/related features.
+  - should really centrally organize the concept of const vs owner vs refc, since besides for
+    structs, will need these concepts for strings/vectors/coroutines as well (will especially be
+    nice to separate out the default const string from niche mutable use). We also have const/var
+    variables. We were also thinking about mut argument annotations which would still also be nice
+    being able to say an arg is mut without specifying the type.
+
+- add to imgui functionality:
+  - logging
+    - everything that currently goes to LOG
+    - specific logging for variables not in global scope: show a list of key/value.
+    - or simpler: can show all log variables!
+    - additionally: a way to log not just a string but a data structure that can be inspected.
+      This would go a long way to not having a proper debugger, extend the reach of print
+      debugging, basically.
+      Have a way for these log statements to not cost anything when a debugging UI is disabled
+      so it can be left in the code for longer
+  - docking branch: can allow e.g. debug window to be external.
+  - more engine stats!
+    - some basic profiling segments of code?
+    - drawcalls? triangles?
+  - add screenshot & link to imgui page?
+
+- A way to load a DLL/so containing a built-in function extension, so larger
+  libraries don't need to be part of the base Lobster, and people can add their own
+  without having to re-build lobster itself.
+  Would work best if these are passed on the command-line (or in a cfg file) given
+  that these definitions are needed to parse a file, though you'd be ok to start
+  parsing a file and defs becoming available half-way.
+  Would also need to be stored in a bytecode file in that case.
+
+- Something like Python C-types: ability to call any DLL/so function without explicit
+  bindings.
+
+- Python struct create: printf for binary https://docs.python.org/2/library/struct.html
+
+- Built-in dictionary type?
+
+- For fun: follow along https://github.com/kanaka/mal/blob/master/process/guide.md
+
+- Would be useful to typecheck top-level named functions that have a full type signature
+  and haven't been typechecked at the end of type-checking, to get any type errors they
+  may contain earlier.
+  - Have to be careful that it is still seen as dead code by the codegen, and not
+    contribute to any use-count for inlining by the optimizer etc.
+
+- Should refactor for size of files.. typechech.h is getting unwieldy.
+  Can maybe pull out some lifetime stuff?
+
+- should add a debug feature like https://blog.rust-lang.org/2019/01/17/Rust-1.32.0.html
+  - and make it so it only gets compiled in when you run it in a "debug" mode so the
+    code can be let in, with optional tags etc.
+
+- factor out TypeCheckDynCall for DynCall to be part of GenericCall so it can be made into
+  Call/Yield/CallType
+
+- should have slaballoc use indices so allocation granularity can always be smaller?
+  especially when using 32-bit emulation.
+
+- should make if/while conditions detect non-nil variables as always true conditions and
+  optimize accordingly.
+
+- contribute Lobster syntax highlighting to:
+  https://github.com/github/linguist/blob/master/CONTRIBUTING.md#fixing-syntax-highlighting
+
+- should support scalar op vector, not just vector op scalar
+  - that requires yet more vector vm ops, at least for - /
+
+- add support for pure functions.
+  introduce functions with e.g. "fun" instead of "def" to indicate they are pure (much like
+  currently "let" and "var").
+  A pure function is not allowed to mutate anything external to the function. It still is
+  allowed to have a var and update it, or even a var with a locally allocated data structure
+  and update that, just not update any free vars, or data pointer to by free vars and args.
+  This analysis runs for every function, such that functions declared with def that are
+  actually pure will get a warning that they could be declared with fun.
+
+- remaining improvements we can do related to return values.
+  - allow dynamic dispatch overloads to be specialized on reqret etc.
+    - dynamic dispatch overloads should have better return value type checking, probably by
+      coercing them at the end?
+  - codegen: remove special purpose use of rettypes, replace by regular types.
+  - codegen: remove dropping in codegen to just follow typechecker?
+    - though codegen dropping is recursive, e.g. it drops 1+2, though not sure how useful that is
+  - we have 2 types in nodes, do we actually need them?
+    - see below how we didn't decide to remove coercion nodes.
+  - would be nice to remove the "return nil" at the end of coroutines.
+    - this is because yield implicitly returns it.
+    - allowing it to return 0 or N values requires quite a bit of weaving thru the VM, so may
+      not be worth it for now?
+
+- tagged arguments in Lobster for function calls.
+  maybe also add default args while we're at it.
+
+- Improve threads.
+  - Would be good to reduce globals, and/or not make builtins that rely on globals available
+    to worker threads.
+  - Allow any data to be passed between threads.
+  - Use it in some compute heavy samples like smallpt.
+
+- binary string ops:
+  - Need to have a way such that reading 64-bit values doesn't truncate when using 32-bit
+    version of Lobster (which would be nice to permanently remove)
+  - memcpy, memmove
+  - write_string
+  - ops for doing things with unsigned values stored inside signed ones?
+
+- We should ideally enforce non-escaping lambdas at compile time.
+  Currently, "benign" things happen at runtime if you try, since the set of all vars is
+  always available, and if you return to a function from the lambda that doesn't exist,
+  you simply terminate.
+  But would be good to exclude this. Problem is that there are legit use of lambdas
+  stored in data structures that are not escaping but hard to prove that they are.
+
+- enable dynamic function value call on any exp, see ParseDeref.
+
+- enums
+  - use namespaces
+    - remove keywords?
+  - get min/max
+  - iterate them? return a vector of all values?
+
+- nice samples to port:
+  https://github.com/ssloy/tinyraytracer
+
+- strong typedefs.
+  Will basically add a tag to any base type.
+  If a functionally specifically requests the tag, the tags must match.
+  In any context a type is allowed to lose its tags (coerced to base).
+  This way, we can have the few functions that actually want string to contain
+  utf-8 take this typedef. Or strings can specify they contain a FlatBuffer
+  or some other specific binary layout.
+  For scalars and vectors, the tricky thing is that you want some weird
+  defaults for operators:
+  for +, strong + strong = strong, anything else results in base type.
+  for *, strong * base = strong, since you're often scaling a unit.
+  It should be possible to override these defaults, disable operators, or
+  specify relations with other types, but the default for a type should work
+  intuitively for most types (especially spatial quantities, as Lobster is
+  game oriented). This overriding is something for later.
+  Besides the type system dealing correctly with tags, we now need general
+  casts (allow a typedef as function name). We may also need to make string
+  constants result in a utf-8 typedef by default.
+
+- A minimalistic error catching feature.
+  I'm not a fan of exceptions anymore (though they can be emulated in Lobster in user code),
+  and I generally don't think runtime errors should be catchable.
+  But functions that bounds-check indices stored in user-generated data such as for reading
+  file formats and serialized data break this model, in that you do NOT want user code to
+  error/bounds check every single read, yet program terminating upon corrupt data is also
+  not that great.
+  For that purpose it is maybe useful to have a minimalistic error catching mechanism.
+  Since we already have code that rolls back the stack upon an error (and generates an error
+  string), we can simply use that code to check if the current function is a function that
+  would like to return the error string and continue executing as normal.
+  This function must have a return value of type string? (such that nil can mean no error),
+  or string if so desired,
+  and must somehow be marked as error-catching. If the unroller finds such a function it stops
+  unrolling and returns the current error string. The function can also return other strings
+  under normal execution.
+  We can even provide a function to generate such runtime errors, so that people can abuse it
+  as a simple form of (string only) exception handling if they wish.
+  Of course can complicate this feature to not make it string only, but I don't think that is
+  necessary. If you want to create complex exception hierarchies you are probably using the
+  wrong language.
+  Might be worth doing at least the initial version of strong typedefs first since that will
+  allow a runtime_error string type. Though that tag would have to survive into the vm data.
+  Though, there is really no reason for this error string to be forced to be the return type,
+  if instead you store it in the VM instance, then the function itself can be any nillable,
+  where nil now signals failure rather than success which is more natural.
+  Also, rather than a function annotation it can currently just be a builtin function
+  that marks the current function as error catching, since it can simply register the
+  current function stack frame function id as such, though that may make future optimisations
+  to omit it harder.
+
+- NOTE: now that we have inline structs, ADTs should be based on them, since being same-sized
+  and being inline go so wonderfully together!
+  - This would make types like Maybe/Optional etc super cheap.
+  - don't even need to invent some separate enum/adt feature and use pattern matching for this,
+    structs that participate in an inheritance hierarchy can simply have a typeinfo prefixed,
+    ONLY when they are in a context of the superclass! That is even more efficient than enums
+    in Rust, which presumably always carry their tag. In fact it is more similar to "fat" trait
+    pointers in Rust, except without the pointers. A tagged struct can even shrink to not need
+    the padding to bring all these structs to the same size.. and all this is easy because they're
+    always copied.
+- Rust's same-size ADTs with value semantics allow interesting copy-over use cases that are not
+  possible in even C++, where there is no need to update pointers to an object.
+  Maybe we can have a declaration in Lobster that forces a certain set of derived classes to be
+  padded to the same size, with a special overwrite operator. The type of the variable would need
+  to be of the superclass, and the superclass itself should maybe not be instantiable, or also be
+  the same size.
+  Basically you'd declare the superclass as everything below here is same size.
+  What are examples of algorithms that could be simpler this way?
+  - game objects changing state
+  - AST node being changed
+  - Type variables! This one is hard to do without.
+  - Values in an interpreter
+  Though most of these are easy to do with existing code.. it is more to avoid allocation and
+  allow these values to be inline? Without inline values, you first have to construct on the heap
+  before overwrite. Still useful to be possible for cases like type variables.
+- Features to make it easier to use structs ADT style as opposed to inheritance
+  - ADT is similar to a base class with no members and a fixed set of sub-classes.
+    - So make that use case into a simpler declaration syntax.
+  - extend switch to do pattern matching.
+    - failing that, a switch that can use types as case labels would be a good start,
+      and simple to do given that we have type indices!
+
+- namespaces improvements:
+  - also implement them for global variables.
+  - extend non-namespaced "methods" to out of line declarations.
+  - Private functions and data types do not appear to be deleted at the end of an include
+    currently, see EndOfInclude.
+    - what if they are overloads?
+
+- things that would help making --to-cpp faster:
+  - current lowest hanging fruit:
+    - function calling (by far)
+  - a central problem is that things could be improved by splitting e.g. function calling up
+    in many small instructions, so not all calls have to pay the price for super generic
+    function call mechanism, but many instructions makes the VM slower.
+    So we could probably make a lot more progress if we could first default to an execution
+    method that does not have as much instruction overhead.
+    Options:
+    - A simple jit would not be hard since most are calls, but would miss inlining. Now
+      we'll have extra work to do to special purpose compile things to the JIT that so far
+      have been simple instructions.
+      - certainly a super simple JIT would not speed up much since there is currently a small gap
+        between VM and C++ mode (which does inlining), so a simple JIT would probably gets on
+        the order of 10-15% speedup. We'd first need to get the rest of the code more efficient
+        before this becomes a bigger speedup.
+      - Maybe LLVM as jit can do inlining assuming I have the rest of the code also available
+        as .ll, but that becomes almost as unwieldy as going thru C++.
+      - Actually a JIT is a great idea for another reason: it would allow us to aggressively
+        generate more instructions without losing speed. It's objective would not be to be much
+        faster than the current intepreter, but to take the place of the interpreter on most
+        platforms such that we can transition to emit more instructions cheaply. The interpreter
+        would be retained for.. debugging purposes, but would be understood to be slow.
+        On non-JIT platforms like iOS it would mean you HAVE to ship using the C++ backend,
+        since shipping with the interpreter generally is not an option anymore. So be it.
+      - A jit could be really simple, even x86 only, since if iOS is going to require via C++,
+        we could do that for all ARM platforms. Desktop is where you develop and where JIT is
+        likely fast enough, so it is a good match.
+      - If we used libtcc, could even share the code with the C++ backend!
+        They could become one and the same, once we have done the work of exposing the VM to C.
+        libtcc would become the default way of running in release on desktop.
+        Debug would still use the interpreter.
+        Bonus: expose libtcc as a builtin function to compile bits of C at runtime to
+        Lobster code!
+    - Always invoking C++ means easy inlining and easy instruction definition, but complicates
+      things / slows things down in always needing to invoke a C++ toolchain.
+      - Also easy to profile and debug compared to JIT.
+    - Just keep moving forward with an unwieldy instruction set, since it is the simplest.
+  - find places where the trampoline can be avoided, especially for for() and its body.
+    - should be easy when return X is followed by X:
+    - with the switch based version could do direct jumps, but switch trashes the branch cache?
+    - experiment with real gotos?
+  - reduce use of ElemType.
+- things that would make VM faster:
+  - biggest cost, in this order:
+    - interpreter dispatch.
+    - PUSHVAR
+      - worth some special purpose ops to combine with PUSHFLD etc?
+      - measure most frequent combinations of 2 ops.
+        instruction PUSHVAR -> PUSHVAR (386796902x)
+        instruction VAR_WRITE -> PUSHVAR (304214388x)
+        instruction PUSHVAR -> PUSHFLD (109119516x)
+        instruction PUSHVAR -> VPUSHIDXI (108954020x)
+        instruction PUSHVAR -> PUSHINT (89963524x)
+        instruction PUSHVARV -> PUSHINT (88875915x)
+        instruction JUMPFAIL -> VFOR (83576250x)
+        instruction VFOR -> VFORELEM (81116180x)
+        instruction JUMPFAIL -> PUSHVAR (63268560x)
+        instruction IFORELEM -> VAR_WRITE (61820330x)
+        instruction IFOR -> IFORELEM (61820330x)
+        instruction PUSHINT -> I2F (59103135x)
+        instruction PUSHVAR -> VAR_WRITE (58856210x)
+        instruction VFORELEM -> VAR_WRITE (58364060x)
+        instruction PUSHFLD -> PUSHVAR (52272552x)
+        instruction FORLOOPI -> VAR_WRITE (51754800x)
+        instruction IEQ -> JUMPFAIL (48308917x)
+        instruction PUSHINT -> BCALLRETV (46829849x)
+        instruction PUSHVAR -> IEQ (45404280x)
+    - function calling.
+
+- The way WASM deals with signed/unsigned is correct, everything signed, with special ops
+  (not types) for doing unsigned semantics on signed bits.
+  We should adopt this for Lobster by providing the exact same unsigned ops as special functions
+  (e.g. udiv, ucmp or ulessthan etc.)
+- while we're at it, would be nice to remove unsigned as much as possible from the C++ code
+  base, and reduce a ton of casts.
+  - add ssize (machine size) and intsize for stl containers, which are the number one source
+    of unsigned. Even overloaded for any size_t.
+  - that still leaves the mess of size of int types though, would be good to finally lock
+    down how the VM deals with ints in 64bit.
+
+- Make includes explicitly depend on eachother.
+
+- switch jump table based version.
+
+- We have a check in IdentRef::TypeCheck to avoid escaping lambdas, but this only works
+  for static ones, not for calls over a function type.
+
+- Should consider an SSA based IR to sit in-between the AST and bytecode gen.
+  - This can do more precise dataflow based type and lifetime checking.
+  - Also a better basis for more hard-core optimizations.
+  - Would have to move the typechecker to it to get the most out of it.
+    To make that not a crazy effort, can think of a hybrid model where any sub-parts
+    of basic blocks that do not interact with SSA form can still be AST trees?
+    So basically the control flow constructs get SSA-ified, and every basic block is
+    an AST, with SSA references baked into it.
+    This way it can be done incrementally, one construct at a time.
+    Then later can decide to flatten this AST into a list of instructions if desired.
+
+- would nil as sentinel have advantages?
+  - would need to specialize lots of opcodes and functions that call .True(), so probably not.
+
+- besides exception.lobster, another nice error-handling strategy would be to use nillable to
+  signal errors. returning nil is a bit primitive, but in lobster it has the nice property that
+  it forces the caller to check for nil, making errors not-ignorable. It also means we can
+  use standard language tools like if/and/assert rather than special purpose error handling.
+  - would need some way to store additional error information external to the value.
+    in the simplest case a global last_error:string
+  - doesn't work on functions that want to return scalars. should really make boxed values
+    possible outside of any, such that you can actually have int? types.
+  - the best language addition for this which is generally useful would be to have
+    a := return if not f()
+    where f returns a nillable, a is non-nillable, an the surrounding function again returns a
+    nillable.
+    as an easy way to perculate errors.
+    in e.g. Rust this is a macro that looks like: let a = try!(f())
+    Probably a more verbose syntax that contains "return" is better, since returning from a
+    function is major control-flow that you don't want hidden in a macro. Also nice that in an
+    editor you can highlight all the returns.
+    Can also have "return if" that does the reverse: return a non-nillable if true, otherwise
+    continue execution. This is like doing "return f() or .." except here it is easier to
+    make the ".." contain multiple statements.
+    This is nice, because "return if not" is for NOT dealing with errors locally, whereas
+    "return if" is for dealing with errors locally (coming up with an alternative return value
+    upon failure).
+    "return if" also usefully turns a value non-nil without needing a temp var, normally you'd need:
+    temp := f(); if temp: return temp
+    Also, both of them promote more linear code.
+    - note there is some code in the impl that assumes "return" has no temps on the stack,
+      which isn't the case for: 1 + 2 + 3 + (return if not ..)
+    - for completeness, can even have "a := return b if not c", which is still better than
+      "a := c; if not a: return b"
+  - so far there isn't a lot of error handling going on anywhere in lobster code.. I guess
+    because games don't do a lot of error handling beyond loading files. And GL errors are
+    wrapped in native code.
+    Could be good to write something that does a lot of error handling like a parser, then
+    again the above constructs sound generally useful
+    - parsers are better of using "return from" as form of exception handling.
+
+- try again having --tocpp output basic blocks as switch case rather than function pointers.
+  - try with clang to see if it optimizes that case better
+  - try and explicitly jump to the next function where known statically rather than using the trampoline?
+
+- always fun to rewrite the implementation in itself..
+  - this would actually not be super hard.. the frontend and the VM can easily be in different
+    languages.
+  - can even implement any part of the compiler in lobster itself, by just calling it from C++.
+    For example, the parser. it would just need a built-in to construct nodes etc.
+    Either interpreted or to-cpp would work.
+    Actually, don't even need to call it from C++, it can simply be an independent Lobster
+    program generating a pakfile.
+  - Maybe more productively, as noted elsewhere, could write the graphical debugger UI in
+    Lobster itself.
+
+- make extensions (and --tocpp code) into DLLs rather than statically linked?
+  - check performance consequences for --tocpp
+
+- 64bit mode improvements:
+  - pushflt64?
+  - Optimizer can't use 32bit values.
+
+- Can turn exceptions back on in emscripten once this fix lands:
+  https://github.com/emscripten-core/emscripten/issues/7399
+
+- Since in Lobster values only signed ints get used, and STL uses size_t, there's a fair bit
+  of unfortunate casting going on that be nice to remove. Many (including the C++ standards
+  committee) seem to agree unsigned size_t was a mistake, so would be nice to move the whole
+  codebase towards default-signed for everything, with less casts, and less possible gotchas.
+  Could do this by having a global ssize() for STL containers that returns signed.
+  Could repurpose the already existing "intp" type, but that might not always be pointer sized,
+  so maybe better a new type (like gsl::index).
+  Proposed for C++20: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1227r1.html
+
+- This doesn't typecheck correctly:
+  if !lhs:
+      lhs = ...
+  // lhs here required to be non-nil.
+
+- This doesn't parse:
+  somestruct { def ():
+    multi-line-anonymous-function-body
+  }
+
+- def adder(x): return def(y): x + y
+  print(adder(1)(20)) // test.lobster(2): error: identifier expected, found: 20
+  It thinks is its parsing a lambda.. can this be a better error?
+
+- This parses the map without the lambda:     assert 1 == map(2) i: 3
+
+- a file with only an include statement in it gives: error: linefeed expected, found: end of file
+
+- font rendering:
+  - it is possible when only very few chars are cached, that they are placed higher in the bitmap
+    if all their bounding boxes are small.
+  - outline rendering needs to do a better job that pixels stay in the bounding box.
+
+- Can't call o.f() where f is anonymous function value, need to first assign to temp var.
+
+- also allow explicit a.x, a.y = f() multi assign, this should be easy now that AssignList
+  takes lvalues because of with defs.
+
+- if we make assert a language feature rather than a builtin, we can make it understand
+  equality operators directly, and create specialized asserts that have better errors, i.e.
+  any "assert A == B" can actually output the values of A and B.
+  or "assert var" is pretty common, which can output the name of the var, etc.
+
+- need some way to typecheck append([type_A], [type_B])
+  neither either:
+  - some kind of cast (may be universally useful), or compile-time C# "as" (never nil)
+  - a way to annotate append as returning the super-type of both inputs.
+  - some generic type system smarts that when arg N is supposed to match arg 1,
+    if it fails, it first tries to both make them into superclasses before erroring.
+  How many functions are there likely to be like this, beyond append?
+
+- typeof gives static type, needs to be dynamic when used with ref objects.
+
+- type errors should skip large amounts of globals for __top_level_expression()
+
+- In this kind of code, without the type annotation, the list specializes it to subclass
+  and fails the remove_obj:
+  def supermethod(.., list:[supertype])
+      list.remove_obj(this)  // Type error without the annotation.
+  Not sure how to solve that, as auto-specializing "this" based on other args may be weird.
+
+- in a struct foo { a:float = 1.0 } allow the :float to be left out
+  problem is, we already have default values on fields that are intended to be generic, in
+  e.g. astar.lobster
+
+- bring indent based syntax for struct defs also to struct use, vectors, enums..
+
+- compile-time lobster execution would be super simple: simply allow a string that contains
+  lobster code, spin up a VM to eval it, and insert its result back in the code.
+  print eval "1 + 2" would actuall compile: print 3
+  But not quite as nice as a real macro facility, since now you have a large block of string
+  in your code, for more complex cases. And no easy way to do instances/parameter.
+  And errors that refer to code you can't see.
+
+- if your forget ":" after "else", it is going to try and declare a following identifier as a
+  function parameter, see FIXME in ParseTrailingFunctionValues
+
+- extend switch with pattern match facility?
+
+- Should consider to allow on-the fly data structures as well.
+  Writing new_type { field1: val, field2: val } would add such specialization to new_type even
+  if it doesn't exist yet.
+  Should change data structure specializations such that the collection of things under new_type
+  doesn't need to share a generic parent, and in fact may have different fields etc.
+  Specialization then takes care of checking the different variants in use.
+
+- Should we consider default-const?
+  Bit odd for a language without type annotations, but if the syntax for mutation was light,
+  it be a very nice feature to have, especially since the vast majority of args don't need it.
+  Only needed on struct/vector/coroutine.
+  Syntax could be a single char token attached to any ident decl?
+  def f(a, @b): b[0] = a
+  @a := g()
+  where token could be: @ # ~ ! $ & * = ` in that order
+  A keyword like "mut" is a bit too obnoxious?
+  token could also follow the ident.
+  Could allow a command-line arg or annotation in file to indicate that code doesn't care to be
+  const-correct :)
+
+- for easier integration of the language part into other projects:
+  - rename stdafx.h
+    - make public headers explicitly depend on it.
+    - try to reduce the scope of it.
+
+- Have a simpler/better C++ binding interface.
+  - for starters, should allow current binding system to be loaded from a DLL/so such that
+    extensions don't have to be compiled into the main binary.
+    - needs some versioning.
+    - also, if those extensions need the basic engine functionality, need to first refactor the
+      engine functionality to sit in an interface pointer or something.
+  - Worth discovering if the current macro glue can be improved, maybe with automatically
+    deduced arguments from a C function or C++ method.
+  - Could do something similar to CryScript: declare external functions in lobster, generate
+    glue code automatically.
+    - causes a code-gen step whenever adding new functions.
+    - You declare in one place, and the second use is a copy, but the two have to be kept in sync.
+      - enforcing the two are in sync is done by the C++ compiler, which is nice.
+  - One fun idea is to support Python DLLs/so's.
+    There's a TON of C/C++ libraries out there for Python.
+    - Such a DLL returns a DLL module structure, which we could traverse to find out what
+      functions are in there.
+      - They are of course untyped, showing up in Lobster as any functions?
+      https://docs.python.org/2/extending/extending.html
+      (see also e.g. dynload_win.c in CPython)
+    - Not obvious how this would work in terms of memory management, as Lobster would have to
+      allocate potentially complicated Python values from Lobster values that then get accessed
+      by the DLL (which contains a subset of the Python runtime?)
+    - Most interesting libraries like Numpy come with a ton of wrapper code in Python, which means
+      just exposing the DLL functions would end up with a very different API, or you'd have to port
+      all that Python code.
+    Frankly while it would be cool, there's too much of a mismatch for this to make sense?
+
+- function-level profiling of actual time spent.
+  The current line level profiler is useful, but counting VM ops is imprecise, and doing it once
+  per instruction is wasteful.
+  If its inside the function-calling mechanism behind an if (profiling) that is branch predicted,
+  it can be always in there (maybe #ifdeffed out for --tocpp).
+  Can also count all builtins automatically.
+  To do exclusive counts, can simply have a global that counts how much time children have
+  accumulated so far, to substract from a parent. This works recursively because it is postfix!
+
+- Should consider type-safe type aliases, where converting from the base type is explicit, mixing
+  with the base type degrades the type, and mixing aliases is a type error. Would be a feature
+  entirely implemented in the type checker only, as an additional tag on type values.
+
+- would be nice to have on the fly pairs/tuples.
+
+- in def(x::type) if x is subtype: should children of the subtype be available inside the if?
+
+- replace typeof return with something better directly part of the syntax.
+
+- make resume into seperate op.
+
+- add options to either show more extensive stacktrace dump to either stdout or file.
+
+- break statement
+
+- Typechecker can actually blow the 1MB Windows stack space on complex programs.
+  Set to 16MB for the moment.
+  Each function nesting can easily take 10 calls, and since even simple if-then's
+  do this, it quickly adds up in number of calls.
+  Need to create an explicit stack for recursive calls.
+  - Apparently the amount of guard values inserted in Debug seems random and can be quite large, it
+    appears to be using 5-10x as much stack as in release mode, so stack defaults should reflect
+    that.
+    - checking stack usage with /RTC off (on language project) is more meaningful -> rebuild.
+      Reduced stack usage by.. 2.5x?
+    - Even after that, the amount of stack space in the function prologue being allocated by
+      lea rsp / rbp setup is way bigger than the amount of locals?
+  - Even release mode stack frames are huge, similar to debug with /RTC off.
+    /GS off seems to make a huge difference in release, unlike debug, 4x in some cases.
+  - Maybe add this for Linux/OSX:
+    https://stackoverflow.com/questions/2275550/change-stack-size-for-a-c-application-in-linux-during-compilation-with-gnu-com
+
+- inlining has kind of broken the variable stack trace. not only are certain functions gone,
+  it can now show multiple variables of the same name and variables that are not really in scope
+  anymore.
+
+- Should probably allow named functions as function values too.
+  - See could_be_function in parser.
+  - Need to make sure this works with overloading, templates, etc..
+  - There are various places in the code where we assume "anonymous" is very different from named.
+
+- the codesize optimization where we introduce a function type for gui_button or whatever
+  should really be possible to be done automatically, as long as it doesn't touch functions
+  like map for which performance may be important. could have an easy way to annotate a
+  function argument saying: make all compatible function signatures go thru the same
+  specialization. Or maybe more sane, do that by default, and have an annotation to inline
+  for the few functions where that matters.
+
+- function call optimization and simplication.
+  - make a micro-benchmark to compare against other languages.
+  - inlining
+    - named functions
+    - how does removing single-use functions relate to function values stored in variables
+      (and in variables of function types), and as arguments to builtins like hash/gl_translate.
+  - remove static function arguments
+    - or maybe better to generically remove vars that aren't used.
+  - C++ backend: detect when not needing to return to trampoline?
+    - need to know when "broken" by a function call.
+    - though given that the switch/jump method is slower, maybe not a priority.
+  - change var access to be relative to top of stack
+  - cleanup of id/sid/arg..
+  - make resume a VM op.
+
+- experiment more with frame state now that its faster & cleaner.
+  - currently doesn't work well in loops
+    - if you loop through entities, and do a time_if, then some may have an ongoing animation
+      and some do not, and state of one can easily be used for another.
+    - we really need to be able to pass on object identity
+  - new implementation should allow:
+    - removing arbitrary element in loop - though object identity would be better.
+    - access state from 2 contexts
+    - explicit reset? to avoid 1 frame of nothing if a reset is forced.
+  - dump frame state.
+  - create some generic primitives.. frame-based if-then, sequencing, etc.
+  - save frame state?
+  - DOCS!
+
+- Make loadtexturecached into something using a generic map. But to declare it, need to be
+  able to specify generic vectors in struct decls.
+
+- consider baking Z up into functions.
+  - clean up 3dhelpers?
+
+- have a reference counted resource handle instead of ints.
+
+- Could provide a compilation mode where this is compiled in: https://github.com/bombomby/brofiler
+  Would be able to show a nice nested view of the cost of all lobster functions and builtins.
+
+- use RangeCheck in more places.
+
+- this crashes on += in codegen:
+  team_colors := [ color_grey, color_red, color_blue, color_green, color_yellow, color_cyan, color_pink, color_light_red, color_light_green,
+                   color_light_blue, color_light_yellow, color_light_cyan, color_light_pink, color_dark_red, color_dark_green, color_dark_blue, color_olive ]
+  team_colors += map(48) i: team_colors[i % 16]
+
+- weird error:
+  struct controller { startpos:xyz_i = xyz_0i, endpos:xyz_i = xyz_0i, startinpal:int = false, endinpal:int = false, valid = false }
+  controllers := map(2): controller {}
+  error: no specialization of controller matches these types: xyz_i xyz_i int int int
+
+- also, == should not do pointer equality on value types! have to use equal for now
+
+- excellent candidate for a 3D physics engine to integrate: https://github.com/RandyGaul/qu3e
+
+- for any error related to a builtin function, can also print argument names and helptext.
+
+- syntax: "if c: a, b = exp" doesn't compile if the multi-assign is on the same line.
+
+- typechecker
+  - would be nice to have a way to indicate a generic argument that must be a vector, possibly
+    as just []. See for example match.lobster that works on generic vectors.
+  - x[i] does not do flow analysis.. not as trivial to add if i is an exp or could change.
+  - if !a: a = ..
+    // here a is still nillable.
+
+  - flow analysis should also know about if !a: return; a // not nil here
+
+  - if you do [int] + [float] you get "error: "+" (left argument) requires type: [any], got: [int]"
+
+  - You're able to pass a value to vector_reserve that's a different typeof than "return", which potentially
+    gets the wrong type set.
+
+  - should constants be excluded from freevars to reduce clutter?
+
+  - must be able to derive type from default in struct def
+
+  - can we avoid .length giving errors with variables initialized to [] before a push etc?
+
+  - improve type checking doc.
+
+  - move generic double check from parser to type checker init
+
+  - why do we need .xy ? shouldn't xyz convert to xy when needed silently thru inheritance?
+
+  - can we make the astar_node specialization less ugly?
+
+  - struct pre-declaration can trip up IsGeneric.
+
+  - should fields be allowed to have types of generic structs? can be a bit confusing that the containing
+    struct becomes generic because of it but doesn't look generic.
+
+  - add more cases to typecheck if-then optimisation.
+
+  - Annotate builtin ops that truely want a vector, not a struct substitute.
+
+  - returning an [int] from vector < ops is both incorrect and wasteful
+
+  - what gets collected in "freevars" for each function is overly broad for HOFs, see CheckFreeVariable.
+    This is benign, but would be nice to clean up.
+
+  - see if we want to do something about the explosive cloning caused by gui.lobster
+    we may want to use an explicit function type for situations like this, since we do want most HOFs to inline.
+
+  - if you typecheck a function with a supertype, then a subtype is able to reuse it. But if the return value
+    is now also this supertype you have a contravariance problem. Either must not reuse the function (but only
+    if the return type is affected?) or subtitute the subtype somehow..
+    This is affected by the order of source code, so can give weird errors.
+
+  - flow sensitive checking does not work if part is skipped because a function has already been typechecked and
+    is reused (same args and freevars), so should apply same demotes.
+    Can this ever happen? can we guarantee it doesn't? Or for now just force a specialization if it has demotes?
+    x := "" | nil
+    function f(): x = nil
+    if(x):  // promoted
+        f() // demoted
+    if(x):  // promoted
+        f() // nothing happens, f() has already been typechecked
+
+  - value structs are still compared by reference.. by value would be better, which also means we can choose
+    to copy them and store them wherever.
+    See e.g. gui.lobster/element()
+
+  - check: a dynscope redef must have same type as its parent
+  - improve GenScope now that we have pre-parsed sf.dynscoperedefs
+
+  - make function calls with trailing nilable arguments default, as long as they're not ambiguous with sibling
+    functions.
+
+  - a := nil; a = 1 // allows creating nilable scalars, which we don't want, though its benign
+
+  - We compile time optimize if-thens for constants, but this does not include cases that would
+    need constant propagation, like astar_2dgrid isocta.
+    Should reduce total cloning quite even further.
+    issue: how can you do this with arguments that may be constant for the first call, but you
+    don't know how many calls there will be yet?
+    -> maybe we should analyze the if-then to be constant, but don't actually cull the code, leave
+       that to a seperate optimisation pass. The branch will simply not be typechecked for this
+       specialization.
+       Though that would mean we'd need to make this boolean part of the type signature,
+       because otherwise a second call with a different boolean value would reuse it,
+       and run into un-type checked code.
+       We already specialize on nilable/non-nillable, and specializing on booleans sounds attractive,
+       though we don't generally want to specialize on ints or other values, unless we made a special
+       annotation for it.
+       We can stick an int value in the V_INT union for Type, and ignore it pretty much everywhere
+       except for specialization.
+       This does mean a lot more type allocations (one for every constant in the code, could hash).
+       The type should propagate automatically.
+       We'd have to be very careful about propagation, i.e. typechecking 1+a getting the type of 1.
+       - any such combinations come almost always from Union(), so the amount of cases should be controllable.
+         Also: variable binding.
+         x.push(1) could make x a vector of 1's, and subsequent push of 2 doesn't fix that.'
+       - also if someone writes 1+1, we'd have to eval that in the type checker.. we'd end up duplicating
+         a bunch of functionality of the optimizer.. though that code is shared in ConstVal().
+         In fact, if we expand that function, the optimizer can use it generically to optimize code,
+         and doesn't have to repeat that code.
+         Even better, the type checker can use it for generic typing, and reduce its code as well.
+         Only downside is that its a bit more cpu intensive, since there is a double switch for each
+         node, and worse, additional recursion which is only useful if it returns true.'
+       Also must check there are no direct comparisons against type_int.
+       We'd need a special value to mean not const (e.g. 0x80000000) which in this case is fine
+       instead of an extra boolean.
+       Then we check these values when we check for specializations.
+
+  - we don't do flow-analysis for v[i] or v[i].f etc, is that possible?
+
+  - need a better solution than replace() for assigning to read-only structs
+
+  - from the previous astar_2dgrid:
+        distancef := function(v): ...
+        if(isocta):
+            distancef = function(v): ...
+        the assignment won't work. Now you could make it an if-then returning the function value,
+        which will get you a dynamic call, and no specialization.
+        frankly, its worth rewriting this such that it can be specialized, especially since thats
+        free if isocta is contant
+
+  - this language does very similar type inference, and has some interesting additional ideas:
+    http://crystal-lang.org/2014/04/27/type-inference-rules.html
+    - true union types rather than any.
+      Not sure how useful this, since at runtime you still need the same type field, and knowing it can have
+      a smaller set of possible types is not THAT useful, as it will still be slow.
+      The biggest improvement would be in type errors, so now it can say instead of "expected int, got any"
+      it will say "expected int, got int|string".
+      Problem is that they are expensive to represent, as in its most generic form, they are a vector<Type>.
+      We could cheat however, and make all the basic types (int/float/string) into INT_ANY etc variants, that
+      have the other type as a subtype. Basically, the same as ANY for the purpose of most typechecking code,
+      but carries more information for errors.
+      It would also be useful for if(x is int):, because if x is ANY_INT, then the else branch x can have the
+      parameter type (or if its ANY_FLOAT or ANY_STRING, and the parameter is INT).
+      We can't do this with parametric types. Though in theory ANY_VECTOR could first have its own parameter followed
+      by the second type, this won't work if either of those contain a struct/function/var type.
+      Of course you could have VECTOR_ANY only work with int/float/string sub types, and the second type could be
+      anything, which would be at least a small step forward, i.e. instead of "expected [int], got any", it
+      can now say "expected [int] got [int]|[mytype]", but then if we have more complex types, it would have to
+      resort to "[any]|[mytype]" (which is confusing) when really you want to say "[mytype1]|[mytype2]".
+      In that case just "any" might be better?
+      Of course, we could switch to a type representation where the index and the types fit in the same kind of
+      fields, in which case we can represent any unions as long as there is space:
+      STRUCT_ANY, idx1, STRUCT_ANY, idx2, STRUCT, idx3
+      would be a union between 3 struct types.
+      Simpler, we could bloat up the current union to allow 2 sub types, then any could simply be a union of
+      those, and it would even work recursively.
+    - It also does more accurate flow based tracking of variable types, e.g. an assignment inside
+      an if() in Lobster only destroys the type promotion, here it changes the type promotion.
+      That be easy to add, by storing the type promoted to rather than just the fact that something was promoted.
+
+- In :: blocks, can now call other methods without "this", but:
+  - also should be possible without () (see capped_storage() in cityclicker.lobster)
+  - also should be possible to leave out variable name before ::
+
+- There's a possibility gl_set_mesh_texture will hold on to texture ids that get deleted.
+  Would be nice to avoid this, but don't want Mesh to have to hold on to an LResource, or
+  have to implement a second level of refcounting.
+
+- remove last cases of RenderArraySlow
+  - cache for text VBOs, and cache for arbitrary polygons, cleared if not used in a frame.
+
+- create easy way to build Lobster as console-only language.
+  -> this already available for Linux/CMake: just turn off the LOBSTER_ENGINE option.
+  Not sure if it makes much sense for the other platforms?
+
+- This doesn't parse well (see std.lobster):
+  for xs: acc1, acc2 = fun(acc1, acc2, _)
+
+- improve indentation parsing, e.g. here it needs else to be at the same level as the var:
+  v := if ..:
+           ...
+       else:
+           ...
+
+- allow random number generator to be selected
+
+- add a way to limit fps, regardless of what system is capable of.. particles in physics in particular doesn't function
+  correctly at high fps.
+
+- A path towards value types, less reference counting, and less runtime type information.
+  - We can start with builtin functions, and mark arguments as not requiring reference counts
+    increased, and thus all dec-refs can be removed from their code.
+  - We add a set of pushvar and related instructions that does not inc-ref.
+  - initially just in codegen, and extra arg to codegen for an exp says that the code should
+    not inc-ref (using these new instructions, or if too complicated, just add a dec-ref).
+    - actually adding a dec-ref is complicated, if an arg is a new string, or some exp that
+      returns a new string, the dec-ref needs to be after the call if the builtin isn't going to
+      dec-ref.
+  - now in the type checker we can do an analysis wether any variable will ever have inc/dec-ref
+    applied to it, this then transitively works through functions.
+  - initially this just reduces reference counting overhead, but this paves the way for
+    efficient value types.
+  - We can now split reference types (initially just structs, later maybe vectors) in two types,
+    where the value based one points to the memory after the reference count in a struct type.
+    Value types are stored in-line, are passed by pointer, and assigned (and returned) by copy.
+    Maybe the ref count can live before the pointer to keep the two compatible?
+    To be precise, we got 3 types:
+    - Value types, never ref-counted.
+    - Struct non-ref-count, passed as if value type, only if can be analyzed to not need ref-counts.
+    - Struct ref-counted, can be passed to non-ref-count context.
+    Since there is already a value/struct distinction, we can start by making values stored
+    in-line, before we even do analysis for structs.
+    All of this is completely transparent for the user, as there will be no new errors generated,
+    unlike say Rust. They will get the benefit from in-line types and low ref-count overhead
+    pretty much for free.
+  - Related to this is the removal of the type field currently in structs (and vectors), such
+    that values can become completely naked and maximally efficient.
+    In the type system, types are almost always already known statically, so we should be
+    able to remove the type value, and have the compiler insert it as separate value (a hidden
+    arg when needed for builtin calls that want an any type).
+    This is of course best done once most uses of this type field have already been factored
+    out.
+    Or better yet, change the encoding of "any" such that it is a generic object that just
+    bundles a type and a generic value, and is like a built-in value type. This can be used
+    for "any" and dynamic dispatch.
+
+- Simplify scalar use in the project.
+  Current code is a mess of use of int (because, bytecode), size_t (stl), intp (lobster int type),
+  int64_t etc, because of the desire to support both 32/64 bit platforms well, and allow the
+  language to function with those sizes, possibly independently from platform.
+  We can greatly simplify this, driving as much as possible towards signed 64 as the one true int :)
+  This has multiple sub-project which would benefit from all being done together (so code
+  cleanup doesn't need multiple iterations):
+  - adopt ssize_t over size_t by calling ssize() instead of .size() on STL containers.
+  - change bytecode from int to LEB. this will make it more compact, though mildly slower
+    to read. would solve issues with 64-bit contants etc. would read into ssize_t or int64_t,
+    depending. Can still hard-code instruction into 16-bit. Or make it a 16-bit LEB?
+  - Change Value to always be 64-bit (see below).
+  - Finally, deprecate 32-bit platforms, like older Android architectures, and push for wasm64.
+
+- Re-evaluating what to do about 32 vs 64 bits for the language.
+  - Can actually do a 64-bit memory model easily, even in wasm-32, just truncate the i64 into an i32
+    and do regular load. Since it won't give you give you more than 4 gigs this is safe, and then
+    when wasm64 comes around it will be easy to upgrade.
+  - Basically on a 32-bit build, represent a pointer in Value as a uint64_t and cast that to a
+    pointer to force the truncation op. See points 2 & 3 here:
+    https://en.cppreference.com/w/cpp/language/reinterpret_cast
+    In fact, all of this is completely independent of target bit-ness. It would also work for,
+    say, a 32-bit Android build if still required.
+  - On ARM/x86, this truncation is a no-op, even though in Wasm it will cost some instructions
+    space. And this op only has to be done when reading a pointer from a value, most other pointer
+    uses are still native.
+  - Going all-64 may be ok for Lobster, given that lobster data structures represent such a small
+    part of total memory.
+    - Should definitely add support for 8/16/32-bit int arrays and maybe struct fields though.
+    - Maybe allow special structs that pack multiple things in a single 64-bit value? :)
+  - 64-bit is low cost, simpler, with nice extra precision, less overflows, and more future-proof.
+    Once we do this can stop thinking about it entirely.
+    There are quite a few places in Lobster where supporting both means surpring truncations
+    and precision loss.
+  - 32-bit seems nice but it may be a false optimisation, and will continue to create issues when
+    at some point someone wants more precision/address space etc.
+  - Previous thoughts on the topic follow:
+- 32-bit pointers in 64-bit
+  - exampler: https://wiki.openjdk.java.net/display/HotSpot/CompressedOops
+  - If all objects are 8-byte aligned, and if a << 3 is ok, can address 32GB.
+    - Not only that, this only has to store program objects (and maybe code), not things like
+      textures, geometry, etc which are stored in GPU memory. So for a graphically rich game
+      where typically 90% of memory usage is such assets, this 32-bit model can grow until
+      320 GB of memory usage for a game is not sufficient. It thus defers the need for 64-bit
+      so significantly that it becomes practical to target the language to be 32-bit only for
+      the foreseeable future, with all the efficiency and simplicity that brings.
+  - if the base address is a multiple of 4GB, then compressing can be a simple truncate
+    instead of add/substract, and no conditional to compress a nullptr.
+  - needs a conditional to decompress nullptr, unless base address can be 0. That's a huge win,
+    which may be possible be we can assume a 32GB range.
+    - though we have seperate accessors for pointers that can be null, so if the majority is not of
+      that type, it may be ok.
+    - still, not having a base address may be a win by itself.
+    - can simply iterate with mmap to find a large block as low in memory as possible.
+      that should generally not fail?
+      - On Windows, simply turning of ASLR (/HIGHENTROPYVA:NO) allows compressed pointers to
+        work without additional work.
+  - can avoid a conditional to decompress nullptr if we manage to make all tests for null to
+    be (== baseaddr) instead.
+    That may be tricky since we use the fact that int/float/ptr all have 0 bits as false
+    representation to be able to check them without knowing the type with True()
+  - A base of 0 with <<3 is very efficient, which on VS win64 was 7% faster than native 64-bit!
+    Using clang it was about the same speed.
+  - on platforms where we cannot interact with the system to constrain our address space, can
+    create a really dumb allocator that simply re-allocs a buffer containing all memory when
+    needed. This is bad because:
+    - Such big reallocs may cause a pause (speed of memmove is typically only a few GB/sec),
+      though typically only happen once or twice during a game run, hopefully during loading.
+      If using realloc(), you may get lucky and no memmove is needed :)
+    - You temporarily are using 3x as much memory as allocated (current mem + new 2x size block).
+      Should not be an issue on 64-bit.
+    - May cause issues with fragmentation causing such big allocs to fail, though since this
+      technique is only used on 64-bit systems that should be unlikely.
+    So in total this is acceptable, and then on a per platform basis it can be replaced by
+    a more efficient strategy.
+  - will NOT work in the default trampoline compiled mode, since we store function pointers in
+    values there. Have to use the switch mode instead.
+  - More good tips in the comments here:
+    https://stackoverflow.com/questions/50429365/what-is-the-most-reliable-portable-way-to-allocate-memory-at-low-addresses-on
+  - it would be nice to make a distinction where we use compressed pointers only when stored in
+    structs/vectors (so those can be 32-bit always, or still 32-bit even when we allow different
+    sized scalars in these data types).
+    The stack is a really small amount of memory, so keeping that 64-bit should have no effect
+    on cache usage, yet it is the highest frequency access, so naked pointers are a small
+    speedup, allow for 64-bit datatypes, easier to debug etc.
+    - the big question with this model is float conversion speed.
+      http://quick-bench.com/T_FhqmN-7RG_oIEsf4Ur-rCFww8
+      Shows that having everything in float, or everything in doubles, or stored in floats
+      and accumulate into doubles are all equally fast, but what is 3x slower (both gcc and clang)
+      is stored in doubles and accumulate into floats, as that requires an explicit cvtsd2s
+      instruction.
+      So that should be acceptable as that is the least likely case, happens only when writing
+      results back into fields/vectors.
+      - vector ops can still be all-float
+  - Could remove the need for a base address by making everything a relative offset
+    That way, your only concern is to keep all memory within an arbitrary 4GB (or 32GB) range,
+    which should be easier, and doesn't require OS support.
+    The one issue is that it still needs a special case for null.
+    - you can make that actually 0, assuming pointers never point at themselves, such that
+      a null-check can happen before unpacking, and hopefully code that knows something is not
+      null can avoid this check entirely.
+    - the alternative would be an offset towards the base address, but that is way more
+      expensive to check.
+    NOTE: relative offsets will not work unless we disable copy constructor on Value, and track
+    down each and every memcpy or whatever of values
+- Improve 64bit builds.
+  We currently can build for 32 and 64, and in the latter we use int64_t & double, which gives
+  bonus precision, but uses exactly twice as much memory, since all Lobster memory is made out
+  of these values.
+  Suprisingly, for our unit-test path-finding benchmark, 64-bit mode this way is actually
+  23% faster (VM mode, only 16% in C++ compilation mode), despite using more memory, that is
+  apparently how much the VM code benefits from extra regs etc.
+  Now this benchmark probably touches so little memory it all fits in cache, but for most
+  Lobster programs that don't touch a ton of data, 64-bit mode is thus not a problem, in fact,
+  it is a speedup.
+  We can still improve this situation in two ways:
+  1) Could allow types of different sizes at least in vectors and structs where they take the most space, and
+     leave them uniform on the stack. Start with vectors as that's easiest and most impactful.
+     Have a way to specify bit-width for both scalar types (only allowed to be smaller or equal to machine type).
+     default would always be machine size everywhere.
+     If we're lazy and don't want to deal with different sizes in structs, can at least allow size to specified
+     for struct as a whole if all elements are scalar. This not only simplifies things by keeping
+     indexing the as-is, but it allows faster vector ops by only having to check the bit-width
+     once rather than every element.
+     The advantage of the stack staying 64-bit is that you can then actually make use of 64-bit
+     precision when you want to, something which is not the case in 2)
+     How to implement:
+     - Vectors can be created with an annotation to their desired bit-width, which becomes part of
+       its type.
+       - We have to ensure these get checked thru-out, so maybe safer to have special VECTOR_INT
+         types etc.
+     - Similarly, structs can be declared with a particular bit-width. They can be specialized into
+       other bit-widths.
+       - sub-typing check, cannot allow these specializations to be compatible with eachother.
+     - In both cases, the bitwitdth is actually stored in the header of the object.
+     - For direct loads and stores, we use specialized VM instructions, causing no overhead.
+     - For generic code (builtins) that wants to read vector/struct elements, we provide a generic
+       accessor function that dynamically loads the right size.
+       - Sadly, there's no "read an int of n bytes" instruction in C++.
+         Edit: there kinda is, see use of __movsb in flexbuffers.h
+         on x86 you could read an int64 from the memory location, then use shifts to clear the unused bits
+         that preserves the sign (>> is an ASR):
+         value = ((value << 32) >> 32)
+         to convert 32 to 64.
+         though note: http://blog.regehr.org/archives/738
+         On arm, unaligned access is allowed for single scalars on most v6 and all v7 architectures, so maybe its
+         a non-problem.
+         It will be slower, but since it only occurs for vectors that try to save memory, its probably ok.
+         Can we avoid the unnecessary shifts when reading default size value (shifts will be 0) ?
+         Still need a conditional for floats since the shift trick doesn't work there. Worse, now we generically need
+         a conditional to check for floats.
+         Maybe allow bit sizes only for ints?
+         If its only for ints, how useful is it to have it at all? We already have a [byte], namely string, so it
+         would only be for 16/32 bit int vectors.
+       - frankly, a generic accessor function is a bad idea. Pretty much all builtins take a statically typed
+         2/3/4 int/float structs, so we should be able to change the accessors to directly access these.
+         Only problem is requiring them to be one size, e.g. 32bit. Even though we can maybe make the
+         default specializations 32bit, people might expect to be able to specialize xyz for 64bit and
+         still have all these functions work.
+         We could overload all these functions..
+       - Also would be helpful to change some vector builtins (like append) to lobster code, such that specialization
+       can still allow them to work on these vectors.
+     - For compact structs, currently will be wasteful that in RefObj refc & ti can be 64-bits.
+     1b) Alternatively, if the above is not all that crazy useful, implement my "typed buffers" approach
+         and store the buffers inside strings.. doesn't need a new type, and allows all sorts of fun optimized
+         data structures.
+         Also cool for serialization.
+         And helps more generally combat the heavy nature of non-inline objects.
+         Then again, would be even better if structs could be separated from vectors more so we can add these
+         features (variable data sizes, inline structs, trailing vectors) to regular structs.
+     Hmm, trailing vectors means reallocation, so not good to have in regular structs.
+         Actually, no need to separate them, can just disallow them to be passed to generic vector functions.
+         Only valid for structs that look like a vector.
+  2) Could somehow make all the pointers stored in there into 32bit offsets in 64bit mode (and still raw
+     pointers in 32bit).
+     This would generally be good, since using less memory in 64bit could be quite a speedup.
+     Problem is, there's no super elegant way of doing this.
+     - Ideal would be if the OS would allow use to make all allocations come from a 32bit range, but there's
+       no support for this.
+       Instead, can use mmap() with MAP_NORESERVE on Linux/OSX/iOS/Android to just get a large chunk of memory,
+       and then use that incrementally. Means we must have our own large block allocator however.
+       On Windows VirtualAlloc can do the same.
+     - could track all allocations in the allocator, but means also tracking "large" allocs individually,
+       finding these in the table will slow things down, and means code can't run with the base allocator anymore.
+     - simpler, could require the allocator to re-alloc when it needs to grow. If we can guarantee all pointers
+       in it and towards it are offsets, this can work.
+       Problem is that these large reallocs can fail, i.e. might not work well for memory contrained systems such
+       as iOS whenever it goes full 64bit.
+       Also means we can't use the base allocator anymore.
+     - Could track all allocations in an IntResourceManagerCompact.. that's a fair bit of extra memory usage
+       though for small objects.
+     The problem with this approach is that there is no way to do operate on 64bit datatypes in any way this way.
+     Another problem: the ip's stored in Value are native function pointers in C++ mode and would need to
+     be indirected.
+
+- make more args const
+
+- add support for http://vallentinsource.com/opengl/debug-output
+
+- Add #line to C++ output: http://yosefk.com/blog/c-as-an-intermediate-language.html
+
+- Implement these examples in gui.lobster: https://github.com/eugenkiss/7guis/wiki
+
+- in VM stack traces, linenumbers for blocks if/then etc often refer to 1 beyond the last line of their body,
+  which is unhelpful. Should see which instruction they refer to, and which node generates that lineinfo.
+
+- should redo gui.lobster to take all args in virtual float coords, not some in float font relative coords and some
+  in pixels.
+
+- should consider allowing local functions to be declared with "public", which would expose them to closures called
+  from within their parent function. This would allow the whole definition of gui.lobster to be inside gui_start.
+  It would create kind of an inverted object, so all calls could lose the gui_ prefix since they're not global anymore.
+  Would probably work together well with frame state.
+
+- the "ERROR: XAudio2: XAudio2Create() failed at initialization" is apparently happening on all sorts of cheap laptops,
+  including Win7 & 8. SDL folk don't seem to want to fix, it, maybe I should
+
+- supposedly on OS X error window OK button is not clickable?
+
+- add more to http://rosettacode.org/wiki/Category:Lobster
+  once there's no more syntax changes.
+  https://www.google.com/search?as_q=&as_epq=You+are+encouraged+to+solve+this+task+according+to+the+task+description%2C+using+any+language+you+may+know.&as_oq=&as_eq=&as_nlo=&as_nhi=&lr=&cr=&as_qdr=all&as_sitesearch=http%3A%2F%2Frosettacode.org%2F&as_occt=any&safe=images&as_filetype=&as_rights=#as_qdr=all&q=site:http:%2F%2Frosettacode.org%2F+%22You+are+encouraged+to+solve+this+task+according+to+the+task+description%2C+using+any+language+you+may+know.%22
+
+- docs:
+  - not clear
+    - value ... people used to doing v.x +=
+    - else: if:
+    - that you can make your own control structs in your own code: examples focus a bit too much on for/if
+    - the single graphics matrix stack
+    - more on debugging
+  - tutorials
+    - absolute basics for those that don't know programming yet
+  - shader system
+  - performance - do benchmarking
+  - gui system
+  - better language cheat sheet ?
+  - web page:
+    - link to reference and docs more for things that are not explained (e.g. ::)
+    - more images to cool samples written in lobster, to entice what the language can do.
+    first maybe add more/better examples
+
+- examples:
+  - more/better examples..
+  - also make more basic games people can start from
+
+- builtin functionality
+  - stb
+    - try out stb truetype
+    - ogg loading -> stb (streaming vs loading?)
+  - more sound functions: stopping a sound early, volume, getting notification when a sound stops playing,
+    software-based audio mixing, some way to loop sounds.
+  - sphere-to-frustum intersection for easy culling
+  - TCP-IP? enet?
+  - JSON
+  - launching processes and other shell stuff
+
+- disadvantage to Lobster being based on immediate mode rendering is that that is quite taxing on the speed of the
+  language, since you need so much code to just decide what to render each frame
+  directions:
+  - add display lists or something so it is easy to cache rendering calls, and the code generating them doesn't need
+    to be called every frame
+    ideal for level backgrounds etc.
+    though complicates things a tiny bit, as now you have to decide manually when to re-render certain display lists
+  - have an additional retained mode system (probably combined with physics) that would be doubly useful
+    in some cases
+  - work on optimizing the language a bit more
+
+- when running with no args (trying to load a .lbc), current dir should be aux dir when running from commandline
+
+- make it more straight forward to use as an embeddable scripting language
+  - add functionality to call individual functions inside a script
+
+- think about how to support a debugger
+  - would be great if it could be written in Lobster itself:
+    have to figure out how to have a frozen VM, and have debugger code running
+    and how they can share graphics state
+    maybe we can allow multiple windows to start? can make objects that hold window+context+all other graphics state,
+    and allow each VM to open 1, or even multiple per vm
+    if that approach doesn't work, can make a debugger that is a webserver inside the lobster exe, as that's nice and
+    cross platform.
+    But better to try multiple windows first, that be good for threading and other features anyway.
+  - Actually a web-server based debugging interface might be good, use e.g. this:
+    http://runtimelegend.com/tech/webserver/
+  - might be fun to see how hard it is to write an integration for http://lighttable.com/
+    which could be used as a debugger and maybe for live-coding.
+  - Could integrate with VSCode instead.
+    - Sadly the Language Server system is overly complicated, requiring JSON RPC over HTTP to
+      communicate.
+    - Should maybe start with just the debugger, as it is simpler (can communicate over stdio)
+      https://microsoft.github.io/debug-adapter-protocol/
+
+- function f(): x := 1; x + x
+  gives error on x... should disallow
+
+- make win32 version not a console app
+  - need to save lobster text output always to a file, so when it crashes user can send me that
+  - can always type/cat it to show output
+  - ideally lobster has a callback for program output & errors
+  - trace output also to a file
+
+- BitmapFont::height is often 1 or 2 bigger than the original fontheight, which creates problems if code use the
+  fontheight for rendering instead of gl_text_size()
+  either improve the math such that they are guaranteed equal, or document that fontheight should never be used for
+  rendering bounding boxes etc
+
+- Icon style matching on vectors or strings, whereby the current vector and position are stored globally, so you can
+  easily write match('a') | match('b') etc. and find() and other type of searches/matches that string function and
+  regexps generally do. And easy string extraction functions.
+  Could use a HOF to be the stack context of these functions ... can even write it in Lobster itself (with private DS
+  variables) if speed isn't an issue.
+  can support coroutines as a source too.
+
+- coroutines:
+  - having convenient syntax for resuming coroutines at a variety of entry points to simulate methods would be very cool
+  - speedup local access
+  - state tags: allowing blocks to be tagged such that its easy to query externally which "state" a coroutine is in
+
+- transforms:
+    - cannot use matrix functionality for own matmuls etc -> need loadmatrix etc
+    - localmousepos and hit are nonsensical when perspective is on
+
+- should all gl calls check minimized themselves for programmers that don't check gl_visible() (gl rendering when
+  minimized crashes on IOS)
+
+- for mgtest or other games with long load time, have a way to not have an uninitialized window while loading
+  - could add a system for threading long operations like this...
+  - or an easy way to render a first frame?
+
+- a program that reformats lobster code to conform to the style-guide better.
+  Not a trivial program since it can't reuse the existing Lobster lex/parser, since that throws too much information
+  away
+  Will need to be a "conservative" program, yet it must understand enough of program structure (with indents and
+  multi-line exps) to reformat correctly.
+  Must also respect aligned spacing in places.
+
+- calling mg_scale_vec(1, f) where f = nil doesn't work (see codegen NCM_CONT_EXIT).. probably doesn't happen a lot, but
+  needs fixing
+
+- other IQM features
+  - make bone count dependent on max uniforms, and make it an error to load a model over that.. or find out what minimum
+    uniform count is on relevant OpenGL ES 2 devices
+  - can very easily count max weights and choose a shader with less mats
+    maybe add some conditional feature to the shader parser to make this easier
+  - currently scaling is multiplied into the mats if its in the file. Either make scaling an error, or use this to
+    transfrom the normal:
+    mat3 madjtrans = mat3(cross(m[1].xyz, m[2].xyz), cross(m[2].xyz, m[0].xyz), cross(m[0].xyz, m[1].xyz));
+    http://www.arcsynthesis.org/gltut/Illumination/Tut09%20Normal%20Transformation.html
+  - maybe use dual quats?
+
+- improve gui.lobster
+  - pop up menus
+  - multiline text editing system
+
+- should lobster transition to a callback model per frame? that's how mobile devices like to interact with your program,
+  and SDL does some pretty nasty stuff to emulate the pc way of doing things on there.. can we bypass that?
+  Hmm that doesn't require a new programming model.. we can just have gl_frame() suspend the VM so we can return from
+  our frame callback
+
+- optimisations:
+  - could add an optimizer with constant folding, constant propagation and inlining, esp inlining of hofs very important
+    - ideally, need to additionally have a way to do while/if/for without function values, while is terrible atm
+  - think of ways to simplify function calling
+    could keep a simple function reference count, so we can only do the expensive backupping for recursive functions
+    NOTE: recursive calls are not the only situation that requires backups. A simple map(): map(): .. does not look
+    recursive, but has the same implications.
+
+- per function real cpu profiling would not be too expensive
+  just a single qpc per call -> no, 2, needs stack
+    no, can do it stackless if we change the "definedfunction" saving to keeping a current one and saving the previous,
+    that way on each function entry/exit we know who to attribute the current elapsed time to
+  gotta be able to display hierarchically blocks under named functions
+  alternatively, could just do a ++ every instruction to count instructions... not quite as accurate an indication of
+  performance, and harder to display compactly since you'd have to display it next to the lines in source
+
+- compressed loading/saving using my entropy encoder
+
+- didn't solve no mouse up msg when leaving window
+
+- see if we can get page aligned memory with VirtualAlloc / mmap for slaballoc
+
+- making SDL manditory:
+  + it's already mandatory on Android/iOS
+  + error handling
+  + can make features that rely on graphics, like a graphical console/print, graphical debugging, could kill the DOS
+    console
+  + if graphics are mandatory, frame based state makes more sense.. its a bit odd if such a thing is a gl_ feature, but
+    hey why not
+  - no more console-only programs possible.. reduces its usefulness as a general purpose programming language
+  - don't want to have it initializing graphics before compilation... probably can just do it before VM init
+  - killing DOS console means giving up notepad++ integration
+  - right now, lobster could be used as a plug-in scripting language by simply not binding all the graphics stuff
+  at first we can just init SDL at the start of the program, then graphics optionally during execution. this gives us a
+  lot of the combined benefits.. the only thing we lose is not being able to be a plug-in language
+  alternatively, we can make on-demand init of SDL a bit more modular, so that it can be called upon when threading is
+  needed etc.
+
+  Ideally the dependency graph is:
+  base <- engine    <- bindings <- main
+       ^- compiler  <-/
+  So someone can use just the compiler without the engine.
+  A simplified version would just be (this is the current situation):
+  compiler <- engine <- main
+  In VS, the language project compiles without needing SDL or anything beyond stdlib, we
+  should keep it that way
+  The usefulness of being able to use the engine without the compiler is low.
+  Engines are a dime a dozen, and this one is not particularly featureful, and quite specific to
+  its bindings. If you really ever wanted to do a C++ project with this engine and without
+  using Lobster, the fact that the compiler is compiled in doesn't hurt anyone.
+
+- some kind of profiler:
+  - measure instruction inside named function
+  - number of calls of builtin functions
+
+- a := a // where a is an arg is allowed
+
+- dispatcher:
+  - rewrite the dispatcher to be in tree form
+  - can add subtypes that don't have their own case? how about single variant functions?
+  - make type+idx into shorts, so they can be checked with a single compare?
+
+- "is" doesn't deal with subtypes
+
+- bytecode version of compile_run()
+
+- typing:
+  - also support withtype for "method calls"
+  - ::= op (first find a convincing use for it)
+  - could make it a warning or error if X.field is used where X has been withtyped
+
+- get rid of client side data VB rendering by putting rect/line/circle etc in a static vbo, then transform with mvp or
+  uniform
+
+- fix localmousepos to be a position in front of the camera in 3d mode? and in the middle in no cursor mode?
+
+- hiding the console unless there's output for graphical applications
+  note this screws up notepad++ capturing output
+
+- force coroutines to be top level functions to protect people against running into an undefined on resume if they use
+  a free var?
+
+- multiple errors
+
+- make comparators non-associative?
+
+- some form or switch or pattern match facility?
+- pattern matching by failing a function into the next
+
+- make bytecode, not intcode.
+
+- FIXMEs
+
+LIFETIME NOTES:
+- reference counting is a good default, but it is a source of much more inefficiency than I had
+  guessed. Should consider what it would take to add a friendly ownership model.
+  Examples:
+  - My past languages SHEEP and CryScript
+    - SHEEP has full value semantics, which to the user looks like copies, with lots of built-in
+      operators and functions that make use of linearity to do in-place updates.
+      it has: newvec, oldelem = oldvec[i <- newelem] as a way to update a data structure, which
+      ensures nothing is copied or thrown away. If newelem is nil, it becomes a cheap way to
+      take an expensive element out of a vector without copying.
+      It has limited borrowing, with built-in functions annotated as "promise I won't keep a
+      reference"
+    - CryScript produced a tree of regions at runtime, where regions are attached to certain
+      object types. regions would be entered and excited automatically with methods on that type.
+      You can explicitly designate a parent region to e.g. allocate things to be returned from
+      a boundary method. Trying to create a reference from outside a region to inside was
+      disallowed at runtime.
+  - ParaSail
+    the semantics of all data structures are by value, sees an object with a nillable field
+    as "extending" a flat value when set. does copy/move/swap, but does not have borrow.
+    Has an interesting loop syntax that "hides" borrowing to get around the lack of borrowing.
+    https://en.wikipedia.org/wiki/ParaSail_(programming_language)
+    https://drive.google.com/file/d/0B6Vq5QaY4U7ubm5qVkFpMEtmN2s/view
+  - Rust. needs waaay to many type annotations and relatively complex analysis to work.
+    definitely needs to be simpler than this.
+    - Example of the horror to avoid:
+      https://rust-leipzig.github.io/architecture/2016/12/20/idiomatic-trees-in-rust/
+      (his library does NOT even implement a delete method!)
+    - https://stackoverflow.com/questions/34747464/implement-graph-like-datastructure-in-rust
+      Basically, you either use an arena (and leak!) or you use a hashmap (and have potentially
+      dangling references).
+    - So rust is really only nice if you can keep to really simple data structures?
+  - Nim: seems to have a nice middle ground inspired by ParaSail.
+    https://nim-lang.org/araq/destructors.html
+    https://github.com/nim-lang/Nim/wiki/Destructors
+    Actually this latest version appears inspired by Gel below:
+    https://nim-lang.org/araq/ownedrefs.html
+    The idea of leaning on typed allocators to allow unlikely dangling (and thus not
+    having to do refc in release mode for example) is pretty damn smart.
+    You could make this model even simpler, by just ignoring the refc entirely, even in debug,
+    so you just have owned vars that blindly deallocate, any amount of non-owned aliasing,
+    and typed allocators, giving you speed, safety and simplicity at the cost of the occasional
+    unwanted sharing of dangling objects. Nice for a "small language".
+  - Gel: https://pdfs.semanticscholar.org/d0f2/d28962d2a50d1914f0af8243d3f382fe077c.pdf
+    Very pragmatic and much simpler than Rust, but still needs too many ownership annotations
+    for things that should be obvious.
+    Interesting that it still does refc at runtime, presumably to make the type system more
+    lenient, but it doesn't explain how.
+    It has a nice way of reducing reference counts that could also be applied to a traditional
+    (non ownership) reference count language.
+  - Swift 5 is going to get on this bandwagon:
+    https://github.com/apple/swift/blob/master/docs/OwnershipManifesto.md
+    While it already has COW for some types which in theory should make ownership easier, it
+    is apparently a complex enough language that it would require runtime read/write status
+    tracking for every var that could give dynamic errors to guarantee integrity, which seems
+    terrible.
+    Luckily Lobster doesn't have most issues in this doc, thanks to its callgraph based type
+    checking and specialization, and lack of runtime generics, escaping closures etc.
+  - This paper eliminates inner borrowed variables from reference counting:
+    http://liu.diva-portal.org/smash/get/diva2:20899/FULLTEXT01.pdf
+  - Dyon: https://github.com/PistonDevelopers/dyon/issues/173
+    This requires the programmer to get lifetimes right using annotations, ordering or clone
+  ops.
+  We'd want to keep Lobsters light syntax, so any system that requires type annotations
+  frequently can't be used. 99% of code should "just work", even if it occasionally makes
+  copies you don't expect.
+  Unlike Rust, we don't have to care about a single mutable borrow, since we don't have any
+  interior pointers nor do we intend to do shared memory concurrency.
+  In terms of ownership, we have two modes: move (transfer ownership) vs borrow (can be mutable
+  or not).
+  - an expression/constructor always moves.
+  - an assigment wants to move.
+  - a variable can be initialized either by a move (most expressions) or a borrow (an expression
+    that reads from a data structure or variable).
+    - if it was a borrow, all its uses must be borrows as well. The parent variable must be
+      be marked as having been borrowed from, which disallows deletion etc., and must outlive
+      the borrow.
+    - if it was a move, it owns the data. all uses must be borrows, except the last one may
+      be a move.
+      - a special case can be made to allow moves into data structures that are not the last
+        use, e.g. a := newobject; x.y = a; use(a), since the code after the can be transformed into
+        a` := x.y; use(a`)
+        Can do the same with push(), i.e. code afterwards becomes a borrow on the last element
+        of a vector, which locks the vector as "borrowed from"
+  - function arguments should default to borrow (mutable or not), but can be marked as move
+    in special cases. Move is used for:
+    - putting inside a data structure, such as push()
+    - arguments that are lobster "value" types when the result is also a value, this way
+      the memory can be used in-place.
+  - function return values usually move. they can borrow if the exp is field/var reference,
+    if we can correlate the parent to var in the caller?
+  So now, for any value being passed, if source and dest modes are NOT equal, we get:
+  - if src wants to move, and dest wants to borrow, then src has to delete after borrow ends.
+  - if src wants to borrow, and dest wants to move:
+    - if it is non-mutable, a copy is made.
+    - if it is mutable, error. This is because a copy would change semantics.
+      (see variables above for how this can be overcome in some situations)
+  In both cases the "fix" is done by the src (caller), which increases the chances the fix
+  can be avoided (as opposed to the callee always allocating/deallocating).
+  In theory we could use lobster specialization to let the caller determine if they want
+  move/borrow for each param, and specialize if they differ per call. That way each code
+  pattern is efficient. Sadly that also means that a mutable borrow after move will error
+  at the move, rather than at the borrow.
+  So maybe better to resolve these after the function has type checked.
+  Implementation wise, we have the advantage that for a while we can keep refc, so we can
+  check the inserted deletions against the refc to see if they're correct.
+  The good news is that this system can be entirely done without annotations of any kind,
+  and is efficient (only values are copied, which currently are always small).
+  The big downsides are that you can't form DAGs or graphs anymore.
+  Would adding non-mutable vectors have any advantages? those could always be consumed by a move.
+  Another way to look at it is this simple starting point: for each function block, end by
+  deallocating eveything locals hold, but never deallocate arguments. Then most of the lifetime
+  analysis is about when to change those defaults for particular variables.
+  --
+  Its pretty easy to still have refcounting as well, simply by having a level of indirection
+  (a cell object referring to a refc object) this way the cost of refc is only paid by these
+  objects, and inc/dec can happen at creation/destruction of the cell object (so is cheaper
+  than the refcounting we have now, since you don't pay the cost on any parameter passing).
+  Interestingly, you could actually use this for all values: an ownership analysis, which all
+  it does is compute lifetimes for all refs, and inserts an incref where the above algo would
+  do a copy/error.
+  Or more generally, you could allow the programmer to specify what he wants to happen on a
+  multi-ref: a copy (for non mutable / small / stack alloc), an error (for efficient mutables),
+  or an incref (for flexible mutables).
+  We can achieve this with a 3rd type beyond value / struct.. maybe "owned" or "linear"?
+  Or make struct linear, and have a "reference" or "shared" type.
+  The other cool thing in terms of seeing things this way is that you can first implement
+  the reference count for all types, see that it works, and then only after introduce the other
+  two.
+  --
+  Good to read the Gel paper again because it defines type checking rules in terms of expressions
+  having ownership types rather than in terms of transitions, which seems easier to deal with
+  in the type checker. Still, different transitions have different properties, so core
+  type checking functions will need a context parameter.
+  --
+  Sound borrowing.
+  Borrowing a single variable is easy by locking that variable for the lifetime of the borrow.
+  Borrowing a field means locking the object and the field, but still allow writing to other fields.
+  Borrowing a vector index op would meaning locking the vector and that element, but that means
+  proving that any mutations on elements during this borrow are guaranteed on other indices.
+  This is possible in some limited cases, but generally very hard to prove.
+  It is made even harder by all the vector ops, like remove() etc.
+  It may well be that the easiest strategy is borrowing only for variables and fields, and
+  making indexing instead not borrow, but keep.
+  Besides the indexing op, also for loops would need to do this, since they imply indexing,
+  though maybe better have these still borrow, but block mutation on ALL elements?
+  In addition, objects and vectors that are not a single variable (in a field or index op)
+  need to also not borrow, with the exception of chained field accesses probably.
+
+
+TYPECHECKER NOTES:
+==================
+- free variable pre-specialization implementation:
+  in essence, to be fully correct, a function value must be specialized to its free variables when the
+  the function value is *created*, and to its args when it is *called*.
+  We must thus specialize at creation time.
+  This first requires we use SubFunctions as type-ids because otherwise this specialization will
+  get lost thru multiple calls. This should not affect us using Function ids for return-from etc, as these
+  can still be retrieved.
+  Then, how to specialize:
+  at creation time:
+  if first sf is not freevarchecked, just use that one and mark it as such.
+  otherwise, check all specializations (typechecked or not, but only with flag freevarchecked) for a match in freevars.
+  otherwise, if none of the current specializations fit the current free vars, force a clone, and point to that.
+  Make sure we set the types of the freevars to their current values (move from TypeCheckCall).
+  this forces that type-system-wise, no two functions with different free vars have the same id.
+  Might make sense that if there are already multiple subfunctions that have matching freevars we always pick the
+  last one (the first one added), such that these kinds of function values always have the same type, though it
+  may not matter.
+  This should not affect function type definitions, as this is an explicit type check
+  at call time:
+  We must now not terminate at the first untypechecked function.
+  If the current sf is not type-checked, we can simply go ahead and use it.
+  Otherwise, checking all alternatives includes freevars, so will select or clone the right one.
+
+
+CURRENT SOLUTION FROM TRADEOFS:
+===============================
+- decided against:
+  - change V_MULTIPLE into types always being a vector:
+    - while it simplifies some cases that currently have to check against V_MULTIPLE, it
+      complicates a ton of code that wants to pass or check a single type.
+      Current solution actually rather nice. Also gives nice errors on unexpected use of
+      V_MULTIPLE rather than needing to check that everywhere.
+    - Making the type checker not modify nodes.
+      - removing GenericCall is hard. You can invert its subclasses by making them a member
+        instead, but now all your Is<> checking and subclasss access becomes very clumsy.
+        C++ doesn't have a neat way to overwrite with subclasses which would otherwise be a
+        solution.
+      - removing coercion nodes by instead registering coerced types and lifetimes in the nodes
+        itself. turns out this does not simplify the code, since complex cases like an int
+        being typechecked and recip wants to borrow, and then only later being converted to
+        string by subtype, and then needing a lifetime adjustment, are harder to record without
+        coercion nodes. It generally makes the code trickier by making it possible to miss or
+        overwrite these coercions, and harder to debug.
+        These nodes have the downside of testing for a particular type of child being harder,
+        but I think we've covered these with SkipCoercions etc.
+  - use std::variant for nodes in Lobster? or other things like types?
+    - std::visit will have horrible performance in debug for that many nodes, also hard to
+      debug.
+    - nodes can be inline in their parents, total much less allocations.
+- namespaces:
+  Syntax-wise we've been using _ for hardcoded namespaces so far for both builtins (gl_text)
+  and libraries (gui_text). I kinda prefer that syntax to . or ::, it makes the namespace
+  obvious part of the name and feels more lightweight.
+  Though . will be more familiar to people, and makes leaving it out more natural.
+  If we change to . then builtins should also use it.
+  The advantage of _ is flexibility, for example string_to_unicode could be considered to be part
+  of a string namespace, but it is kinda not since length doesn't use it, and for
+  unicode_to_string the namespace is on the other end. Also string.to_unicode doesn' look as
+  good. And since string is not a "class with methods", i.e. length is a free-standing function,
+  we wouldn't want to namespace it since string.length is too verbose.
+  _ allows you to fluently mix namespacing and names, as long as things are "unique enough"
+  Ok, so assuming we keep using _, how do you create a namespace?
+  We could simply have a "namespace gui" declaration, and all top level names get automatically
+  prefixed when used outside the namespace.
+  Alternatively we could have namespacing be decided by the user, by having
+  include "gui.lobster" as gui. If you leave out the as-part, you instead get it dumped in the
+  current namespace.
+  Hmm.. defaulting to namespaced as declared is probably better, "as" could be optional renaming.
+
+- try to measure the cost of removing exception handling from lobster: turning exceptions of will
+  have a gain that my compensate for the branch not taken needed for explicit error handling.
+  - Both VS and gcc appears to be 1% faster with exceptions off.
+  - adding an extra termination conditional in EvalProgram is 7% slower in VS, and 0.5% faster
+    with gcc (manages to infer no exception can be thrown?)
+    Combining the conditional with no-exceptions doesn't seem to make much of a difference for
+    either compiler.
+  - Would need to revert to a switch to make this exit cheaper, but switch is also about 7%
+    slower in VS than trampoline, with or without exceptions.
+  Conclusion: stick with exceptions (and trampoline) for now.
+
+- you can hit multiple overlapping hit boxes with gl_hit(). problem is, you render back to front, but want to hit test front to back...
+    - if you simply clear that a hit happened this frame when its tested, you get that order wrong
+    - if you added z-layers to rendering such that you could do inverse order
+      - if you did it immediate mode, blending wouldn't work correctly, so it would have to be understood that if you did did multiple layers for hit testing, you can't hit on an alpha element
+      - could store all render calls and sort (or just reverse) them after, but this is a lot of storing of stuff
+        we would store color/blend/transform/shader/texture/linemode for each, which is not that much of an overhead since we set these things on every render op anyway
+        (except blend/texture/linemode which can be set when changed),
+        so its purely the cost of allocating/storing, and complicating the code a little
+    - could track an event handling closure and handle it it at the end of the frame. certainly the simplest, if not totally elegant
+      (extra call to handle delayed closure, and delayed closure can't access free variables)
+    - you could compare the current hit rect against the last rect that was hit last frame, and if they are the same, this is the one to fire
+      problem is, this doesn't work on touch screens, where you lose the first touch down event this way
+      -> unless you delayed all touch down events by one frame, to give one hover frame to register (this is the current solution)
+    regardless of the solution above, you also need an additional way to cancel hits that happen inside a toolbar or statusbar that may not have hittests everywhere
+    -> that can already be done by a gl_hit that doesn't react to it's return value
+
+- for things like GUI callbacks, lobsters non-escaping free var function values kinda suck. options:
+  - just call em in place, can only really work in a non-immediate mode gui since otherwise the callback can change the gui layout
+    - use caller_id() to make the gui aware of inserts/deletes so this is now safe <- curent solution
+      - instead of caller_id could have created a vector of args to the gui function as identity. slightly more correct for calls in a loop, but more work.
+    - alternatively since all troubles are caused by element insertion/deletion, have special functionality for turning things on/off, i.e. gui_if() instead of if()
+  - call em afterwards: problematic because variables not available
+  - call em afterwards & force it to take an arg. not elegant, but atleast the arg will remind people to pass values this way
+  - wrap in coroutine so the variable is captured... hard to do since you want to continue with other code after the yield
+  - implement full closures for escaping situations
+    - don't really want another programming language feature just for this
+    - to create closure, would need syntax at the call site which is clumsy if it gets forgotten, and some new data structure to hold vars
+    - would have to back up old vars, load vars from closure, call function, and put old vars back
+    - would probably have a special way to invoke closures so that we don't have to clutter normal function calling, and its easy to give errors if a non-closure is passed in
+      still, there has to be some indication on the stack that we're returning from a closure
+      though I suppose it can work like coroutines, where upon returning from the function it hits a special instruction that does the cleanup
+    - maybe also have a static type for it so no syntax is needed at the call site
+    - could we piggyback on coroutine resume? almost, but not quite.. it wouldn't restore the free vars upon ending the function, for example
+      hmm that could maybe be fixed with a special cleanup instruction
+    - so in summary the implementation effort is a simplified version of what coroutines currently do
+
+NOTES:
+======
+- mrgreenfur has the lobster.io domain we could use as a new homepage..
+- http://rigaux.org/language-study/syntax-across-languages.html
+
+SPEED TESTS
+===========
+secs measured in release win32 on speedtest.lobster, all other figures in debug.
+
+The first 9 numbers were run on a 2600K, but have numbers by 1.77x/1.43x adjusted for it
+being slower than the 8700K being used now, such that all numbers are comparable.
+From (1) on they are on an actual 8700K, and also bumped iterations 10x.
+At (2) bumped iterations 20% because a bug in GOAP was fixed that made it faster.
+At (3) completely reworked benchmarks to add a lot more variety, but balanced to
+still take the same total time for comparison.
+
+VM: last_dyn_typed    : secs 57.1, ins 599572240, fcall 57534476, bcall 2534535, totalalloc 4501531
+VM: last_switch       : secs 43.2, ins 528287030, fcall 53352301, bcall 3283290, totalalloc 4528586
+VM: over fun ptr      : secs 39.5, ins 528287030, fcall 53352301, bcall 3283290, totalalloc 4528586
+C++: first comp       : secs 33.9, ins 528287030, fcall 53352301, bcall 3283290, totalalloc 4528586
+VM: first inline      : secs 37.0, ins 511702691, fcall 34036002, bcall 3289786, totalalloc 4559054
+C++: first inline     : secs 30.1, ins 511702691, fcall 34036002, bcall 3289786, totalalloc 4559054
+VM: inlined for       : secs 29.3, ins 532311325, fcall 10848019, bcall 3285282, totalalloc 4528342
+C++: inlined for      : secs 20.0, ins 532311325, fcall 10848019, bcall 3285282, totalalloc 4528342
+VM: inlined for       : secs 29.2, 1.77x vs 2600K (1)
+C++: inlined for      : secs 20.0, 1.43x vs 2600K
+VM64: inlined for     : secs 23.8, 1.23x vs 32bit
+C++64: inlined for    : secs 17.2, 1.16x vs 32bit
+VM: vec/struct        : secs 26.4
+VM64: vec/struct      : secs 21.1
+VM64: may 2018        : secs 21.5
+VM64: compr_ptr       : secs 20.2, 1.07x vs native pointers
+VM64-MSVC: oct 2018   : secs 21.8
+VM64-LLVM: oct 2018   : secs 20.8, 1.05x MSVC (without -flto, which doesn't work)
+VM64-LLVM: compr_ptr  : secs 21.1, 0.98x vs native pointers, unlike MSVC!
+VM64-LLVM: dec 2018   : secs 20.5, return value related refactorings.
+VM64-LLVM: lifetime1  : secs 20.8, lifetime off (4649 alloc, 105402 decr)
+VM64-LLVM: lifetime1  : secs 18.6, first ever lifetime, few optimisations (4649 alloc, 7175 decr)
+VM64-LLVM: lifetime2  : secs 19.0, first lifetime commit, slightly conservative (4649 alloc, 18858 decr)
+VM64-LLVM: lifetime2  : secs 18.8 (2)
+VM64-LLVM: lifetime2  : secs 18.9, strings pooled (3945 alloc, 13126 decr)
+VM64-LLVM: lifetime2  : secs 18.9 (3) (332258 alloc, 636280 decr)
+C++64-LLVM: lifetime3 : secs 15.7 (with LLVM, LTCG doesn't appear to work under VS)
+C++64-MSVC: lifetime3 : secs 13.8 (LTCG on)
+VM64-MSVC: lvalinl    : secs 18.4 Inlined the LvalOp function, one less switch()
+C++64-MSVC: lvalinl   : secs 12.8 Inlined the LvalOp function, one less switch()
+VM64-MSVC: inlinestr  : secs 16.8 inline structs v1
+C++64-MSVC: inlinestr : secs 13.0 inline structs v1
+C++64-MSVC: immediates: secs 12.4 direct immediates in native code VM calls
+C++64-MSVC: dd        : secs 11.9
+VM64-MSVC:            : secs 16.0 (newer VS, better release settings??)
+
+compiletime speed:
+
+totslike.lobster + dependencies: 2500 loc / 100KB compiles in 0.0106 seconds (averaged from
+1000 runs), which is about 9MB/sec, or 222 kloc/sec.
+
+Parse: 30%
+Typecheck: 41%
+Optimizer: 10%
+Codegen: 2%
+
+uses about 6MB of process memory to run.
+
+DEPENDENCIES
+============
+
+
+node.h
+    [typechecker.h]
+    [codegen.h]
+
+lex.h
+    ttypes.h
+
+idents.h
+    [node.h]
+    natreg.h
+
+disasm.h
+    natreg.h
+        vmdata.h
+            il.h
+    bytecode_generated.h
