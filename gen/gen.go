@@ -117,7 +117,7 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "enable verbose loggging")
 	flag.StringVar(&mojiDir, "moji", "../art/openmoji/color/72x72", "source glyph directory")
 	flag.StringVar(&dataDir, "data", "../data", "source data directory")
-	flag.StringVar(&codeFile, "code", "../src/sprites.lobster", "target code gen file")
+	flag.StringVar(&codeFile, "code", "../src/sheets.lobster", "target code gen file")
 	flag.StringVar(&atlasFile, "atlas", "../assets/sprites.png", "target sprite map file")
 	flag.IntVar(&sprites.Resolution, "res", 72, "sprite resolution")
 	flag.Parse()
