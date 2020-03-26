@@ -8,6 +8,8 @@ restore the **essences of mojick**, interrogating, harvesting, crafting, and,
 where the cause is just, fighting **emojis** to restore mojick to all the
 lands.
 
+![Editor Preview](editor.png)
+
 Emoji Quest is in development and brought to you by the makers of [Escape
 Peruácru Island][peruacru] and [BØRK: Escape the Scandinavian Home Furnishings
 Labyrinth][bork].
