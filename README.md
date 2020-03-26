@@ -4,9 +4,9 @@
 🌈 **Mojick** has faded from the world of 🎲 **Dice**.
 🐉 **Mojical creatures** 🦄 have been lost for an 🕰 age.
 You, 😬 **Adventurer**, are charged to wander the faces of Daia to find and
-restore the **essences of mojick**, interrogating, harvesting, crafting, and,
-where the cause is just, fighting **emojis** to restore mojick to all the
-lands.
+restore the **💨&nbsp;essences&nbsp;💦 of 🔥&nbsp;mojick&nbsp;⚡️**,
+interrogating, 🪓&nbsp;harvesting, ✂️&nbsp;crafting, and, where the cause is
+just, ⚔️&nbsp;fighting **emojis** to restore mojick to all the lands.
 
 ![Editor Preview](editor.png)
 
