@@ -1,0 +1,49 @@
+				entity	tool	yield	requirement	action
+euia								
+🐑	✂️	🧶		*/sheep	scissors	yarn		dec
+🐑	🔪	🍖		*/sheep	*/weapon	mutton		nix
+🌳		🍎		apple tree/*		apple		dec
+🌳		🍐		pear tree/*		pear		dec
+🌳	⛏	🌳		*/hardwood	*/axe/*	hardwood		nix
+🌲	⛏	🌲		*/softwood	*/axe/*	softwood		nix
+🌲		🍍		pine tree/*		pine apple		dec
+☘️		☘️		clover		clover		nix
+⛰		⛏		boulder		pick axe/*		nix
+⛰	⛏	🥉		mountain	*/axe/*	copper		dec
+🏔	⛏	🥈		high mountain	*/axe/*	silver		dec
+🗻	⛏	🥇		volcano	*/axe/*	gold		dec
+occia								
+🌴		🥥		coconut tree/*		coconut		dec
+🌴		🍌		banana tree/*		banana		dec
+🌴		📆		date palm tree/*		date		dec
+🏝	🥄	🏝		island	shovel	sand		dec
+borea								
+								
+midia								
+								
+infernia								
+								
+oria								
+🌵	⛏	🌵		cactus	*/axe/*	cactus		
+dysia								
+								
+sun								
+								
+moon								
+								
+return to euia								
+🐴	🎉	🦄		horse	horn	unicorn		
+🌲	🧹	💉		pine tree/*	broom	needle		
+return to occia								
+🐙	💉	🖋		octopus	needle	pen		
+return to borea								
+								
+return to midia								
+								
+return to infernia								
+								
+return to oria								
+								
+return to dysia								
+								
+unplanned								

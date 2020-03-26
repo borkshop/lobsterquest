@@ -1,0 +1,4 @@
+#!/bin/bash
+cd -- "$(dirname -- "$(dirname -- "${BASH_SOURCES[0]}")")"/gen
+go generate .
+
