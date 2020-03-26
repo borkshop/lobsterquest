@@ -11,8 +11,11 @@ just, ⚔️&nbsp;fighting **emojis** to restore mojick to all the lands.
 ![Editor Preview](editor.png)
 
 Emoji Quest is in development and brought to you by the makers of [Escape
-Peruácru Island][peruacru] and [BØRK: Escape the Scandinavian Home Furnishings
-Labyrinth][bork]. 🚧&nbsp;May contain puns&nbsp;🚧.
+Peruácru Island][peruacru], [BØRK: Escape the Scandinavian Home Furnishings
+Labyrinth][bork], a [weird color picker][color], an [Elvish][elvish]
+transcriber, an Elvish interactive [Map of Middle-Earth][elfmap], and some
+[influential][q] JavaScript [stuff][commonjs].
+🚧&nbsp;May contain puns&nbsp;🚧.
 
 * 🎮 [Discord Chat][discord]
 * 📈 [Spreadsheets][spreadsheets]
@@ -49,6 +52,12 @@ Run `generate-assets` to update generated code.
 
   [peruacru]: https://peruacru.then.land
   [bork]: http://børk.com
+  [color]: http://color.codi.sh
+  [elvish]: https://tengwar.3rin.gs
+  [elfmap]: http://3rin.gs
+  [q]: https://www.npmjs.com/package/q
+  [commonjs]: http://wiki.commonjs.org/wiki/Modules/1.1
+
   [discord]: https://discordapp.com/channels/692076552514699426/692076553017884723
   [spreadsheets]: https://docs.google.com/spreadsheets/d/1U8JJM-g7Br0ePrjH7kg7tJ3N2eb0Mab2y5GDiJo1Tx8/edit#gid=97282066
   [web]: https://github.com/borkshop/emojiquest.app
