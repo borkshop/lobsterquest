@@ -1,0 +1,92 @@
+tile name/flags...	moji	capacity	renew	indoor	health	wander	aggro	damage	breed	notes
+euia	⚅									Euia is the nice side of the world. It is forested and has six mountains, in two ranges, along the northern and southern fringes. There is a castle in the middle, forests to the west and a fluvial plain to the east. The player begins their journey in the forest and must find their way to the north and to the west.
+apple tree/hardwood	🌳	1	1							Apple trees bear apples, introducing the player to the health mechanic. The apples restore one empty health container.
+pine tree/softwood	🌲	1	1							Pine trees exist only in the high mountains. The player must have one stamina and three hearts to reach them from the outset. They produce *pine apples* (natch), which restore two hearts of health instead of one. If the player only has one heart container, the pine apple gives them their second, extending their range of travel deeper into the mountains.  Pine trees can also be cut for their softwood lumber. This is materially necessary to build a canoe, granting access to Occia and the quest for the Essence of Water.
+pear tree/hardwood	🌳	1	1							The pear tree is unique and exists only in the forest due west of Castle Euia. The pear tree drops pears, which are necessary to extend the player’s stamina so they can travel over mountainous terrain and survive. This allows the player to find *a flat miner* and obtain a *pick axe*.
+clover	☘️									Clover exist on the plains to the east of Castle Euia. They become useful in the quest for Occia, where it transpires that they can be gilded to make a fleur de lis, and then reshaped to make a trident. This enables the player to restore Herman the Merman and gain the Essence of Water. This in turn is one of the two requirements to be granted access to the naughty side of the world.
+ewe/sheep	🐑	1	1		2	grass			ram/sheep	Sheep, in general, provide wool which is material necessary for creating coats, which in turn give access to the north face of the world.  Sheep may in turn produce mutton if they are killed with a sword or worse. Meat can extend the health bar to three heart containers.
+ram/sheep	🐏	1	1		2	grass				Rams, however rare, can drop horns. These do not yet figure into any designed quests but will likely be useful for all kinds of horn related crafting, especially the restoration of mojical creatures that require horns, and the creation of mojical instruments, as well as the post office horn and post offices.
+castle	🏰			1						Castle Euia is the seat of Princess Dice, who provides the exposition for the broadest quest arc: restoring mojick. Her lieutenants, the guards provide more tangible advice for the early quest arcs to get access to the north and south.
+euia bank/bank	🏦			1						Once the player has obtained precious medals in the mountains, they need the bank to get the right denominations for various kinds of metal crafts at the forge. The bannk and forge are therefore close together.  The bank also foreshadows the quest of Dysia, where the player will need to get a loan so they can fuel a rocket and seek the Essences of Power and Fire in the heavens.
+euia forge/forge	🏭			1						The forge is a crafting site for changing precious medals into parts the player can use to make all the various kinds of tools.
+glub	🐟									The player finds Glub along the edge of the Euia River, flowing east to Occia. Glub provides the clue that the player needs to build a canoe to go over the east edge of Euia.
+major	💂‍♂️									The major provides a clue that the player must hike into the mountains to get a pick axe. This in turn unlocks the ability to use precious medals and create more tools.
+captain	💂‍♀️									The captain provides a clue about finding the pear tree so the player can travel in the mountains. This is necessary to craft with precious medals.
+miner	👨‍🔧									The player finds a miner in the mountains. The miner gives the player a clue that they can bump into an adjacent mountain to find their first pick axe.
+harriet	🏠									Harriet gives the clues that sheep can be shorn with scissors, and that scissors are made of knives.
+jack	🏡									Jack introduces the knitting mechanic so you can craft a coat.
+boulder	⛰									The boulder fell on a flat miner. Bumping into it frees the miner and produces the pick axe for the player’s use. This unlocks the ability to mine for precious medals.
+mountain	⛰	10								Mountains produce copper. The player may encounter other kinds of mountains for higher denominations of precious medals later in the game, but for now they must trade copper up at the bank to get exact medals necessary for crafting various components at the forge.
+horse	🐴					1			horse	The horse exists to fulfill a later stage quest, where the player has all the five essences and can transmutate the horse into a unicorn.
+unicorn	🦄									Restoring the unicorn is one of the many mojical creatures that satisfy the end game condition of restoring all the mojical creatures.
+occia	⚄									Occia is the west face of the world, in the nice hemicube. Occia is an ocean world, ruled by the merfolk. There are five islands.
+mermaid	🧜‍♀️									
+herman	🏊‍♂️									The Herman quest is to restore this merman (bottom half obscured) by reproducing his lost trident. He will then teach you about the essence of water.
+merman	🧜‍♂️									
+marco	🤽‍♂️					water				
+octopus	🐙									
+fish	🐟				1	water			fish	
+puffer fish	🐡								puffer fish	
+turtle	🐢									
+island	🏝	100	1							
+date palm tree/palm tree/softwood	🌴	1	1							
+banana tree/palm tree/softwood	🌴	1	1							
+coconut tree/palm tree/softwood	🌴	1	1							
+sponge	🧽									
+parrot	🦜									
+occia bank/bank	🏦									
+borea	⚃									
+steamer	🚂									The steam train is the vehicle to carry you on the railway through the center of the world, spiraling around the inner loop of The Pole. To bring the train to life, you will need to master the essence of wind and water.
+north pole	💈									The north pole is the home of Magie and Magus. They will teach you the essence of wind, but you must obtain for them an umbrella. They promise that it’s relevant.
+mojick of borea										
+unlit tree	🌲									The great pine of Borea was once mojical and glimmered with a thousand shining lights.
+lit tree	🎄									
+bear	🐻									The polar bear has lost its mogical cloak of invisibility.
+polar bear	⸪									
+abdominal snowman	⚪️									The abdominal snowman is not much of a snowman. It needs some help to restore its mogical splendor. That may involve fetching a few items to restore it to its senses.
+abominable snowman	⛄️									
+caribou	🦌									Caribou used to be able to fly. They were the preferred mode of boreal transportation before mojick faded.
+whale	🐋									The whale was once the unicorn of the sea. Leaving its bay might set him on his journey to mojical restoration. As there is no Narwhal emoji, the creature just disappears in search of mojick, thereby completing the quest.
+midia										
+sal the snake	🐍									
+sal the mander	🦎									
+infernia	⚂									
+cheese wizard	🧙‍♂️									
+sand witch	🧙‍♀️									
+south pole	🗼									
+										
+oria	⚁									
+jennie	🧞‍♀️									
+gene	🧞‍♂️									
+cactus	🌵									
+bamboo	🎍									
+panda	🐼									
+dysia	⚀									
+										
+										
+ethyria										
+sun	☀️									
+sol	🌞									
+moon	🌙									
+lune	🌝									
+asteroid	☄️					sky				
+										
+unplanned										
+dumbledore	🐝									
+high mountain	🏔	10								
+volcano	🗻	10								
+gym	🏥			1						
+observatory	🔭			1						
+justin/clock	🕰			1						
+nick/clock	⏰									
+bakery	🏭			1						
+plumber	👨🏻‍🔧									
+genome	👨🏼‍🌾									
+pat	👨🏻‍🦰									
+kris and lydia	🏡									
+kitty	🐈									
+tiger	🐅									
+infernia warning sign	🚧									
+asia	🌏									
+africa	🌍									
+america	🌎									

@@ -1,0 +1,63 @@
+					before left	before right	after left	after right	at
+euia									
+🥉	🥉	🥈		🏦	copper	copper	silver		*/bank
+🥈	🥉	🥇		🏦	silver	copper	gold		*/bank
+🥇		🥈	🥉	🏦	gold		silver	copper	*/bank
+🥈		🥉	🥉	🏦	silver		copper	copper	*/bank
+🥉		🔗		🏭	copper		link		*/forge
+🥈		🔩		🏭	silver		bolt		*/forge
+🥇		⚙️		🏭	gold		gear		*/forge
+🔩	🔩	🔪			bolt	bolt	knife/*		
+🔩	⚙️	🥄			bolt	gear	shovel		
+🔩	🔗	🔧			bolt	link	wrench/*		
+⚙️	🔩	⛏			gear	bolt	*/pick/*		
+⚙️	⚙️	🚲			gear	gear	bicycle		
+⚙️	🔗	⚓️			gear	link	hook		
+🔗	🔩	🔨			link	bolt	hammer/*		
+🔗	⚙️	🛡			link	gear	shield		
+🔗	🔗	⛓			link	link	chain		
+🔪	🔪	✂️			knife/*	knife/*	scissors		
+🔨	⛏	⚒			hammer/*	pick axe/*	hammer and pick/*		
+🔨	🔧	🛠			hammer/*	*/wrench/*	hammer and wrench/*		
+🔪	🔩	🗡			knife/*	bolt	sword/*		
+⛓	⚙️	🗑			chain	gear	basket		
+🗑	🚲	🛒			basket	bicycle	cart		
+🌲	⚓️	🎣			softwood	hook	fishing rod		
+🔪	🔨	🗡	🔨	🏭	knife/*	*/hammer/*	sword/*	*/hammer/*	*/forge
+🛡	🔧	🗡	🔧	🏭	shield	*/wrench/*	sword/*	*/wrench/*	*/forge
+🌲	🔪	🥢	🔪		softwood	knife/*	knitting needles	knife/*	
+🌲	🥄	🛶	🥄		softwood	shovel	canoe	shovel	
+🧶	🥢	🧥	🥢		yarn	knitting needles	coat	knitting needles	
+occia									
+☘️	🥇	⚜️			clover	gold	fleur		
+⚜️	🛠	🔱	🛠		fleur	hammer and wrench/*	trident	hammer and wrench/*	
+🏝	🔩	⚗️	🔩	🏭	sand	bolt	alembic	bolt	*/forge
+									
+borea									
+									
+infernia									
+									
+oria									
+									
+dysia									
+									
+ethyria									
+🌜	🌛	🌝			left lune	right lune	lune		
+mojicka									
+									
+unplanned									
+🌲	🌈	🧹	🌈		softwood	mojick	broom	mojick	
+									
+return to euia									
+									
+return to occia									
+									
+return to borea									
+									
+return to midia									
+									
+return to infernia									
+									
+return to oria									
+									
+return to dysia									
