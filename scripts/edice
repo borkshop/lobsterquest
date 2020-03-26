@@ -1,0 +1,4 @@
+#!/bin/bash
+DIR=$(dirname -- "$(dirname -- "${BASH_SOURCES[0]}")")
+cd -- "$DIR"
+$DIR/lobster/bin/lobster src/editor.lobster
