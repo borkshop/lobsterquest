@@ -1,5 +1,5 @@
 
-# 🧙‍♀️🧝‍♂️ Emoji Quest
+# 🧙‍♀️ Emoji Quest 🧝‍♂️
 
 🌈 **Mojick** has faded from the world of 🎲 **Dice**.
 🐉 **Mojical creatures** 🦄 have been lost for an 🕰 age.
@@ -12,7 +12,7 @@ just, ⚔️&nbsp;fighting **emojis** to restore mojick to all the lands.
 
 Emoji Quest is in development and brought to you by the makers of [Escape
 Peruácru Island][peruacru] and [BØRK: Escape the Scandinavian Home Furnishings
-Labyrinth][bork].
+Labyrinth][bork]. 🚧&nbsp;May contain puns&nbsp;🚧.
 
 * 🎮 [Discord Chat][discord]
 * 📈 [Spreadsheets][spreadsheets]
@@ -20,7 +20,7 @@ Labyrinth][bork].
 * 🦞 [Lobster Language][lobster]
 * 🧛‍♂️ [Patreon Donations][patreon]
 
-# 🚧 Contributing
+# 👷‍♀️ Contributing 👷‍♂️
 
 Use [direnv](https://direnv.net/) to automatically set up your PATH when
 working within the EmojiQuest repository.
