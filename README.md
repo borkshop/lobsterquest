@@ -1,12 +1,17 @@
 
 # 🧙‍♀️ Emoji Quest 🧝‍♂️
 
-🌈&nbsp;**Mojick** has faded from the world of **Dice**&nbsp;🎲.
-🐉&nbsp;**Mojical creatures**&nbsp;🦄 have been lost for an age&nbsp;🕰.
-You, 😬&nbsp;**Adventurer**&nbsp;😲, are charged to wander the faces of Daia to
-find and restore the **💨&nbsp;essences&nbsp;💦 of 🔥&nbsp;mojick&nbsp;⚡️**,
-interrogating, 🪓&nbsp;harvesting, ✂️&nbsp;crafting, and, where the cause is
-just, ⚔️&nbsp;fighting **emojis** to restore mojick to all the lands.
+<nobr>🌈 <b>Mojick</b></nobr> has faded from the world.
+<nobr>🐉 <b>Mojical creatures</b> 🦄</nobr> have been lost for an <nobr>age 🕰</nobr>.
+You, <nobr>😬 <b>Adventurer</b> 😲</nobr>, are charged to wander the
+<nobr>🎲 <b>Faces of Daia</b> 🎲</nobr> to find and restore the
+<nobr><b>💨 essences 💦 of 🔥 mojick ⚡️</b></nobr>,
+<nobr>❓ interrogating</nobr>,
+<nobr>🪓 harvesting</nobr>,
+<nobr>✂️ crafting</nobr>, and,
+where the cause is just,
+<nobr>⚔️ fighting</nobr>
+<b>emojis</b> to restore mojick to all the lands.
 
 ![Editor Preview](editor.png)
 
