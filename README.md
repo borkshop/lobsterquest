@@ -20,7 +20,7 @@ Peruácru Island][peruacru], [BØRK: Escape the Scandinavian Home Furnishings
 Labyrinth][bork], a [weird color picker][color], an [Elvish][elvish]
 transcriber, an Elvish interactive [Map of Middle-Earth][elfmap], and some
 [influential][q] JavaScript [stuff][commonjs].
-🚧&nbsp;May contain puns&nbsp;🚧.
+⚠️&nbsp;May contain puns&nbsp;⚠️.
 
 * 🎮 [Discord Chat][discord]
 * 📈 [Spreadsheets][spreadsheets]
@@ -28,7 +28,7 @@ transcriber, an Elvish interactive [Map of Middle-Earth][elfmap], and some
 * 🦞 [Lobster Language][lobster]
 * 🧛‍♂️ [Patreon Donations][patreon]
 
-# 👷‍♀️ Contributing 👷‍♂️
+# 🏗👷‍♀️ Contributing 👷‍♂️🚧
 
 Use [direnv](https://direnv.net/) to automatically set up your PATH when
 working within the EmojiQuest repository.
