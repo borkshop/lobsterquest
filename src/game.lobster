@@ -35,6 +35,27 @@ import ecs
 
 */
 
+def print_list(title, level, body):
+    var first = true
+    var last = ""
+    var indent = repeat_string(" ", 2*level)
+    body(level) item:
+        if last != "":
+            if first:
+                first = false
+                print(indent + "- " + title + ":")
+                level++
+                indent = repeat_string(" ", 2*level)
+            print(indent + "- " + last)
+        last = item
+    if first:
+        if last == "":
+            print(indent + "- " + title + ": --none--")
+        else:
+            print(indent + "- " + title + ": " + last)
+    else: if last != "":
+        print(indent + "- " + last)
+
 // TODO eject data templates into separate module
 let templates = ent_templates {}
 
@@ -208,6 +229,7 @@ class avatars : system
             gl_scale(float(res)):
                 av.draw_tile()
         av.retex = false
+        shard.invalidate(id)
 
     def update_any(shard):
         for(avatars) av, avatar_id: if av.retex:
@@ -243,12 +265,13 @@ class avatars : system
             ids.remove(avatar_id, n)
             avatars.remove(avatar_id, n)
             shard.tex[id] = nil
+            shard.invalidate(id)
 
     def ent_changed(shard, id:int, new:entype, old:entype):
         if (old ^ new) & ent_avatar:
             if       new & ent_avatar: this.enter(shard, id, new)
             else: if old & ent_avatar: this.exit(shard, id)
-        else: if (old ^ new) & ent_input:
+        else: if shard.type[id] & ent_avatar and (old ^ new) & ent_input:
             let show = if new & ent_input: true else: false
             this.with(shard, id) av:
                 av.show_hearts = show
@@ -257,10 +280,18 @@ class avatars : system
 
 //// shard integration
 
+enum_flags trace:
+    trace_spawn
+    trace_all // all entities, not just ones with ent_debug set
+
 class chunk : shard
-    templates = templates 
+    // debug tracing
+    trace = trace(0) // TODO trace_avatar
+
+    // performance timers
     timers = timers{}
 
+    // game-specific entity systems
     spawner = spawner {}
     minds   = minds {}
     bodys   = bodys {}
@@ -269,12 +300,45 @@ class chunk : shard
 
     movement_time = 1.0 / 4
 
+    // scratch data used for action stepping
     actor_ids = []::int
     actions   = []::action
     targets   = []::xy_i
     group_ids = []::int
     groups    = []::[int]
     hits      = []::[int]
+
+    def should_trace(id, mask):
+        if trace & mask:
+            if trace & trace_all: return true
+            if type[id] & ent_debug: return true
+        return false
+
+    def render_ent(id):
+        let tx = tex[id]
+        if tx:
+            gl_set_shader("textured")
+            gl_set_primitive_texture(0, tx)
+            gl_color(color_white): gl_unit_square()
+        else:
+            ren[id].draw()
+
+    def transform_ent(id, size, body):
+        let p = pos[id]
+        let c = p.xy - p.w / 2
+        gl_translate(c * size): gl_scale(size * p.w): body()
+
+    def draw_ent(id, size): transform_ent(id, size):
+        var tx = ksh[id]
+        let tx_size = xy_i { int(size.x), int(size.y) }
+        if !tx or gl_texture_size(tx) != tx_size:
+            tx = render_to_texture(nil, tx_size, false, nil, texture_format_clamp | texture_format_nomipmap):
+                gl_scale(size): render_ent(id)
+            ksh[id] = tx
+        assert tx // FIXME
+        gl_set_shader("textured")
+        gl_set_primitive_texture(0, tx)
+        gl_color(color_white): gl_unit_square()
 
     def can_step():
         return !anims.blocked
@@ -296,6 +360,10 @@ class chunk : shard
             z: a.z,
             w: a.w,
         }
+
+        if at.length == 1 and at[0] == id:
+            // TODO special case self action?
+            return
 
         anims.animate(id, movement_time) anim:
             anim.blocking = true
@@ -375,29 +443,29 @@ class chunk : shard
                         // TODO could open offered modal
                         if av.take(offered):
                             other_av.offer_taken()
-                            print("#" + id + " took offered " + offered + " from #" + object_id)
+                            print(this.tag(id) + " took offered " + offered + " from " + this.tag(object_id))
                             return true
                         else:
-                            print("#" + id + " decline offered " + offered + " from #" + object_id)
+                            print(this.tag(id) + " decline offered " + offered + " from " + this.tag(object_id))
                     else:
-                        print("#" + id + " shrug at #" + object_id)
+                        print(this.tag(id) + " shrug at " + this.tag(object_id))
                     return false
                 let tile_id = tile[object_id]
                 let item_id = item[object_id]
                 if item_id != item_none:
                     if av.take(item_id):
                         this.set_type(object_id, ent_none)
-                        print("#" + id + " took " + item_id + " from #" + object_id)
+                        print(this.tag(id) + " took " + item_id + " from " + this.tag(object_id))
                         return true
                     else:
-                        print("#" + id + " pass " + item_id + " from #" + object_id)
+                        print(this.tag(id) + " pass " + item_id + " from " + this.tag(object_id))
                 else: if tile_id != tile_none:
                     // TODO gathering from tiles, climbing onto tiles, entering
                     // vehicle tiles, enter any inner space, ...
-                    print("#" + id + " TODO " + tile_id + " from #" + object_id)
+                    print(this.tag(id) + " TODO " + tile_id + " from " + this.tag(object_id))
                 else:
                     // TODO avatar state (hand items) X object
-                    print("#" + id + " booped an unknown type:" + entype_str(t) + " from #" + object_id)
+                    print(this.tag(id) + " booped an unknown type:" + entype_str(t) + " from " + this.tag(object_id))
                 return false
 
             switch act.act:
@@ -408,7 +476,7 @@ class chunk : shard
                 case action_hand_combine: av.combine_hands()
                 case action_move:
                     if act.dir == xy_0:
-                        print("#" + id + " rest...") // TODO and then...
+                        print(this.tag(id) + " rest...") // TODO and then...
                     else:
                         actor_find_at(actor_id) object_id: boop(object_id)
                         actor_move(id, actor_id)
@@ -434,7 +502,6 @@ class stacked_scene : system
     ids = []::int
     zs  = []::float
     // TODO maybe bucket-by-z rather than full sorting
-    // TODO pre-computed tile
 
     def enter(shard, id):
         let z = shard.pos[id].z
@@ -473,85 +540,70 @@ class stacked_scene : system
         let minc, maxc = bounds(chunk)
         let space_size = float(maxc - minc + 1)
         let side_size  = float(max(1, min(floor(screen_size / space_size))))
-        let cell_size  = xy_f { side_size, side_size }
         let view_rem   = screen_size - space_size * side_size
         gl_translate(float(-minc.xy) * side_size + view_rem / 2):
-            for(ids) id:
-                // TODO precomputed translation
-                // TODO prerendered tile textures
-                let p = chunk.pos[id]
-                let c = p.xy - p.w / 2
-                gl_translate(c * cell_size):
-                    let size = cell_size * p.w
-                    gl_scale(size):
-                        let tex = chunk.tex[id]
-                        if tex:
-                            gl_set_shader("textured")
-                            gl_set_primitive_texture(0, tex)
-                            gl_color(color_white): gl_unit_square()
-                        else:
-                            chunk.ren[id].draw()
+            let cell_size = xy_f { side_size, side_size }
+            for(ids): chunk.draw_ent(_, cell_size)
 
-def create_with(this::ent_template, chunk:chunk, loc:xy_f, body):
-    // may have associated tile or item sheet data, but not both
-    assert tile == tile_none or item == item_none
-    return chunk.create(type) id:
-        var r = render { bg, fg, glyph }
-        if r.glyf == glyph_0:
-            if       tile != tile_none: r = r.with_glyph(tile_sprite(tile))
-            else: if item != item_none: r = r.with_glyph(item_sprite(item))
-        chunk.pos[id] = spatial { loc.x + 0.5, loc.y + 0.5, z, size } // TODO better placement
-        chunk.ren[id] = r
-        if tile != tile_none: chunk.tile[id] = tile
-        if item != item_none: chunk.item[id] = item
-    post id:
-        if type & ent_mind:
-            chunk.minds.set_init(id, initiative)
-        if type & ent_avatar: chunk.avatars.with(chunk, id) av:
-            if avatar_helf.y     != 0:         av.helf       = avatar_helf
-            if avatar_stam.y     != 0:         av.stam       = avatar_stam
-            if avatar_gives:                   av.gives      = avatar_gives
-            if avatar_left_hand  != item_none: av.left_hand  = avatar_left_hand
-            if avatar_right_hand != item_none: av.right_hand = avatar_right_hand
-        if this.spawn_prob != xy_0i:
-            chunk.spawner.add_spawn(id) sp:
-                sp.prob(spawn_prob.x, spawn_prob.y)
-                sp.add_spawn(this.spawn_template)
-        body(id)
+def build_entity(this::ent_scaffold, chunk:chunk, id:int):
+    if tmpl.type & ent_mind:
+        chunk.minds.set_init(id, tmpl.initiative)
+    if tmpl.type & ent_avatar: chunk.avatars.with(chunk, id) av:
+        if tmpl.avatar_helf.y     != 0:         av.helf       = tmpl.avatar_helf
+        if tmpl.avatar_stam.y     != 0:         av.stam       = tmpl.avatar_stam
+        if tmpl.avatar_gives:                   av.gives      = tmpl.avatar_gives
+        if tmpl.avatar_left_hand  != item_none: av.left_hand  = tmpl.avatar_left_hand
+        if tmpl.avatar_right_hand != item_none: av.right_hand = tmpl.avatar_right_hand
+    if tmpl.spawn_template.length:
+        chunk.spawner.add_spawns(id, this)
 
-def create(this::ent_template, chunk:chunk, loc:xy_f):
-    return create_with(chunk, loc): nil
+def create_with(this::ent_scaffold, chunk:chunk, body):
+    if not tmpl.type:
+        return
+    assert tmpl.tile == tile_none or tmpl.item == item_none // may have associated tile or item sheet data, but not both
+    let id = chunk.create(tmpl.type): this.init_entity(chunk, _)
+    let r = chunk.ren[id]
+    if r.glyf == glyph_0:
+        if       tmpl.tile != tile_none: chunk.ren[id] = r.with_glyph(tile_sprite(tmpl.tile))
+        else: if tmpl.item != item_none: chunk.ren[id] = r.with_glyph(item_sprite(tmpl.item))
+    build_entity(chunk, id)
+    body(id, this)
 
-def create(this::ent_templates, id:int, chunk:chunk, loc:xy_f):
-    return defs[id].create(chunk, loc)
+def create(this::ent_scaffold, chunk:chunk):
+    var id = 0
+    this.create_with(chunk) _: id = _
+    return id
 
-def create_with(this::ent_templates, id:int, chunk:chunk, loc:xy_f, body):
-    return defs[id].create_with(chunk, loc, body)
+def may_spawn(this::ent_scaffold, chunk:chunk, l:xy_f):
+    let there = chunk.bodys_at(int(l))
+    // tiles are exclusive, items are unique, bodys are exclusive, otherwise ... sure?
+    if tmpl.tile != tile_none: return !exists(there): chunk.tile[_] != tile_none
+    if tmpl.item != item_none: return !exists(there): chunk.item[_] == tmpl.item
+    if tmpl.type & ent_body: return !exists(there): chunk.type[_] & ent_body
+    return true
+
+def do_spawn(this::ent_scaffold, chunk:chunk, l:xy_f, body):
+    at(l):
+        create_with(chunk, body)
 
 def spawn(this::spawner, chunk):
     var last_id = -1
-    var at = spatial_0
+    var loc = xy_0
     var did = false
 
     def once_each(when, then):
         for(ids) id, spawn_id:
             if id != last_id:
                 last_id = id
-                at = chunk.pos[id]
+                loc = float(chunk.pos[id].cell())
                 did = false
             if not did and when(id, spawn_id):
                 then(id, spawn_id)
                 did = true
 
     def can_spawn(spawn_id) -> bool:
-        // TODO other constraints
-        let tmpl = chunk.templates.defs[tid[spawn_id]]
-        let there = chunk.bodys_at(at.cell())
-        // tiles are exclusive, items are unique, bodys are exclusive, otherwise ... sure?
-        if tmpl.tile != tile_none: return !exists(there): chunk.tile[_] != tile_none
-        if tmpl.item != item_none: return !exists(there): chunk.item[_] == tmpl.item
-        if tmpl.type & ent_body: return !exists(there): chunk.type[_] & ent_body
-        return true
+        let ctx = scaf[spawn_id]
+        return ctx.may_spawn(chunk, loc)
 
     def should_spawn(spawn_id) -> bool:
         // TODO other trigger modes or distributions?
@@ -560,10 +612,10 @@ def spawn(this::spawner, chunk):
 
     once_each() id, spawn_id: can_spawn(spawn_id) and should_spawn(spawn_id)
     then id, spawn_id:
-        let loc = float(at.cell())
-        let template_id = tid[spawn_id]
-        let new_id = chunk.templates.create(template_id, chunk, loc)
-        print("#" + id + " spawn_id:" + spawn_id + " spawned #" + new_id + " template:" + template_id)
+        let ctx = scaf[spawn_id]
+        ctx.do_spawn(chunk, loc) new_id:
+            if chunk.should_trace(id, trace_spawn):
+                print(chunk.tag(id) + " spawn_id:" + spawn_id + " spawned " + chunk.tag(new_id) + " template:" + ctx.tmpl)
 
 def spawn_items(this::chunk): spawner.spawn(this)
 
@@ -604,39 +656,50 @@ let floor_template = templates.define(ent_cell | ent_visible):
     _.z    = 0.0
     _.size = 1.0
 
-let tile_template = templates.define(ent_body | ent_visible):
-    _.z    = 0.5
-    _.size = 1.0
+// FIXME tmpl_ prefix to avoid sheet constants ; ideally sheet should own these
+// definitions
 
-let item_template = templates.define(ent_body | ent_visible):
+let tmpl_item_pine_apple = templates.define(ent_body | ent_visible):
+    _.name = "pineapple"
     _.z    = 0.75
     _.size = 1.0 / 3.0
-
-let char_template = templates.define(ent_body | ent_visible | ent_avatar | ent_mind):
-    _.z    = 1.0
-    _.size = 1.0
-
-let player_template = templates.extend(char_template):
-    _.type = _.type | ent_input
-    _.initiative = 10
-
-let tmpl_item_pine_apple = templates.extend(item_template):
+    _.fg   = color_white
     _.item = item_pine_apple
 
-let tmpl_item_apple = templates.extend(item_template):
+let tmpl_item_apple = templates.define(ent_body | ent_visible):
+    _.name = "apple"
+    _.z    = 0.75
+    _.size = 1.0 / 3.0
+    _.fg   = color_white
     _.item = item_apple
 
-let tree_evergreen = templates.extend(tile_template):
+let tree_evergreen = templates.define(ent_body | ent_visible):
+    _.name = "evergreen tree"
+    _.z    = 0.5
+    _.size = 1.0
+    _.fg   = color_white
     _.tile = tile_pine_tree
-    _.spawn_prob = xy_i { 5, 1000 }
-    _.spawn_template = tmpl_item_pine_apple
+    _.add_spawn_sibling(tmpl_item_pine_apple, xy_i { 5, 1000 })
 
-let tree_deciduous = templates.extend(tile_template):
+let tree_deciduous = templates.define(ent_body | ent_visible):
+    _.name = "deciduous tree"
+    _.z    = 0.5
+    _.size = 1.0
+    _.fg   = color_white
     _.tile = tile_apple_tree
-    _.spawn_prob = xy_i { 5, 1000 }
-    _.spawn_template = tmpl_item_apple
+    _.add_spawn_sibling(tmpl_item_apple, xy_i { 5, 1000 })
 
-let element_earth = templates.extend(char_template):
+let player_template = templates.define(ent_body | ent_visible | ent_mind | ent_avatar | ent_input | ent_debug):
+    _.name = "player"
+    _.z    = 1.0
+    _.size = 1.0
+    _.fg   = color_white
+    _.initiative = 10
+
+let element_earth = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.name = "earth elemental"
+    _.z    = 1.0
+    _.size = 1.0
     _.glyph = item_sprite(item_clover)
     _.fg = color_dark_green
     _.initiative = 3
@@ -644,7 +707,10 @@ let element_earth = templates.extend(char_template):
     _.avatar_left_hand = item_clover
     _.avatar_right_hand = item_clover
 
-let element_water = templates.extend(char_template):
+let element_water = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.name = "water elemental"
+    _.z    = 1.0
+    _.size = 1.0
     _.glyph = item_sprite(item_water)
     _.fg = color_teal
     _.initiative = 4
@@ -652,7 +718,10 @@ let element_water = templates.extend(char_template):
     _.avatar_left_hand = item_water
     _.avatar_right_hand = item_water
 
-let element_fire = templates.extend(char_template):
+let element_fire = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.name = "fire elemental"
+    _.z    = 1.0
+    _.size = 1.0
     _.glyph = item_sprite(item_fire)
     _.fg = color_orange
     _.initiative = 6
@@ -660,7 +729,10 @@ let element_fire = templates.extend(char_template):
     _.avatar_left_hand = item_fire
     _.avatar_right_hand = item_fire
 
-let element_air = templates.extend(char_template):
+let element_air = templates.define(ent_body | ent_visible | ent_mind | ent_avatar):
+    _.name = "air elemental"
+    _.z    = 1.0
+    _.size = 1.0
     _.glyph = item_sprite(item_wind)
     _.fg = color_cyan
     _.initiative = 5
@@ -670,7 +742,9 @@ let element_air = templates.extend(char_template):
 
 def build_world(chunk):
     let size = 12
-    let build = ent_scaffold {}
+    let build = ent_scaffold {
+        templates : templates
+    }
 
     let dirt = [
         glyph_0, glyph_0, uniblock(0x2591), // ░
@@ -688,25 +762,27 @@ def build_world(chunk):
     let tree_fg_base      = color { 0.2,  0.25, 0.1,  1 }
     let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
-    build.fill_rect(size) x, y:
-        chunk.templates.create_with(floor_template, chunk, build.loc) id:
-            let glyph = dirt.rnd_pick()
-            let bg = floor_bg_base + floor_bg_variance * rnd_float()
-            let fg = if glyph == glyph_0: color_clear else: bg + floor_fg_lift
-            chunk.ren[id] = render { bg, fg, glyph }
-        if x == 0 || y == 0 || x == size-1 || y == size-1:
-            chunk.templates.create_with(trees.rnd_pick(), chunk, build.loc) id:
-                chunk.ren[id] = chunk.ren[id].with_fg(tree_fg_base + tree_fg_variance * rnd_float())
+    build.use_id(floor_template):
+        build.fill_rect(size) x, y:
+            build.create_with(chunk) id:
+                let glyph = dirt.rnd_pick()
+                let bg = floor_bg_base + floor_bg_variance * rnd_float()
+                let fg = if glyph == glyph_0: color_clear else: bg + floor_fg_lift
+                chunk.ren[id] = render { bg, fg, glyph }
+            if x == 0 || y == 0 || x == size-1 || y == size-1:
+                build.use_id(trees.rnd_pick()): build.create_with(chunk) id:
+                    chunk.ren[id] = chunk.ren[id].with_fg(tree_fg_base + tree_fg_variance * rnd_float())
+
     let mid = float(floor(size / 2))
     build.translate(xy_f { mid, mid }):
         let l = size / 4
-        build.each([
+        build.translate_each([
             xy_f { -l,  l },
             xy_f {  l,  l },
             xy_f {  l, -l },
             xy_f { -l, -l },
-        ]): chunk.templates.create(elements[_], chunk, build.loc)
-        chunk.templates.create(player_template, chunk, build.loc)
+        ]): build.use_id(elements[_]): build.create(chunk)
+        build.use_id(player_template): build.create(chunk)
 
 //// usage
 
