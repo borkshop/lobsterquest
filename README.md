@@ -35,27 +35,40 @@ working within the EmojiQuest repository.
 All further instructions assume `scripts` and `lobster/bin` are on your
 executable path.
 
-Run `build-lobster` (or follow the instructions appropriate for your platform
-in `lobster/docs/getting_started.html`) to create the required `lobster`
-binary.  You may need to `git checkout HEAD lobster` afterward to restore a
-clean working copy since building lobster alters checked-in artifacts.
+Build a lobster executable.
+Detailed instructions are in `lobster/docs/getting_started.html`.
+
+```sh
+cd lobster/dev
+cmake -DCMAKE_BUILD_TYPE=Release
+make -j8
+```
 
 Run `go generate ./gen` to build the sprite atlas and other game code from game
 data.
 
-Run `edice` to edit the tile map of Daia, the world of EmojiQuest.
+To run the Emoji Quest world editor, there is an `edice` script for
+convenience on Linux systems.
+Otherwise, the program starts at `src/editor.lobster`.
+
+```sh
+lobster/bin/lobster src/editor.lobster
+```
+
+To update the lobster version, use `git subtree` and rebuild the executable.
+
+```sh
+git subtree pull --prefix=lobster https://github.com/aardappel/lobster master
+```
 
 [Lobster][lobster], [OpenMoji][openmoji], and game data [spreadsheets] are
 checked in.
 
-To update Lobster, run `update-lobster [ref]`.
-Run `build-lobster` afterward to get a fresh executable.
+To update Openmoji, run `update-openmoji [ref]` and then run `go generate
+./gen` to update the generated assets.
 
-To update Openmoji, run `update-openmoji [ref]`.
-Run `generate-assets` to update the sprite atlas.
-
-To update spreadsheets, download the [spreadsheets] into the `data` directory.
-Run `generate-assets` to update generated code.
+To update spreadsheets, download the [spreadsheets] into the `data` directory
+and again run `go generate ./gen` to update the generated assets.
 
   [peruacru]: https://peruacru.then.land
   [bork]: http://børk.com

@@ -1,3 +1,0 @@
-#!/bin/bash
-cd -- "$(dirname -- "$(dirname -- "${BASH_SOURCES[0]}")")"
-git subtree pull --prefix=lobster https://github.com/aardappel/lobster "${1:-master}"
