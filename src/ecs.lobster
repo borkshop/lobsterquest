@@ -4,6 +4,15 @@ import vec
 import sprites
 import sheets // TODO invert ecs -> sheets dep
 
+def build_string(body):
+    var s = ""
+    body() part:
+        if s.length():
+            s = s + " " + part
+        else:
+            s = s + part
+    return s
+
 def color_to_hex(c:color) -> string: return "#" +
     number_to_string(int(c.red   * 255), 16, 2) +
     number_to_string(int(c.green * 255), 16, 2) +
@@ -26,7 +35,8 @@ def while_first_index(xs, x, body):
 
 enum_flags entype:
     ent_none = 0    // free entity slot (if no other bits)
-    ent_visible = 1 // scene draw-ables
+    ent_debug = 1   // enable debug logging on this entity
+    ent_visible     // scene draw-ables
     ent_cell        // defines "A space"; e.g. floor entities have this
     ent_body        // has a collide-able body
     ent_mind        // participates in the action system
@@ -35,6 +45,7 @@ enum_flags entype:
 
 def entype_str(t:entype):
     let parts = []
+    if t & ent_debug:   parts.push("debug")
     if t & ent_visible: parts.push("visible")
     if t & ent_cell:    parts.push("cell")
     if t & ent_body:    parts.push("body")
@@ -104,7 +115,7 @@ struct render:
             gl_color(fg): gl_unit_square()
 
     def with_fg_color(c:color, g:glyph):
-        if c == color_clear: c = color_white
+        if g != glyph_0 and c == color_clear: c = color_white
         return render { bg, c, g }
     def with_fg(c:color): return with_fg_color(c, glyf)
     def with_glyph(g:glyph): return with_fg_color(fg, g)
@@ -116,11 +127,14 @@ let render_0 = render { color_clear, color_clear, glyph_0 }
 class shard:
     // entity type
     type = []::entype
+    name = []::string
 
     // global data relevant to any entity
     pos = []::spatial   // spatial position
     ren = []::render    // colored glyph with an optional background
     tex = []::resource? // render texture overrides any glyph
+    ksh = []::resource? // cached render to texture
+    // TODO drop tex aspect, once we switch fully to graph-structured drawing into ksh
 
     // any associated rule sheet data
     tile = []::tile_entity_id
@@ -130,51 +144,65 @@ class shard:
 
     free_ids = []::int
 
+    def tag(id:int) -> string:
+        if name[id] != "":
+            return "[" + name[id] + "]#" + id
+        else:
+            return "#" + id
+
     def describe(id:int) -> string:
-        let parts = [
-            "#" + id,
-            entype_str(type[id]),
-            "@<" + pos[id].x + ", " + pos[id].y + ">",
-            "z:" + pos[id].z,
-        ]
-        if pos[id].w: "size:" + pos[id].w
-        if ren[id].bg != color_clear: parts.push("bg:" + color_to_hex(ren[id].bg))
+        return build_string() emit:
+            emit(tag(id))
+            describe_intrinsics(id, emit)
+            describe_draw(id, emit)
+
+    def describe_intrinsics(id, emit):
+        emit(entype_str(type[id]))
+        emit("@<" + pos[id].x + ", " + pos[id].y + ">")
+        emit("z:" + pos[id].z)
+        if pos[id].w: emit("size:" + pos[id].w)
+        if tile[id]: emit("" + tile[id])
+        if item[id]: emit("" + item[id])
+
+    def describe_draw(id, emit):
+        if ren[id].bg != color_clear: emit("bg:" + color_to_hex(ren[id].bg))
         if ren[id].glyf != glyph_0:
-            parts.push("fg:" + color_to_hex(ren[id].fg))
-            parts.push("" + ren[id].glyf)
-        if tex[id]: parts.push("tex:" + tex[id])
-        if tile[id]: parts.push("" + tile[id])
-        if item[id]: parts.push("" + item[id])
-        return parts.concat_string(" ")
+            emit("fg:" + color_to_hex(ren[id].fg))
+            emit("" + ren[id].glyf)
+        if tex[id]: emit("tex:" + tex[id])
+        if ksh[id]: emit("ksh:" + ksh[id])
 
     def alloc() -> int:
         def grow():
             let id = type.length
             type.push(ent_none)
+            name.push("")
             pos.push(spatial_0)
             ren.push(render_0)
             tex.push(nil)
+            ksh.push(nil)
             tile.push(tile_none)
             item.push(item_none)
             return id
         def reuse():
             let id = free_ids.pop()
             type[id] = ent_none
+            name[id] = ""
             pos[id] = spatial_0
             ren[id] = render_0
             tex[id] = nil
+            ksh[id] = nil
             tile[id] = tile_none
             item[id] = item_none
             return id
         if not type.length: grow() // reserve #0
         return if free_ids.length: reuse() else: grow()
 
-    def create(t:entype, init, post):
+    def create(t:entype, init):
         let id = alloc()
         type[id] = t
         init(id)
-        t = notify_type(id, ent_none, t)
-        if post: post(id)
+        notify_type(id, ent_none, t)
         return id
 
     def set_type(id:int, t:entype):
@@ -183,7 +211,7 @@ class shard:
 
         if t != ent_none:
             type[id] = t
-            t = notify_type(id, old, t)
+            notify_type(id, old, t)
             return
 
         type[id] = ent_none
@@ -200,6 +228,9 @@ class shard:
             if new != prior:
                 type[id] = new
         return new
+
+    def invalidate(id:int):
+        ksh[id] = nil
 
 //// ancillary component: spatial animation
 
@@ -464,6 +495,7 @@ class minds : system
 
 class ent_template:
     type  : entype
+    name  = ""
     bg    = color_clear
     fg    = color_clear
     glyph = glyph_0
@@ -475,8 +507,8 @@ class ent_template:
 
     initiative = 0
 
-    spawn_prob = xy_0i
-    spawn_template = 0
+    spawn_template = []::int
+    spawn_prob     = []::xy_i
 
     avatar_helf       = xy_0i
     avatar_stam       = xy_0i
@@ -484,41 +516,78 @@ class ent_template:
     avatar_left_hand  = item_none
     avatar_right_hand = item_none
 
+    def dupe():
+        let tmpl = copy(this)
+        tmpl.spawn_template = copy(tmpl.spawn_template)
+        tmpl.spawn_prob = copy(tmpl.spawn_prob)
+        return tmpl
+
+    def init_entity(shard:shard, id:int, loc:xy_f):
+        shard.name[id] = name
+        shard.pos[id] = spatial { loc.x, loc.y, z, size }
+        shard.ren[id] = render { bg, fg, glyph }
+        if tile != tile_none: shard.tile[id] = tile
+        if item != item_none: shard.item[id] = item
+
+    def add_spawn_sibling(template_id:int, prob:xy_i):
+        spawn_template.push(template_id)
+        spawn_prob.push(prob)
+
 let ent_0 = ent_template { type: ent_none }
 
 class ent_templates:
     defs = []::ent_template
 
-    def register(tmpl):
+    def register(tmpl, body):
         if not defs.length: defs.push(ent_0)
         let id = defs.length
         defs.push(tmpl)
+        body(tmpl, id)
         return id
 
     def define(t:entype, body):
-        let tmpl = ent_template { type: t }
-        body(tmpl)
-        return register(tmpl)
+        return register(ent_template { type: t }, body)
 
     def extend(base_id, body):
-        let tmpl = copy(defs[base_id])
-        body(tmpl)
-        return register(tmpl)
+        return register(defs[base_id].dupe(), body)
 
 class ent_scaffold:
-    loc = xy_0
+    templates : ent_templates
+
+    tmpl = ent_template { type : ent_none }
+
+    loc = xy_0            // location cell
+    off = xy { 0.5, 0.5 } // sub-cell offset
+
+    def init_entity(shard:shard, id:int):
+        tmpl.init_entity(shard, id, loc + off)
+
+    def use(template:ent_template, body):
+        let old_tmpl = tmpl
+        tmpl = template
+        body()
+        tmpl = old_tmpl
+
+    def use_id(template_id:int, body):
+        use(templates.defs[template_id], body)
 
     def at(l:xy_f, body):
-        let base = loc
+        let old_loc = loc
         loc = l
-        if body:
-            body()
-            loc = base
+        body()
+        loc = old_loc
+
+    def at_each(locs, body):
+        let old_loc = loc
+        for(locs) l, i:
+            loc = l
+            body(i)
+        loc = old_loc
 
     def translate(by:xy_f, body):
         at(loc + by, body)
 
-    def each(offsets, body):
+    def translate_each(offsets, body):
         let base = loc
         for(offsets) offset, i:
             loc = base + offset
@@ -537,7 +606,7 @@ class ent_scaffold:
 class spawner : system
     ids  = []::int
     prob = []::xy_i
-    tid  = []::int
+    scaf = []::ent_scaffold
 
     def ent_changed(shard, id:int, new:entype, old:entype):
         if new == ent_none:
@@ -545,7 +614,7 @@ class spawner : system
             if n:
                 ids.remove(i, n)
                 prob.remove(i, n)
-                tid.remove(i, n)
+                scaf.remove(i, n)
         return new
 
     def clear_spawn(id:int):
@@ -553,7 +622,7 @@ class spawner : system
         if n:
             ids.remove(i, n)
             prob.remove(i, n)
-            tid.remove(i, n)
+            scaf.remove(i, n)
 
 class spawn_scaffold:
     spawner:spawner
@@ -565,12 +634,24 @@ class spawn_scaffold:
     def prob(x:int, y:int): p = xy_i { x,     y }
     def odds(x:int, y:int): p = xy_i { x, x + y }
 
-    def add_spawn(template_id:int):
-        if template_id != 0 and p.x and p.y:
+    def add_spawn(ctx:ent_scaffold):
+        if ctx.tmpl.type and p.x and p.y:
             spawner.ids.insert(next_spawn_id, id)
             spawner.prob.insert(next_spawn_id, p)
-            spawner.tid.insert(next_spawn_id, template_id)
+            spawner.scaf.insert(next_spawn_id, copy(ctx))
             next_spawn_id++
+
+def add_spawns(this::spawner, id:int, ctx:ent_scaffold):
+    let n, spawn_id = ids.binary_search(id)
+    let sp = spawn_scaffold {
+        spawner: this,
+        id: id,
+        next_spawn_id: spawn_id,
+    }
+    for(ctx.tmpl.spawn_template) template_id, i:
+        let p = ctx.tmpl.spawn_prob[i]
+        if p != xy_0i: sp.p = p
+        ctx.use_id(template_id): sp.add_spawn(ctx)
 
 def add_spawn(this::spawner, id:int, body):
     let n, spawn_id = ids.binary_search(id)
