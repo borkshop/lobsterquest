@@ -32,13 +32,15 @@ transcriber, an Elvish interactive [Map of Middle-Earth][elfmap], and some
 
 Use [direnv](https://direnv.net/) to automatically set up your PATH when
 working within the EmojiQuest repository.
-All further instructions assume `scripts` and `lobster/bin` are on your path.
+All further instructions assume `scripts` and `lobster/bin` are on your
+executable path.
 
-Run `build-lobster` to create the required `lobster` binary.
-You may need to `git checkout HEAD lobster` afterward to restore a clean
-working copy since building lobster alters checked-in artifacts.
+Run `build-lobster` (or follow the instructions appropriate for your platform
+in `lobster/docs/getting_started.html`) to create the required `lobster`
+binary.  You may need to `git checkout HEAD lobster` afterward to restore a
+clean working copy since building lobster alters checked-in artifacts.
 
-Run `generate-assets` to build the sprite atlas and other game code from game
+Run `go generate ./gen` to build the sprite atlas and other game code from game
 data.
 
 Run `edice` to edit the tile map of Daia, the world of EmojiQuest.
@@ -47,7 +49,7 @@ Run `edice` to edit the tile map of Daia, the world of EmojiQuest.
 checked in.
 
 To update Lobster, run `update-lobster [ref]`.
-Run `build-lobster`.
+Run `build-lobster` afterward to get a fresh executable.
 
 To update Openmoji, run `update-openmoji [ref]`.
 Run `generate-assets` to update the sprite atlas.
