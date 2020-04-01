@@ -72,7 +72,7 @@ def new_root_mode(face_meshes):
         tile_menu_mode: tile_mode,
     }
 
-fatal(gl_window("Editor", 400, 400))
+fatal(gl_window("Editor", 1024, 1024))
 gl_window_min_max(1)
 check(gl_set_font_name(pakfile "data/fonts/Droid_Sans/DroidSans.ttf"), "can\'t load font")
 
