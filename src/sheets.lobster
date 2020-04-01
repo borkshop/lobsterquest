@@ -3,7 +3,7 @@ import sprites
 import vec
 
 def load_sheet_sprites():
-    let tex = gl_load_texture("../assets/sprites.png")
+    let tex = gl_load_texture(pakfile "../assets/sprites.png")
     assert tex
     return sprite_new_atlas(tex, xy_1i * 72, xy { 13, 12 })
 

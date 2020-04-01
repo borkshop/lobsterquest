@@ -73,7 +73,8 @@ def new_root_mode(face_meshes):
     }
 
 fatal(gl_window("Editor", 400, 400))
-check(gl_set_font_name("data/fonts/Droid_Sans/DroidSans.ttf"), "can\'t load font")
+gl_window_min_max(1)
+check(gl_set_font_name(pakfile "data/fonts/Droid_Sans/DroidSans.ttf"), "can\'t load font")
 
 let face_meshes = new_daia_face_meshes(new_daia_face_vertices())
 

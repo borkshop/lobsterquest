@@ -1,0 +1,8 @@
+#!/bin/bash
+set -ueo pipefail
+DIR=$(dirname -- "$(dirname -- "${BASH_SOURCES[0]}")")
+cd -- "$DIR"
+mkdir -p 'dist/Emoji Quest.app/Contents'
+lobster/bin/lobster --pak src/editor.lobster
+mv src/default.lpak 'dist/Emoji Quest.app/Contents'
+cp lobster/bin/lobster 'dist/Emoji Quest.app/Contents/Emoji Quest'
