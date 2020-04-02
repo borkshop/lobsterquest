@@ -711,6 +711,11 @@ class ent_template:
     childrel = []::entrel
     children = []::ent_template
 
+    def extend(body):
+        let tmpl = dupe()
+        body(tmpl)
+        return tmpl
+
     def dupe():
         let tmpl = copy(this)
         tmpl.spawn_template = copy(tmpl.spawn_template)
@@ -768,9 +773,7 @@ class ent_templates:
         return register(tmpl)
 
     def extend(base_id, body):
-        let tmpl = defs[base_id].dupe()
-        body(tmpl)
-        return register(tmpl)
+        return register(defs[base_id].extend(body))
 
 class ent_scaffold:
     templates : ent_templates
