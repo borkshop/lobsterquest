@@ -185,7 +185,7 @@ class shard:
             item.push(item_none)
             return id
         def reuse():
-            let id = free_ids.pop()
+            let id = free_ids.remove_obj(free_ids.min())
             type[id] = ent_none
             name[id] = ""
             pos[id] = spatial_0
