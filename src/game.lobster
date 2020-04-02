@@ -486,7 +486,7 @@ class stacked_scene : system
 def build_entity(this::ent_scaffold, chunk:chunk, id:int):
     if tmpl.type & ent_mind:
         chunk.minds.set_init(id, tmpl.initiative)
-    if tmpl.spawn_template.length:
+    if tmpl.spawn.length:
         chunk.spawner.add_spawns(id, this)
 
 def create_with(this::ent_scaffold, chunk:chunk, body):
@@ -604,29 +604,31 @@ let tmpl_item_apple = templates.define(ent_body | ent_visible):
     _.glyph = item_sprite(item_apple)
 
 let tree_evergreen = templates.define(ent_body | ent_visible | ent_holds):
+    let fruit = templates.defs[tmpl_item_pine_apple]
     _.name = "evergreen tree"
     _.z    = 0.5
     _.size = 1.0
     _.fg   = color_white
     _.glyph = tile_sprite(tile_pine_tree)
     _.cap = xy_f { 3, 4 }
-    _.add_spawn_child(tmpl_item_pine_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 0 })
-    _.add_spawn_child(tmpl_item_pine_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 1 })
-    _.add_spawn_child(tmpl_item_pine_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 2 })
+    _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 0 })
+    _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 1 })
+    _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 2 })
 
 let tree_deciduous = templates.define(ent_body | ent_visible | ent_holds):
+    let fruit = templates.defs[tmpl_item_apple]
     _.name = "deciduous tree"
     _.z    = 0.5
     _.size = 1.0
     _.fg   = color_white
     _.glyph = tile_sprite(tile_apple_tree)
     _.cap = xy_f { 6, 6 }
-    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 2 })
-    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 2, 2 })
-    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 3, 2 })
-    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 4, 2 })
-    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 2, 3 })
-    _.add_spawn_child(tmpl_item_apple, xy_i { 5, 1000 }, entrel_held, xy_f { 3, 3 })
+    _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 2 })
+    _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 2, 2 })
+    _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 3, 2 })
+    _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 4, 2 })
+    _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 2, 3 })
+    _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 3, 3 })
 
 let left_hand_template = templates.define(ent_body | ent_visible | ent_holds | ent_acts):
     _.name = "left hand"

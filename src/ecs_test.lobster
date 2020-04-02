@@ -23,10 +23,10 @@ run_test("ecs/templates/spawn"):
     let t_stuff_a = make_place(): _.add_spawn_sibling(t_a, xy_i { 1, 2 })
     let t_stuff_b = make_place(): _.add_spawn_sibling(t_b, xy_i { 1, 3 })
 
-    assert templates.defs[t_stuff_a].spawn_template.length == 1
-    assert templates.defs[t_stuff_b].spawn_template.length == 1
-    assert templates.defs[t_a].spawn_template.length == 0
-    assert templates.defs[t_b].spawn_template.length == 0
+    assert templates.defs[t_stuff_a].spawn.length == 1
+    assert templates.defs[t_stuff_b].spawn.length == 1
+    assert templates.defs[t_a].spawn.length == 0
+    assert templates.defs[t_b].spawn.length == 0
 
 run_test("ecs/templates/graph"):
     // data should not leak

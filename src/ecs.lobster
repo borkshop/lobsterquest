@@ -702,10 +702,10 @@ class ent_template:
 
     initiative = 0
 
-    spawn_template = []::int
-    spawn_prob     = []::xy_i
-    spawn_rel      = []::entrel
-    spawn_at       = []::xy_f
+    spawn      = []::ent_template
+    spawn_prob = []::xy_i
+    spawn_rel  = []::entrel
+    spawn_at   = []::xy_f
 
     child_at = []::xy_f
     childrel = []::entrel
@@ -718,7 +718,7 @@ class ent_template:
 
     def dupe():
         let tmpl = copy(this)
-        tmpl.spawn_template = copy(tmpl.spawn_template)
+        tmpl.spawn = copy(tmpl.spawn)
         tmpl.spawn_prob = copy(tmpl.spawn_prob)
         tmpl.spawn_rel = copy(tmpl.spawn_rel)
         tmpl.spawn_at = copy(tmpl.spawn_at)
@@ -744,14 +744,14 @@ class ent_template:
         children.push(tmpl) // TODO should copy?
         return child_id
 
-    def add_spawn_sibling(template_id:int, prob:xy_i):
-        spawn_template.push(template_id)
+    def add_spawn_sibling(tmpl:ent_template, prob:xy_i):
+        spawn.push(tmpl)
         spawn_prob.push(prob)
         spawn_rel.push(entrel_shrug)
         spawn_at.push(xy_0)
 
-    def add_spawn_child(template_id:int, prob:xy_i, rel:entrel, at:xy_f):
-        spawn_template.push(template_id)
+    def add_spawn_child(tmpl:ent_template, prob:xy_i, rel:entrel, at:xy_f):
+        spawn.push(tmpl)
         spawn_prob.push(prob)
         spawn_rel.push(rel)
         spawn_at.push(at)
@@ -893,7 +893,7 @@ def add_spawns(this::spawner, id:int, ctx:ent_scaffold):
         id: id,
         next_spawn_id: spawn_id,
     }
-    ctx.under(id): for(ctx.tmpl.spawn_template) template_id, i:
+    ctx.under(id): for(ctx.tmpl.spawn) tmpl, i:
         let p = ctx.tmpl.spawn_prob[i]
         if p != xy_0i: sp.p = p
         let spawn_rel = ctx.tmpl.spawn_rel[i]
@@ -901,7 +901,7 @@ def add_spawns(this::spawner, id:int, ctx:ent_scaffold):
             ctx.with_rel(spawn_rel):
                 ctx.at(ctx.tmpl.spawn_at[i]):
                     body()
-        with: ctx.use_id(template_id): sp.add_spawn(ctx)
+        with: ctx.use(tmpl): sp.add_spawn(ctx)
 
 def add_spawn(this::spawner, id:int, body):
     let n, spawn_id = ids.binary_search(id)
