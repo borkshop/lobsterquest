@@ -776,8 +776,6 @@ class ent_templates:
         return register(defs[base_id].extend(body))
 
 class ent_scaffold:
-    templates : ent_templates
-
     tmpl = ent_template { type : ent_none }
 
     loc = xy_0            // location cell in parent or world
@@ -812,9 +810,6 @@ class ent_scaffold:
         tmpl = template
         body()
         tmpl = old_tmpl
-
-    def use_id(template_id:int, body):
-        use(templates.defs[template_id], body)
 
     def at(l:xy_f, body):
         let old_loc = loc
