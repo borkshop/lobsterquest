@@ -56,9 +56,6 @@ def print_list(title, level, body):
     else: if last != "":
         print(indent + "- " + last)
 
-// TODO eject data templates into separate module
-let templates = ent_templates {}
-
 class timers:
     labels = []::string
     values = []::[float]
@@ -582,29 +579,26 @@ def unicode(code:int):  return glyph { unicode_glyph_mode,  font_rune(unicode_gl
 def uniblock(code:int): return glyph { uniblock_glyph_mode, font_rune(uniblock_glyph_mode, code) }
 def twemoji(code:int):  return glyph { twemoji_glyph_mode,  font_rune(twemoji_glyph_mode,  code) }
 
-let floor_template = templates.define(ent_cell | ent_visible):
+let floor_template = new_template(ent_cell | ent_visible):
     _.z    = 0.0
     _.size = 1.0
 
-// FIXME tmpl_ prefix to avoid sheet constants ; ideally sheet should own these
-// definitions
-
-let tmpl_item_pine_apple = templates.define(ent_body | ent_visible):
+let pine_apple_template = new_template(ent_body | ent_visible):
     _.name = "pineapple"
     _.z    = 0.75
     _.size = 1.0
     _.fg   = color_white
     _.glyph = item_sprite(item_pine_apple)
 
-let tmpl_item_apple = templates.define(ent_body | ent_visible):
+let apple_template = new_template(ent_body | ent_visible):
     _.name = "apple"
     _.z    = 0.75
     _.size = 1.0
     _.fg   = color_white
     _.glyph = item_sprite(item_apple)
 
-let tree_evergreen = templates.define(ent_body | ent_visible | ent_holds):
-    let fruit = templates.defs[tmpl_item_pine_apple]
+let tree_evergreen = new_template(ent_body | ent_visible | ent_holds):
+    let fruit = pine_apple_template
     _.name = "evergreen tree"
     _.z    = 0.5
     _.size = 1.0
@@ -615,8 +609,8 @@ let tree_evergreen = templates.define(ent_body | ent_visible | ent_holds):
     _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 1 })
     _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 1, 2 })
 
-let tree_deciduous = templates.define(ent_body | ent_visible | ent_holds):
-    let fruit = templates.defs[tmpl_item_apple]
+let tree_deciduous = new_template(ent_body | ent_visible | ent_holds):
+    let fruit = apple_template
     _.name = "deciduous tree"
     _.z    = 0.5
     _.size = 1.0
@@ -630,7 +624,7 @@ let tree_deciduous = templates.define(ent_body | ent_visible | ent_holds):
     _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 2, 3 })
     _.add_spawn_child(fruit, xy_i { 5, 1000 }, entrel_held, xy_f { 3, 3 })
 
-let left_hand_template = templates.define(ent_body | ent_visible | ent_holds | ent_acts):
+let left_hand_template = new_template(ent_body | ent_visible | ent_holds | ent_acts):
     _.name = "left hand"
     _.z    = 1.0
     _.size = 1.0
@@ -638,122 +632,117 @@ let left_hand_template = templates.define(ent_body | ent_visible | ent_holds | e
     _.glyph = ui_sprite(ui_left_hand)
     _.cap = xy_f { 1, 1 }
 
-let right_hand_template = templates.extend(left_hand_template):
+let right_hand_template = left_hand_template.extend():
     _.name = "right hand"
     _.glyph = ui_sprite(ui_right_hand)
 
-let heart_template = templates.define(ent_body | ent_visible):
+let heart_template = new_template(ent_body | ent_visible):
     _.name = "heart"
     _.z    = 1.0
     _.size = 0.5
     _.fg   = color_white
     _.glyph = ui_sprite(ui_health_heart) // ❤️
 
-let stamina_heart_template = templates.extend(heart_template):
+let stamina_heart_template = heart_template.extend():
     _.name = "stamheart"
     _.glyph = ui_sprite(ui_stamina_heart) // 💛
 
-let char_template = templates.define(ent_body | ent_visible | ent_mind):
+let char_template = new_template(ent_body | ent_visible | ent_mind):
     _.name  = "UNKNOWN character"
     _.glyph = avatar_sprite(avatar_content) // 🙂
     _.fg    = color_white
     _.z     = 1.0
     _.size  = 1.0
     _.cap   = xy_f { 3, 3 }
-    _.add_child(entrel_body, xy_f { 0, 2 }, templates.defs[left_hand_template])
-    _.add_child(entrel_body, xy_f { 2, 2 }, templates.defs[right_hand_template])
+    _.add_child(entrel_body, xy_f { 0, 2 }, left_hand_template)
+    _.add_child(entrel_body, xy_f { 2, 2 }, right_hand_template)
 
-let player_template = templates.extend(char_template):
+let player_template = char_template.extend():
     _.type |= ent_input | ent_debug
     _.name  = "player"
     _.initiative = 10
 
     // TODO would it be better to have a heart-container?
     let off = xy_f { -0.25, -0.25 }
-    let heart = templates.defs[heart_template]
-    _.add_child(entrel_body, xy_f { 0.0, 0 } + off, heart)
-    _.add_child(entrel_body, xy_f { 0.5, 0 } + off, heart)
-    _.add_child(entrel_body, xy_f { 1.0, 0 } + off, heart)
+    _.add_child(entrel_body, xy_f { 0.0, 0 } + off, heart_template)
+    _.add_child(entrel_body, xy_f { 0.5, 0 } + off, heart_template)
+    _.add_child(entrel_body, xy_f { 1.0, 0 } + off, heart_template)
 
-let gift_earth = templates.define(ent_body | ent_visible):
+let gift_earth = new_template(ent_body | ent_visible):
     _.name = "gift of earth"
     _.z     = 0.75
     _.size  = 1.0
     _.glyph = item_sprite(item_clover)
     _.fg    = color_dark_green
 
-let gift_water = templates.define(ent_body | ent_visible):
+let gift_water = new_template(ent_body | ent_visible):
     _.name = "gift of water"
     _.z     = 0.75
     _.size  = 1.0
     _.glyph = item_sprite(item_water)
     _.fg    = color_teal
 
-let gift_fire = templates.define(ent_body | ent_visible):
+let gift_fire = new_template(ent_body | ent_visible):
     _.name = "gift of fire"
     _.z     = 0.75
     _.size  = 1.0
     _.glyph = item_sprite(item_fire)
     _.fg    = color_orange
 
-let gift_air = templates.define(ent_body | ent_visible):
+let gift_air = new_template(ent_body | ent_visible):
     _.name = "gift of air"
     _.z     = 0.75
     _.size  = 1.0
     _.glyph = item_sprite(item_wind)
     _.fg    = color_cyan
 
-let element_earth = templates.extend(char_template) e:
-    let gift = templates.defs[gift_earth]
+let element_earth = char_template.extend() e:
     e.name  = "earth elemental"
     e.glyph = item_sprite(item_clover)
     e.fg    = color_dark_green
     e.initiative = 3
     e.children[0] = e.children[0].extend():
         _.glyph = glyph_0 // TODO really we want an "invisible hand"
-        _.add_child(entrel_held, xy_0, gift)
+        _.add_child(entrel_held, xy_0, gift_earth)
     e.children[1] = e.children[1].extend():
         _.glyph = glyph_0 // TODO really we want an "invisible hand"
-        _.add_child(entrel_held, xy_0, gift)
+        _.add_child(entrel_held, xy_0, gift_earth)
 
-let element_water = templates.extend(char_template) e:
-    let gift = templates.defs[gift_water]
+let element_water = char_template.extend() e:
     e.name  = "water elemental"
     e.glyph = item_sprite(item_water)
     e.fg    = color_teal
     e.initiative = 4
     e.children[0] = e.children[0].extend():
         _.glyph = glyph_0 // TODO really we want an "invisible hand"
-        _.add_child(entrel_held, xy_0, gift)
+        _.add_child(entrel_held, xy_0, gift_water)
     e.children[1] = e.children[1].extend():
         _.glyph = glyph_0 // TODO really we want an "invisible hand"
-        _.add_child(entrel_held, xy_0, gift)
+        _.add_child(entrel_held, xy_0, gift_water)
 
-let element_fire = templates.extend(char_template) e:
-    let gift = templates.defs[gift_fire]
+let element_fire = char_template.extend() e:
     e.name  = "fire elemental"
     e.glyph = item_sprite(item_fire)
     e.fg    = color_orange
     e.initiative = 5
     e.children[0] = e.children[0].extend():
         _.glyph = glyph_0 // TODO really we want an "invisible hand"
-        _.add_child(entrel_held, xy_0, gift)
+        _.add_child(entrel_held, xy_0, gift_fire)
     e.children[1] = e.children[1].extend():
         _.glyph = glyph_0 // TODO really we want an "invisible hand"
-        _.add_child(entrel_held, xy_0, gift)
+        _.add_child(entrel_held, xy_0, gift_fire)
 
-let element_air = templates.extend(char_template) e:
-    let gift = templates.defs[gift_air]
+let element_air = char_template.extend() e:
     e.name  = "air elemental"
     e.glyph = item_sprite(item_wind)
     e.fg    = color_cyan
     e.initiative = 6
     e.children[0] = e.children[0].extend():
         _.glyph = glyph_0 // TODO really we want an "invisible hand"
-        _.add_child(entrel_held, xy_0, gift)
+        _.add_child(entrel_held, xy_0, gift_air)
     e.children[1] = e.children[1].extend():
         _.glyph = glyph_0 // TODO really we want an "invisible hand"
-        _.add_child(entrel_held, xy_0, gift)
+        _.add_child(entrel_held, xy_0, gift_air)
 
 def build_world(chunk):
     let size = 12
@@ -775,7 +764,7 @@ def build_world(chunk):
     let tree_fg_base      = color { 0.2,  0.25, 0.1,  1 }
     let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
-    build.use(templates.defs[floor_template]):
+    build.use(floor_template):
         build.fill_rect(size) x, y:
             build.create_with(chunk) id:
                 let glyph = dirt.rnd_pick()
@@ -783,7 +772,7 @@ def build_world(chunk):
                 let fg = if glyph == glyph_0: color_clear else: bg + floor_fg_lift
                 chunk.ren[id] = render { bg, fg, glyph }
             if x == 0 || y == 0 || x == size-1 || y == size-1:
-                build.use(templates.defs[trees.rnd_pick()]): build.create_with(chunk) id:
+                build.use(trees.rnd_pick()): build.create_with(chunk) id:
                     chunk.ren[id] = chunk.ren[id].with_fg(tree_fg_base + tree_fg_variance * rnd_float())
 
     let mid = float(floor(size / 2))
@@ -794,8 +783,8 @@ def build_world(chunk):
             xy_f {  l,  l },
             xy_f {  l, -l },
             xy_f { -l, -l },
-        ]): build.use(templates.defs[elements[_]]): build.create(chunk)
-        build.use(templates.defs[player_template]): build.create(chunk)
+        ]): build.use(elements[_]): build.create(chunk)
+        build.use(player_template): build.create(chunk)
 
 //// usage
 
