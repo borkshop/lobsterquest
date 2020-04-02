@@ -757,9 +757,7 @@ let element_air = templates.extend(char_template) e:
 
 def build_world(chunk):
     let size = 12
-    let build = ent_scaffold {
-        templates : templates
-    }
+    let build = ent_scaffold {}
 
     let dirt = [
         glyph_0, glyph_0, uniblock(0x2591), // ░
@@ -777,7 +775,7 @@ def build_world(chunk):
     let tree_fg_base      = color { 0.2,  0.25, 0.1,  1 }
     let tree_fg_variance  = color { 0,    0.5,  0,    0 }
 
-    build.use_id(floor_template):
+    build.use(templates.defs[floor_template]):
         build.fill_rect(size) x, y:
             build.create_with(chunk) id:
                 let glyph = dirt.rnd_pick()
@@ -785,7 +783,7 @@ def build_world(chunk):
                 let fg = if glyph == glyph_0: color_clear else: bg + floor_fg_lift
                 chunk.ren[id] = render { bg, fg, glyph }
             if x == 0 || y == 0 || x == size-1 || y == size-1:
-                build.use_id(trees.rnd_pick()): build.create_with(chunk) id:
+                build.use(templates.defs[trees.rnd_pick()]): build.create_with(chunk) id:
                     chunk.ren[id] = chunk.ren[id].with_fg(tree_fg_base + tree_fg_variance * rnd_float())
 
     let mid = float(floor(size / 2))
@@ -796,8 +794,8 @@ def build_world(chunk):
             xy_f {  l,  l },
             xy_f {  l, -l },
             xy_f { -l, -l },
-        ]): build.use_id(elements[_]): build.create(chunk)
-        build.use_id(player_template): build.create(chunk)
+        ]): build.use(templates.defs[elements[_]]): build.create(chunk)
+        build.use(templates.defs[player_template]): build.create(chunk)
 
 //// usage
 
