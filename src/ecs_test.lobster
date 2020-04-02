@@ -1,18 +1,16 @@
 import ecs
 import testing
 
-let templates = ent_templates {}
+let t_a = new_template(ent_visible): nil
+let t_b = new_template(ent_visible): nil
 
-let t_a = templates.define(ent_visible): nil
-let t_b = templates.define(ent_visible): nil
-
-def make_place(body): return templates.define(ent_visible):
+def make_place(body): return new_template(ent_visible):
     _.z    = 1.0
     _.size = 1.0
     _.fg   = color_white
     body(_)
 
-def make_body(body): return templates.define(ent_visible | ent_body):
+def make_body(body): return new_template(ent_visible | ent_body):
     _.z    = 1.0
     _.size = 1.0
     _.fg   = color_white
@@ -23,10 +21,10 @@ run_test("ecs/templates/spawn"):
     let t_stuff_a = make_place(): _.add_spawn_sibling(t_a, xy_i { 1, 2 })
     let t_stuff_b = make_place(): _.add_spawn_sibling(t_b, xy_i { 1, 3 })
 
-    assert templates.defs[t_stuff_a].spawn.length == 1
-    assert templates.defs[t_stuff_b].spawn.length == 1
-    assert templates.defs[t_a].spawn.length == 0
-    assert templates.defs[t_b].spawn.length == 0
+    assert t_stuff_a.spawn.length == 1
+    assert t_stuff_b.spawn.length == 1
+    assert t_a.spawn.length == 0
+    assert t_b.spawn.length == 0
 
 run_test("ecs/templates/graph"):
     // data should not leak
@@ -34,17 +32,17 @@ run_test("ecs/templates/graph"):
     let t_part2 = make_body(): _.glyph = ascii('b')
 
     def make_thing(body): return make_body(): body(_) // XXX  _.cap = xy_f { 2, 2 }
-    let thing1 = make_thing(): _.add_child(entrel_body, xy_f { 0, 0 }, templates.defs[t_part1])
-    let thing2 = make_thing(): _.add_child(entrel_body, xy_f { 0, 0 }, templates.defs[t_part2])
+    let thing1 = make_thing(): _.add_child(entrel_body, xy_f { 0, 0 }, t_part1)
+    let thing2 = make_thing(): _.add_child(entrel_body, xy_f { 0, 0 }, t_part2)
     let thing3 = make_thing(): nil
 
-    assert templates.defs[t_part1].children.length == 0
-    assert templates.defs[t_part2].children.length == 0
-    assert templates.defs[thing1].children.length == 1
-    assert templates.defs[thing1].children[0].glyph == ascii('a')
-    assert templates.defs[thing2].children.length == 1
-    assert templates.defs[thing2].children[0].glyph == ascii('b')
-    assert templates.defs[thing3].children.length == 0
+    assert t_part1.children.length == 0
+    assert t_part2.children.length == 0
+    assert thing1.children.length == 1
+    assert thing1.children[0].glyph == ascii('a')
+    assert thing2.children.length == 1
+    assert thing2.children[0].glyph == ascii('b')
+    assert thing3.children.length == 0
 
 def ascii(code:int): return glyph { 0, code }
 

@@ -758,22 +758,10 @@ class ent_template:
 
 let ent_0 = ent_template { type: ent_none }
 
-class ent_templates:
-    defs = []::ent_template
-
-    def register(tmpl):
-        if not defs.length: defs.push(ent_0)
-        let id = defs.length
-        defs.push(tmpl)
-        return id
-
-    def define(t:entype, body):
-        let tmpl = ent_template { type: t }
-        body(tmpl)
-        return register(tmpl)
-
-    def extend(base_id, body):
-        return register(defs[base_id].extend(body))
+def new_template(t:entype, body):
+    let tmpl = ent_template { type: t }
+    body(tmpl)
+    return tmpl
 
 class ent_scaffold:
     tmpl = ent_template { type : ent_none }
