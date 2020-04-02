@@ -636,13 +636,9 @@ let left_hand_template = templates.define(ent_body | ent_visible | ent_holds | e
     _.glyph = ui_sprite(ui_left_hand)
     _.cap = xy_f { 1, 1 }
 
-let right_hand_template = templates.define(ent_body | ent_visible | ent_holds | ent_acts):
+let right_hand_template = templates.extend(left_hand_template):
     _.name = "right hand"
-    _.z    = 1.0
-    _.size = 1.0
-    _.fg   = color_white
     _.glyph = ui_sprite(ui_right_hand)
-    _.cap = xy_f { 1, 1 }
 
 let heart_template = templates.define(ent_body | ent_visible):
     _.name = "heart"
@@ -651,24 +647,24 @@ let heart_template = templates.define(ent_body | ent_visible):
     _.fg   = color_white
     _.glyph = ui_sprite(ui_health_heart) // ❤️
 
-let stamina_heart_template = templates.define(ent_body | ent_visible):
+let stamina_heart_template = templates.extend(heart_template):
     _.name = "stamheart"
-    _.z    = 1.0
-    _.size = 0.5
-    _.fg   = color_white
     _.glyph = ui_sprite(ui_stamina_heart) // 💛
 
-let player_template = templates.define(ent_body | ent_visible | ent_mind | ent_input | ent_debug):
-    _.name  = "player"
+let char_template = templates.define(ent_body | ent_visible | ent_mind):
+    _.name  = "UNKNOWN character"
     _.glyph = avatar_sprite(avatar_content) // 🙂
     _.fg    = color_white
     _.z     = 1.0
     _.size  = 1.0
     _.cap   = xy_f { 3, 3 }
-    _.initiative = 10
-
     _.add_child(entrel_body, xy_f { 0, 2 }, templates.defs[left_hand_template])
     _.add_child(entrel_body, xy_f { 2, 2 }, templates.defs[right_hand_template])
+
+let player_template = templates.extend(char_template):
+    _.type |= ent_input | ent_debug
+    _.name  = "player"
+    _.initiative = 10
 
     // TODO would it be better to have a heart-container?
     let off = xy_f { -0.25, -0.25 }
@@ -705,81 +701,57 @@ let gift_air = templates.define(ent_body | ent_visible):
     _.glyph = item_sprite(item_wind)
     _.fg    = color_cyan
 
-let element_earth = templates.define(ent_body | ent_visible | ent_mind):
-    _.name  = "earth elemental"
-    _.glyph = item_sprite(item_clover)
-    _.fg    = color_dark_green
-    _.z     = 1.0
-    _.size  = 1.0
-    _.cap   = xy_f { 3, 3 }
-    _.initiative = 3
+let element_earth = templates.extend(char_template) e:
+    let gift = templates.defs[gift_earth]
+    e.name  = "earth elemental"
+    e.glyph = item_sprite(item_clover)
+    e.fg    = color_dark_green
+    e.initiative = 3
+    e.children[0] = e.children[0].extend():
+        _.glyph = glyph_0 // TODO really we want an "invisible hand"
+        _.add_child(entrel_held, xy_0, gift)
+    e.children[1] = e.children[1].extend():
+        _.glyph = glyph_0 // TODO really we want an "invisible hand"
+        _.add_child(entrel_held, xy_0, gift)
 
-    let left_hand  = templates.defs[left_hand_template].dupe()
-    let right_hand = templates.defs[right_hand_template].dupe()
-    let gift       = templates.defs[gift_earth]
-    left_hand.glyph = glyph_0
-    right_hand.glyph = glyph_0
-    left_hand.add_child(entrel_held, xy_0, gift)
-    right_hand.add_child(entrel_held, xy_0, gift)
-    _.add_child(entrel_body, xy_f { 0, 2 }, left_hand)
-    _.add_child(entrel_body, xy_f { 2, 2 }, right_hand)
+let element_water = templates.extend(char_template) e:
+    let gift = templates.defs[gift_water]
+    e.name  = "water elemental"
+    e.glyph = item_sprite(item_water)
+    e.fg    = color_teal
+    e.initiative = 4
+    e.children[0] = e.children[0].extend():
+        _.glyph = glyph_0 // TODO really we want an "invisible hand"
+        _.add_child(entrel_held, xy_0, gift)
+    e.children[1] = e.children[1].extend():
+        _.glyph = glyph_0 // TODO really we want an "invisible hand"
+        _.add_child(entrel_held, xy_0, gift)
 
-let element_water = templates.define(ent_body | ent_visible | ent_mind):
-    _.name  = "water elemental"
-    _.glyph = item_sprite(item_water)
-    _.fg    = color_teal
-    _.z     = 1.0
-    _.size  = 1.0
-    _.cap   = xy_f { 3, 3 }
-    _.initiative = 4
+let element_fire = templates.extend(char_template) e:
+    let gift = templates.defs[gift_fire]
+    e.name  = "fire elemental"
+    e.glyph = item_sprite(item_fire)
+    e.fg    = color_orange
+    e.initiative = 5
+    e.children[0] = e.children[0].extend():
+        _.glyph = glyph_0 // TODO really we want an "invisible hand"
+        _.add_child(entrel_held, xy_0, gift)
+    e.children[1] = e.children[1].extend():
+        _.glyph = glyph_0 // TODO really we want an "invisible hand"
+        _.add_child(entrel_held, xy_0, gift)
 
-    let left_hand  = templates.defs[left_hand_template].dupe()
-    let right_hand = templates.defs[right_hand_template].dupe()
-    let gift       = templates.defs[gift_water]
-    left_hand.glyph = glyph_0
-    right_hand.glyph = glyph_0
-    left_hand.add_child(entrel_held, xy_0, gift)
-    right_hand.add_child(entrel_held, xy_0, gift)
-    _.add_child(entrel_body, xy_f { 0, 2 }, left_hand)
-    _.add_child(entrel_body, xy_f { 2, 2 }, right_hand)
-
-let element_fire = templates.define(ent_body | ent_visible | ent_mind):
-    _.name  = "fire elemental"
-    _.glyph = item_sprite(item_fire)
-    _.fg    = color_orange
-    _.z     = 1.0
-    _.size  = 1.0
-    _.cap   = xy_f { 3, 3 }
-    _.initiative = 5
-
-    let left_hand  = templates.defs[left_hand_template].dupe()
-    let right_hand = templates.defs[right_hand_template].dupe()
-    let gift       = templates.defs[gift_fire]
-    left_hand.glyph = glyph_0
-    right_hand.glyph = glyph_0
-    left_hand.add_child(entrel_held, xy_0, gift)
-    right_hand.add_child(entrel_held, xy_0, gift)
-    _.add_child(entrel_body, xy_f { 0, 2 }, left_hand)
-    _.add_child(entrel_body, xy_f { 2, 2 }, right_hand)
-
-let element_air = templates.define(ent_body | ent_visible | ent_mind):
-    _.name  = "air elemental"
-    _.glyph = item_sprite(item_wind)
-    _.fg    = color_cyan
-    _.z     = 1.0
-    _.size  = 1.0
-    _.cap   = xy_f { 3, 3 }
-    _.initiative = 6
-
-    let left_hand  = templates.defs[left_hand_template].dupe()
-    let right_hand = templates.defs[right_hand_template].dupe()
-    let gift       = templates.defs[gift_air]
-    left_hand.glyph = glyph_0
-    right_hand.glyph = glyph_0
-    left_hand.add_child(entrel_held, xy_0, gift)
-    right_hand.add_child(entrel_held, xy_0, gift)
-    _.add_child(entrel_body, xy_f { 0, 2 }, left_hand)
-    _.add_child(entrel_body, xy_f { 2, 2 }, right_hand)
+let element_air = templates.extend(char_template) e:
+    let gift = templates.defs[gift_air]
+    e.name  = "air elemental"
+    e.glyph = item_sprite(item_wind)
+    e.fg    = color_cyan
+    e.initiative = 6
+    e.children[0] = e.children[0].extend():
+        _.glyph = glyph_0 // TODO really we want an "invisible hand"
+        _.add_child(entrel_held, xy_0, gift)
+    e.children[1] = e.children[1].extend():
+        _.glyph = glyph_0 // TODO really we want an "invisible hand"
+        _.add_child(entrel_held, xy_0, gift)
 
 def build_world(chunk):
     let size = 12
