@@ -210,8 +210,12 @@ class chunk : shard
             body()
         else: descend()
 
-    def actor_at(id, at):
+    def actor_bump(actor_id):
+        let id = actor_ids[actor_id]
+        let group_id = group_ids[actor_id]
+        let at = hits[group_id]
         let debug = should_trace(id, trace_action)
+
         if debug: print_list(this.tag(id) + " interacts with", 0) level, print_item:
             for(at) at_id:
                 let item = build_string() emit:
@@ -351,20 +355,38 @@ class chunk : shard
         timers.record_time(5):
             for(groups) actors:
                 for(actors) actor_id:
-                    let id = actor_ids[actor_id]
-                    // XXX
-                    // switch act.act:
-                    //     case action_none:         nil
-                    //     case action_hand_drop:    av.drop()
-                    //     case action_hand_swap:    av.swap()
-                    //     case action_hand_use:     av.use_hand()
-                    //     case action_hand_combine: av.combine_hands()
-                    //     case action_move:
-                    actor_move(id, actor_id)
+                    actor_act(actor_id)
 
-    def actor_move(id, actor_id):
-        // animate actor movement, adding to hit group if successful
+    def actor_act(actor_id):
+        switch actions[actor_id].act:
+            case action_none:         actor_move(actor_id) // default to resting (move 0,0)
+            case action_hand_drop:    actor_drop(actor_id)
+            case action_hand_swap:    actor_swap(actor_id)
+            case action_hand_use:     actor_use_hand(actor_id)
+            case action_hand_combine: actor_combine_hands(actor_id)
+            case action_move:         actor_move(actor_id)
+
+    def actor_drop(actor_id):
+        let id = actor_ids[actor_id]
+        print(this.tag(id) + " TODO drop")
+
+    def actor_swap(actor_id):
+        let id = actor_ids[actor_id]
+        print(this.tag(id) + " TODO swap")
+
+    def actor_use_hand(actor_id):
+        let id = actor_ids[actor_id]
+        print(this.tag(id) + " TODO use")
+
+    def actor_combine_hands(actor_id):
+        let id = actor_ids[actor_id]
+        print(this.tag(id) + " TODO combine")
+
+    def actor_move(actor_id):
+        let id = actor_ids[actor_id]
         let group_id = group_ids[actor_id]
+
+        // animate actor movement, adding to hit group if successful
         let at = hits[group_id]
         let a = pos[id]
         let t = targets[actor_id]
@@ -381,7 +403,7 @@ class chunk : shard
             return
 
         if at.length: // have at!
-            actor_at(id, at)
+            actor_bump(actor_id)
 
         anims.animate(id, movement_time) anim:
             anim.blocking = true
