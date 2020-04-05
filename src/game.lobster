@@ -6,9 +6,14 @@ import vec
 import ecs
 
 /* TODO
-- better trace logging facility
 
 - viewport control (zoom and pan)
+
+- ecs
+  - weak cross-entity relations outside of the strong intrinsic tree/graph ones
+
+- spawner seems to have a bug where trees can't spawn more than one fruit; was
+  supposed to be able to spawn 1 in each spot
 
 - minds
   - tracks progress and abilities, e.g. elemental essences, status of mojick
@@ -31,7 +36,6 @@ import ecs
   - closable windows would be nice
   - use imgui more like the overlay demo example
 - ai system based on behavior trees
-- relations to other entities (threats, assists, respects, etc)
 
 */
 
