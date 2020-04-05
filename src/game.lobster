@@ -187,6 +187,12 @@ class chunk : shard
     def update(dt:float):
         anims.update(this, dt)
 
+    def held_sizes(id, size, body):
+        let child_size = size / cap[id] * pos[id].w
+        this.walk_next(first[id]) cid: if rel[cid] == entrel_held:
+            let sz = child_size * pos[cid].w
+            body(sz, cid)
+
     def walk_rec_sizes(id, body):
         var size = xy_1
         this.walk_rec(id) nid, depth, descend:
@@ -249,12 +255,10 @@ class chunk : shard
         let at_held_size = []::xy_f
         for(at) atid: walk_rec_sizes(atid) nid, size, descend:
             take_ent_type(nid, ent_holds, descend):
-                let child_size = size / cap[nid] * pos[nid].w
-                this.walk_next(first[nid]) cid: if rel[cid] == entrel_held:
-                    let sz = child_size * pos[cid].w
+                held_sizes(nid, size) sz, hid:
                     // TODO further capability evaluation
                     if max(max_act) >= min(sz):
-                        at_held.push(cid)
+                        at_held.push(hid)
                         at_held_size.push(sz)
 
         // TODO further capability evaluation
@@ -269,12 +273,8 @@ class chunk : shard
         let holds_avail = []::float
         walk_rec_sizes(id) nid, size, descend:
             take_ent_type(nid, ent_holds, descend):
-                let c = cap[nid]
-                let child_size = size / c * pos[nid].w
                 var avail = size.x * size.y
-                this.walk_next(first[nid]) cid: if rel[cid] == entrel_held:
-                    let sz = child_size * pos[cid].w
-                    avail -= sz.x * sz.y
+                held_sizes(nid, size) sz: avail -= sz.x * sz.y
                 if avail > 0:
                     holds.push(nid)
                     holds_avail.push(avail)
