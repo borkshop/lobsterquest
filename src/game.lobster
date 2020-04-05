@@ -42,21 +42,22 @@ import ecs
 def print_list(title, level, body):
     var first = true
     var last = ""
-    var indent = repeat_string(" ", 2*level)
+    var indent = repeat_string(" ", 2*(level-1))
+    if level: title = indent + "- " + title
     body(level) item:
         if last != "":
             if first:
                 first = false
-                print(indent + "- " + title + ":")
+                print(title + ":")
                 level++
-                indent = repeat_string(" ", 2*level)
+                indent = repeat_string(" ", 2*(level-1))
             print(indent + "- " + last)
         last = item
     if first:
         if last == "":
-            print(indent + "- " + title + ": --none--")
+            print(title + ": --none--")
         else:
-            print(indent + "- " + title + ": " + last)
+            print(title + ": " + last)
     else: if last != "":
         print(indent + "- " + last)
 
