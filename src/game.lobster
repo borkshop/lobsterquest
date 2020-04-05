@@ -323,6 +323,45 @@ class chunk : shard
             else:
                 print(this.tag(id) + " took " + this.tag(take_id) + " from " + this.tag(root_id))
 
+    def run_actors():
+        // group actions by targets
+        timers.record_time(4):
+            targets   = map(actions) a, actor_id: a.target(pos[actor_ids[actor_id]])
+            group_ids = map(targets): -1
+            groups    = vector_reserve(typeof [[int]], targets.length())
+            hits      = vector_reserve(typeof [[int]], targets.length())
+            for(targets) t, actor_id:
+                if group_ids[actor_id] < 0:
+                    let group_id = groups.length()
+                    let actors = [actor_id]
+                    let at = bodys_at(t)
+                    for_from(targets, actor_id + 1) ot, other_actor_id:
+                        if targets[other_actor_id] == t:
+                            if group_ids[other_actor_id] < 0:
+                                group_ids[other_actor_id] = group_id
+                                actors.push(other_actor_id)
+                            // NOTE should not be possible unless we introduce
+                            // second-order consequences (e.g. pushing):
+                            // else: if other_actor_id != group_id:
+                    hits.push(at)
+                    groups.push(actors)
+                    group_ids[actor_id] = group_id
+
+        // resolve each group of shared interest one actor at a time
+        timers.record_time(5):
+            for(groups) actors:
+                for(actors) actor_id:
+                    let id = actor_ids[actor_id]
+                    // XXX
+                    // switch act.act:
+                    //     case action_none:         nil
+                    //     case action_hand_drop:    av.drop()
+                    //     case action_hand_swap:    av.swap()
+                    //     case action_hand_use:     av.use_hand()
+                    //     case action_hand_combine: av.combine_hands()
+                    //     case action_move:
+                    actor_move(id, actor_id)
+
     def actor_move(id, actor_id):
         // animate actor movement, adding to hit group if successful
         let group_id = group_ids[actor_id]
@@ -389,44 +428,8 @@ class chunk : shard
     def run_minds(input:input_fun):
         timers.record_time(3):
             actor_ids, actions = minds.intents(input)
-            targets = map(actions) a, actor_id: a.target(pos[actor_ids[actor_id]])
 
-        timers.record_time(4):
-            group_ids = map(targets): -1
-            groups    = vector_reserve(typeof [[int]], targets.length())
-            hits      = vector_reserve(typeof [[int]], targets.length())
-
-            // compute hit, resolving in groups of shared interest
-            for(targets) t, actor_id:
-                if group_ids[actor_id] < 0:
-                    let group_id = groups.length()
-                    let actors = [actor_id]
-                    let at = bodys_at(t)
-                    for_from(targets, actor_id + 1) ot, other_actor_id:
-                        if targets[other_actor_id] == t:
-                            if group_ids[other_actor_id] < 0:
-                                group_ids[other_actor_id] = group_id
-                                actors.push(other_actor_id)
-                            // NOTE should not be possible unless we introduce
-                            // second-order consequences (e.g. pushing):
-                            // else: if other_actor_id != group_id:
-                    hits.push(at)
-                    groups.push(actors)
-                    group_ids[actor_id] = group_id
-
-        timers.record_time(5):
-            for(groups) actors:
-                for(actors) actor_id:
-                    let id = actor_ids[actor_id]
-                    // XXX
-                    // switch act.act:
-                    //     case action_none:         nil
-                    //     case action_hand_drop:    av.drop()
-                    //     case action_hand_swap:    av.swap()
-                    //     case action_hand_use:     av.use_hand()
-                    //     case action_hand_combine: av.combine_hands()
-                    //     case action_move:
-                    actor_move(id, actor_id)
+        run_actors()
 
 def new_chunk():
     let ch = chunk {}
