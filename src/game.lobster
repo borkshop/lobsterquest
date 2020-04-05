@@ -266,8 +266,6 @@ class chunk : shard
                 " in:" + this.tag(this.par[held_id]))
 
         let holds = []::int
-        let holds_cell = []::xy_f
-        let holds_size = []::xy_f
         let holds_avail = []::float
         walk_rec_sizes(id) nid, size, descend:
             take_ent_type(nid, ent_holds, descend):
@@ -279,8 +277,6 @@ class chunk : shard
                     avail -= sz.x * sz.y
                 if avail > 0:
                     holds.push(nid)
-                    holds_cell.push(child_size)
-                    holds_size.push(size)
                     holds_avail.push(avail)
 
         // TODO further capability evaluation
@@ -288,9 +284,7 @@ class chunk : shard
             return
         if debug: print_list("take into one of", 1) level, print_item:
             for(holds) hold_id, i: print_item(level, this.tag(hold_id) +
-                " holds_cell:" + holds_cell[i] +
-                " holds_avail:" + holds_avail[i] +
-                " holds_size:" + holds_size[i])
+                " holds_avail:" + holds_avail[i])
 
         var take_id = -1
         var into_id = -1
