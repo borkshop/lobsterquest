@@ -108,6 +108,7 @@ let neighbor_cell_offsets = [
 enum_flags trace:
     trace_spawn
     trace_action
+    trace_moves
     trace_bumps
     trace_render
     trace_all // all entities, not just ones with ent_debug set
@@ -390,6 +391,7 @@ class chunk : shard
     def actor_move(actor_id):
         let id = actor_ids[actor_id]
         let group_id = group_ids[actor_id]
+        let debug = should_trace(id, trace_moves)
 
         // animate actor movement, adding to hit group if successful
         let at = hits[group_id]
@@ -404,13 +406,14 @@ class chunk : shard
         }
 
         if at.length == 1 and at[0] == id:
-            // TODO special case self action?
+            if debug: print(this.tag(id) + " rests ; TODO what does that even mean?")
             return
 
         if at.length: // have at!
             actor_bump(actor_id)
 
         anims.animate(id, movement_time) anim:
+            if debug: print(this.tag(id) + " moves to " + b + " from " + a)
             anim.blocking = true
             anim.after(0): anim.pos = a
             if at.length: // blocked, half-animate
