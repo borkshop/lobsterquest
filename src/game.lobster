@@ -41,25 +41,23 @@ import ecs
 
 def print_list(title, level, body):
     var first = true
+    var last_item = ""
     var last = ""
-    var indent = repeat_string(" ", 2*(level-1))
-    if level: title = indent + "- " + title
-    body(level) item:
-        if last != "":
+    if level: title = repeat_string(" ", 2*(level-1)) + "- " + title
+    body(level+1) sublevel, item:
+        if last_item != "":
             if first:
                 first = false
                 print(title + ":")
-                level++
-                indent = repeat_string(" ", 2*(level-1))
-            print(indent + "- " + last)
-        last = item
+            print(last)
+        last_item = item
+        last = repeat_string(" ", 2*(sublevel-1)) + "- " + item
     if first:
-        if last == "":
+        if last_item == "":
             print(title + ": --none--")
         else:
-            print(title + ": " + last)
-    else: if last != "":
-        print(indent + "- " + last)
+            print(title + ": " + last_item)
+    else: if last_item != "": print(last)
 
 class timers:
     labels = []::string
@@ -196,7 +194,7 @@ class chunk : shard
                 let item = build_string() emit:
                     emit(this.tag(at_id))
                     this.describe_intrinsics(at_id, emit)
-                print_item(item)
+                print_item(level, item)
 
         /*
 
@@ -224,7 +222,7 @@ class chunk : shard
         if !acts.length:
             return
         if debug: print_list("acts with one of", 1) level, print_item:
-            for(acts) act_id, i: print_item(this.tag(act_id) +
+            for(acts) act_id, i: print_item(level, this.tag(act_id) +
                 " size:" + acts_size[i])
 
         var max_act = xy_0
@@ -250,7 +248,7 @@ class chunk : shard
         if !at_held.length:
             return
         if debug: print_list("at held items", 1) level, print_item:
-            for(at_held) held_id, i: print_item(this.tag(held_id) +
+            for(at_held) held_id, i: print_item(level, this.tag(held_id) +
                 " size:" + at_held_size[i] +
                 " in:" + this.tag(this.par[held_id]))
 
@@ -278,7 +276,7 @@ class chunk : shard
         if !holds.length:
             return
         if debug: print_list("take into one of", 1) level, print_item:
-            for(holds) hold_id, i: print_item(this.tag(hold_id) +
+            for(holds) hold_id, i: print_item(level, this.tag(hold_id) +
                 " holds_cell:" + holds_cell[i] +
                 " holds_avail:" + holds_avail[i] +
                 " holds_size:" + holds_size[i])
