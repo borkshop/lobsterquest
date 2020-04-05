@@ -198,6 +198,12 @@ class chunk : shard
                     descend()
                     size /= scale
 
+    // commonly useful under walk_rec* to implement "find or descend"
+    def take_ent_type(id, mask:entype, descend, body):
+        if type[id] & mask:
+            body()
+        else: descend()
+
     def actor_at(id, at):
         let debug = should_trace(id, trace_action)
         if debug: print_list(this.tag(id) + " interacts with", 0) level, print_item:
@@ -222,12 +228,10 @@ class chunk : shard
 
         let acts = []::int
         let acts_size = []::xy_f
-        this.walk_rec_sizes(id) nid, size, descend:
-            if type[nid] & ent_acts:
+        walk_rec_sizes(id) nid, size, descend:
+            take_ent_type(nid, ent_acts, descend):
                 acts.push(nid)
                 acts_size.push(size)
-            else:
-                descend()
 
         // TODO further capability evaluation; especially abilities conferred from held items
         if !acts.length:
@@ -243,8 +247,8 @@ class chunk : shard
 
         let at_held = []::int
         let at_held_size = []::xy_f
-        for(at) atid: this.walk_rec_sizes(atid) nid, size, descend:
-            if type[nid] & ent_holds:
+        for(at) atid: walk_rec_sizes(atid) nid, size, descend:
+            take_ent_type(nid, ent_holds, descend):
                 let child_size = size / cap[nid] * pos[nid].w
                 this.walk_next(first[nid]) cid: if rel[cid] == entrel_held:
                     let sz = child_size * pos[cid].w
@@ -252,8 +256,6 @@ class chunk : shard
                     if max(max_act) >= min(sz):
                         at_held.push(cid)
                         at_held_size.push(sz)
-            else:
-                descend()
 
         // TODO further capability evaluation
         if !at_held.length:
@@ -267,8 +269,8 @@ class chunk : shard
         let holds_cell = []::xy_f
         let holds_size = []::xy_f
         let holds_avail = []::float
-        this.walk_rec_sizes(id) nid, size, descend:
-            if type[nid] & ent_holds:
+        walk_rec_sizes(id) nid, size, descend:
+            take_ent_type(nid, ent_holds, descend):
                 let c = cap[nid]
                 let child_size = size / c * pos[nid].w
                 var avail = size.x * size.y
@@ -280,8 +282,6 @@ class chunk : shard
                     holds_cell.push(child_size)
                     holds_size.push(size)
                     holds_avail.push(avail)
-            else:
-                descend()
 
         // TODO further capability evaluation
         if !holds.length:
