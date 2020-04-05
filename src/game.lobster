@@ -108,6 +108,7 @@ let neighbor_cell_offsets = [
 enum_flags trace:
     trace_spawn
     trace_action
+    trace_bumps
     trace_render
     trace_all // all entities, not just ones with ent_debug set
 
@@ -214,7 +215,7 @@ class chunk : shard
         let id = actor_ids[actor_id]
         let group_id = group_ids[actor_id]
         let at = hits[group_id]
-        let debug = should_trace(id, trace_action)
+        let debug = should_trace(id, trace_bumps)
 
         if debug: print_list(this.tag(id) + " interacts with", 0) level, print_item:
             for(at) at_id:
@@ -368,18 +369,22 @@ class chunk : shard
 
     def actor_drop(actor_id):
         let id = actor_ids[actor_id]
+        let debug = should_trace(id, trace_action)
         print(this.tag(id) + " TODO drop")
 
     def actor_swap(actor_id):
         let id = actor_ids[actor_id]
+        let debug = should_trace(id, trace_action)
         print(this.tag(id) + " TODO swap")
 
     def actor_use_hand(actor_id):
         let id = actor_ids[actor_id]
+        let debug = should_trace(id, trace_action)
         print(this.tag(id) + " TODO use")
 
     def actor_combine_hands(actor_id):
         let id = actor_ids[actor_id]
+        let debug = should_trace(id, trace_action)
         print(this.tag(id) + " TODO combine")
 
     def actor_move(actor_id):
