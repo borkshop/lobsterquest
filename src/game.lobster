@@ -118,7 +118,7 @@ enum_flags trace:
 
 class chunk : shard
     // debug tracing
-    trace = trace(0)
+    trace = trace_action | trace_moves | trace_bumps
 
     // performance timers
     timers = timers{}
@@ -851,6 +851,11 @@ let player_template = char_template.extend():
     _.type |= ent_input | ent_debug
     _.name  = "player"
     _.initiative = 10
+
+    _.children[0] = _.children[0].extend() h:
+        h.add_child(entrel_held, xy_0, pine_apple_template)
+    _.children[1] = _.children[1].extend() h:
+        h.add_child(entrel_held, xy_0, apple_template)
 
     // TODO would it be better to have a heart-container?
     let off = xy_f { -0.25, -0.25 }
