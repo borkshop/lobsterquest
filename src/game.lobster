@@ -380,7 +380,82 @@ class chunk : shard
     def actor_drop(actor_id):
         let id = actor_ids[actor_id]
         let debug = should_trace(id, trace_action)
-        print(this.tag(id) + " TODO drop")
+
+        let loc = pos[id].cell()
+        let heading = xy_i { 0, 1 } // TODO let user control drop direction
+
+        let places = neighbor_cell_offsets.map(): loc + _
+        let at_places = gather_bodys(places)
+        let at_avail = at_places.map(): 0.0
+        let at_into = at_places.map(): 0
+        for(at_places) at, i:
+            if at.length == 1 and type[at[0]] & ent_holds:
+                // into container
+                // TODO what if more than one container?
+                let at_id = at[0]
+                var avail = pos[at_id].w
+                let size = xy_f { avail, avail }
+                avail = avail * avail
+                held_sizes(at_id, size) sz:
+                    avail -= sz.x * sz.y
+                at_into[i] = at_id
+                at_avail[i] = avail
+            else:
+                // into world cell
+                var taken = 0.0
+                for(at) at_id:
+                    let sz = pos[at_id].w
+                    taken += sz * sz
+                at_avail[i] = 1.0 - taken
+
+        // collect all held items
+        let held = []::int
+        let held_size = []::xy_f
+        walk_rec_sizes(id) hand_id, size, descend:
+            take_ent_type(hand_id, ent_holds | ent_acts, descend):
+                held_sizes(hand_id, size) sz, held_id:
+                    held.push(held_id)
+                    held_size.push(sz)
+
+        // drop the first held item that will fit, preferably into the cell or
+        // entity at heading
+        for(held_size) size, i:
+            let sz = size.x * size.y
+            var best_score = 0.0
+            var best = -1
+            for(neighbor_cell_offsets) off, j:
+                let avail = at_avail[j]
+                if sz <= avail:
+                    let delta = abs(off - heading)
+                    let score = float(4 - delta.x.abs - delta.y.abs)
+                    if best_score < score:
+                        best_score = score
+                        best = j
+
+            if best_score > 0:
+                let drop_id = held[i]
+                let into_id = at_into[best]
+
+                if debug: print_list(this.tag(id) + " drop", 0) level, print_item:
+                    print_item(level, "item " + this.tag(drop_id))
+                    print_item(level, "size " + size)
+                    print_item(level, "from " + this.tag(this.par[drop_id]))
+                    print_item(level, "to " + places[best] + " offset:" + neighbor_cell_offsets[best])
+                    print_item(level, "at " + at_places[best])
+                    if at_into[best]:
+                        print_item(level, "into " + this.tag(into_id))
+
+                let p = pos[drop_id]
+                if into_id:
+                    let scale = size.max / pos[into_id].w
+                    let new_loc = xy_0 // TODO placement within
+                    pos[drop_id] = spatial { new_loc.x + 0.5, new_loc.y + 0.5, p.z, scale }
+                    this.add_child(into_id, entrel_held, drop_id)
+                else:
+                    let new_loc = places[best]
+                    pos[drop_id] = spatial { new_loc.x + 0.5, new_loc.y + 0.5, p.z, size.max }
+                    this.unlink(drop_id)
+                return
 
     def actor_swap(actor_id):
         let id = actor_ids[actor_id]
