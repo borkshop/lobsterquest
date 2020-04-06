@@ -59,6 +59,9 @@ def print_list(title, level, body):
             print(title + ": " + last_item)
     else: if last_item != "": print(last)
 
+def max_ratio(a, b):
+    return if a.x > a.y: a.x / b.x else: a.y / b.y
+
 class timers:
     labels = []::string
     values = []::[float]
@@ -276,6 +279,7 @@ class chunk : shard
                 " in:" + this.tag(this.par[held_id]))
 
         let holds = []::int
+        let holds_size = []::xy_f
         let holds_avail = []::float
         walk_rec_sizes(id) nid, size, descend:
             take_ent_type(nid, ent_holds, descend):
@@ -283,6 +287,7 @@ class chunk : shard
                 held_sizes(nid, size) sz: avail -= sz.x * sz.y
                 if avail > 0:
                     holds.push(nid)
+                    holds_size.push(size)
                     holds_avail.push(avail)
 
         // TODO further capability evaluation
@@ -290,6 +295,7 @@ class chunk : shard
             return
         if debug: print_list("take into one of", 1) level, print_item:
             for(holds) hold_id, i: print_item(level, this.tag(hold_id) +
+                " holds_size:" + holds_size[i] +
                 " holds_avail:" + holds_avail[i])
 
         var take_id = -1
@@ -313,16 +319,19 @@ class chunk : shard
                 " from:" + this.tag(root_id) +
                 " size:" + take_size)
 
+            let into_size = holds_size[into_id]
             into_id = holds[into_id]
             if debug: print("  -" +
                 " into:" + this.tag(into_id) +
+                " size:" + into_size +
                 " of:" + this.tag(this.root_of(into_id)) +
                 " avail:" + holds_avail[into_id])
 
-            this.add_child(into_id, entrel_held, take_id)
             let p = pos[take_id]
-            let loc = xy_0 // TODO place in a free cell
-            pos[take_id] = spatial { loc.x + 0.5, loc.y + 0.5, p.z, p.w }
+            let scale = max_ratio(take_size, into_size)
+            let loc = xy_0 // TODO placement within
+            pos[take_id] = spatial { loc.x + 0.5, loc.y + 0.5, p.z, scale }
+            this.add_child(into_id, entrel_held, take_id)
 
             if debug: print("  -" +
                 " beheld:" + this.tag(take_id))
