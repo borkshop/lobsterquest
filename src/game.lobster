@@ -872,10 +872,10 @@ let play_reader = button_action_reader {
         "c",
     ],
     actions: [
-        move_dir(xy {  0.0, -1.0 }),
-        move_dir(xy {  0.0,  1.0 }),
-        move_dir(xy { -1.0,  0.0 }),
-        move_dir(xy {  1.0,  0.0 }),
+        move_dir(xy {  0.0, -1.0 }), // up
+        move_dir(xy {  0.0,  1.0 }), // down
+        move_dir(xy { -1.0,  0.0 }), // left
+        move_dir(xy {  1.0,  0.0 }), // right
         move_dir(xy_0),
         act(action_hand_drop),
         act(action_hand_swap),
