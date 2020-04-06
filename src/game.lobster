@@ -460,7 +460,26 @@ class chunk : shard
     def actor_swap(actor_id):
         let id = actor_ids[actor_id]
         let debug = should_trace(id, trace_action)
-        print(this.tag(id) + " TODO swap")
+
+        let hands = []::int
+        let hands_size = []::xy_f
+        let hands_held = []::float
+        let hands_avail = []::float
+        walk_rec_sizes(id) nid, size, descend:
+            take_ent_type(nid, ent_holds | ent_acts, descend):
+                var held = 0.0
+                held_sizes(nid, size) sz: held += sz.x * sz.y
+                let avail = size.x * size.y - held
+                hands.push(nid)
+                hands_size.push(size)
+                hands_held.push(held)
+                hands_avail.push(avail)
+
+        print_list(this.tag(id) + " TODO swap", 0) level, print_item:
+            print_item(level, "hands:" + hands)
+            print_item(level+1, "size:" + hands_size)
+            print_item(level+1, "held:" + hands_held)
+            print_item(level+1, "avail:" + hands_avail)
 
     def actor_use_hand(actor_id):
         let id = actor_ids[actor_id]
