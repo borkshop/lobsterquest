@@ -94,6 +94,17 @@ def for_from(xs, i, body):
 
 //// shard integration
 
+let neighbor_cell_offsets = [
+    xy_i {  0, -1 }, // up
+    xy_i {  1, -1 }, // up-right
+    xy_i {  1,  0 }, // right
+    xy_i {  1,  1 }, // down-right
+    xy_i {  0,  1 }, // down
+    xy_i { -1,  1 }, // down-left
+    xy_i { -1,  0 }, // left
+    xy_i { -1, -1 }, // up-left
+]
+
 enum_flags trace:
     trace_spawn
     trace_action
@@ -361,6 +372,15 @@ class chunk : shard
     def bodys_at(loc):
         // TODO spatial query
         return filter(bodys.ids) id: par[id] == 0 and pos[id].cell() == loc
+
+    def gather_bodys(locs):
+        let ats = locs.map(): []
+        // TODO spatial query
+        for(bodys.ids) id: if par[id] == 0:
+            let pc = pos[id].cell()
+            for(locs) loc, i:
+                if loc == pc: ats[i].push(id)
+        return ats
 
     def bodys_under(id:int):
         return collect() each: this.walk_next(first[id]) cid:
