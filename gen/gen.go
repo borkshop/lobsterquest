@@ -43,7 +43,7 @@ import sprites
 import vec
 
 def load_sheet_sprites():
-    let tex = gl_load_texture("{{ .ImageOut }}")
+    let tex = gl_load_texture(pakfile "{{ .ImageOut }}")
     assert tex
     return sprite_new_atlas(tex, xy_1i * {{ .Sprites.Resolution }}, xy { {{ .Sprites.Size.X }}, {{ .Sprites.Size.Y }} })
 
