@@ -68,6 +68,32 @@ class daia_vantage:
     cursor_next:xy_f
     cursor_face:int
 
+    def camera_position(location):
+        return location.position + vecfromyawpitch(location.yaw, location.pitch, -location.elevation, 0.0)
+
+    def init(i, elevation):
+        index = i
+        let face = index / area
+        let within = index % area
+        let cursor = float(xy_i{ within % size, within / size })
+        let center = cursor + xy_1/2
+        let major = camera_majors[face]
+        let minor = camera_minors[face]
+        let position = camera_origins[face] - xyz_1/2 +
+            (major * center.x + minor * center.y) / size
+        let loc = camera_location{
+            position: position,
+            elevation: elevation,
+            yaw: daia_camera_yaws[face],
+            pitch: daia_camera_pitches[face],
+        }
+        // let cp = this.camera_position(loc)
+        next = loc
+        prev = loc
+        cursor_next = cursor
+        cursor_prev = cursor
+        cursor_face = face
+
     def camera_go(dir, elevation):
         let index1 = index
         let index2 = neighbors[index1][dir]
@@ -104,13 +130,10 @@ class daia_vantage:
             pitch: pitch,
         }
 
-    def camera_position(location):
-        return location.position + vecfromyawpitch(location.yaw, location.pitch, -location.elevation, 0.0)
-
     def update():
         prev = camera_lerp(prev, next, 1 - pow(0.1, gl_delta_time()))
         cursor_prev = lerp(cursor_prev, cursor_next, 1 - pow(0.01, gl_delta_time()))
-        camera_position = camera_position(prev)
+        camera_position = this.camera_position(prev)
         camera_yaw = prev.yaw
         camera_pitch = prev.pitch
 
@@ -261,6 +284,15 @@ class daia_mode:
             gl_color(color_white)
             gl_set_primitive_texture(0, face_textures[face])
             gl_render_mesh(face_meshes[face])
+
+        gl_ortho(0, 0)
+        gl_color(color_white)
+        check(gl_set_font_name("data/fonts/US101/US101.TTF"), "cannot load font US101")
+        gl_set_font_size(int(min(gl_window_size())/20))
+        let message = string(pov.index) + ", " + daia_face_names[pov.index / pov.area] + ", " + tiles[pov.index]
+        let offset = float(gl_window_size()) * xy_y - float(gl_text_size(message)) * xy_y
+        gl_translate(offset)
+        gl_text(message)
 
 def new_daia_mode(
     detail,

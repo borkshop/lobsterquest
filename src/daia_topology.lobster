@@ -103,3 +103,30 @@ def new_daia_topology(size):
     return neighborhoods, turns
 
 let daia_unit_neighborhoods, daia_unit_turns = new_daia_topology(1)
+
+let daia_camera_yaws = [
+    270,
+    0,
+    0,
+    180,
+    180,
+    90,
+]
+
+let daia_camera_pitches = [
+    0,
+    0,
+    90,
+    -90,
+    0,
+    0,
+]
+
+let daia_face_names = [
+    "Dysia",
+    "Oria",
+    "Infernia",
+    "Borea",
+    "Occia",
+    "Euia",
+]

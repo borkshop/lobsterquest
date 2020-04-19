@@ -77,6 +77,11 @@ def new_root_mode(face_meshes):
     daia_mode.tiles = daia_map_tiles
     daia_mode.flags = daia_map_flags
     daia_mode.fill_tile = tile_pine_tree
+    daia_mode.pov.init(
+        daia_mode.pov.area * 5 +
+        daia_mode.pov.area / 2,
+        0.5
+    )
 
     return root_mode{
         mode: mode_document,
