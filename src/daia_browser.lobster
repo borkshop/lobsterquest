@@ -7,7 +7,8 @@ import daia_file
 import sheets
 
 enum_flags daia_map_flags:
-    daia_map_flag_sea
+    daia_map_flag_water
+    daia_map_flag_magma
 
 let cube_vertices = map(8) c:
     xyz_v(map(3) i: float(c & (1 << (2 - i)) != 0))
@@ -167,6 +168,7 @@ class daia_mode:
     face_colors: [color]
     face_water_colors: [color]
     face_highlight_colors: [color]
+    magma_color: color
     pov: daia_vantage
     tiles: [tile_entity_id]
     flags: [int]
@@ -185,15 +187,17 @@ class daia_mode:
             tiles[pov.index] = fill_tile
         if gl_button("d") == 1:
             tiles[pov.index] = tile_none
+        if gl_button("m") == 1:
+            flags[pov.index] = flags[pov.index] ^ daia_map_flag_magma
         if gl_button("s") == 1:
-            flags[pov.index] = flags[pov.index] ^ daia_map_flag_sea
+            flags[pov.index] = flags[pov.index] ^ daia_map_flag_water
         if gl_button("a") == 1:
             let face = pov.index / pov.area
             let face_offset = pov.area * face
-            let flag = ~flags[pov.index] & daia_map_flag_sea
+            let flag = ~flags[pov.index] & daia_map_flag_water
             for(pov.area) index_within_face:
                 let index = face_offset + index_within_face
-                flags[index] = flags[pov.index] & ~daia_map_flag_sea | flag
+                flags[index] = flags[pov.index] & ~daia_map_flag_water | flag
         if gl_button("w") == 1:
             write_daia_file(tiles, flags)
 
@@ -204,14 +208,17 @@ class daia_mode:
                 gl_clear(face_colors[face])
 
                 gl_set_shader("color")
-                gl_color(face_water_colors[face])
                 gl_scale(xy_1 / pov.size):
                     let face_offset = pov.area * face
                     for(pov.area) index_within_face:
                         let index = face_offset + index_within_face
-                        if flags[index] & daia_map_flag_sea:
-                            let v = float(xy{ index_within_face % pov.size, index_within_face / pov.size })
-                            gl_translate(v):
+                        let v = float(xy{ index_within_face % pov.size, index_within_face / pov.size })
+                        gl_translate(v):
+                            if flags[index] & daia_map_flag_magma:
+                                gl_color(magma_color)
+                                gl_unit_square()
+                            else: if flags[index] & daia_map_flag_water:
+                                gl_color(face_water_colors[face])
                                 gl_unit_square()
 
                 gl_set_shader("textured")
@@ -264,7 +271,8 @@ def new_daia_mode(
     face_meshes,
     face_colors,
     face_water_colors,
-    face_highlight_colors
+    face_highlight_colors,
+    magma_color
 ):
     let area = size * size
     let neighbors = new_daia_topology(size)
@@ -277,6 +285,7 @@ def new_daia_mode(
         face_colors: face_colors,
         face_water_colors: face_water_colors,
         face_highlight_colors: face_highlight_colors,
+        magma_color: magma_color,
         pov: new_daia_vantage(size, neighbors, index, elevation),
         tiles: map(6*area): tile_none,
         flags: map(6*area): 0,

@@ -84,3 +84,5 @@ let face_highlight_colors = [
     light_blue,
     light_brown,
 ]
+
+let magma_color = dark_red

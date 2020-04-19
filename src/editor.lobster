@@ -71,7 +71,8 @@ def new_root_mode(face_meshes):
         face_meshes,
         face_colors,
         face_water_colors,
-        face_highlight_colors
+        face_highlight_colors,
+        magma_color
     )
     daia_mode.tiles = daia_map_tiles
     daia_mode.flags = daia_map_flags
