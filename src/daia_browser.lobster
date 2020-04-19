@@ -3,7 +3,6 @@ import util3d
 import color
 import game_draw
 import daia_topology
-import daia_file
 import sheets
 
 enum_flags daia_map_flags:
@@ -229,6 +228,7 @@ class daia_mode:
                 flags[index] = flags[pov.index] & ~daia_map_flag_water | flag
         if gl_button("w") == 1:
             write_daia_file(tiles, flags)
+            write_daia_data_map_tsv(tiles, flags)
 
     def daia_draw():
         for(6) face:
@@ -330,3 +330,20 @@ def new_daia_mode(
         sprites: sprites,
         fill_tile: tile_none,
     }
+
+def write_daia_file(tiles, flags):
+    let content = "import sheets\nlet daia_map_tiles = " + tiles + "\nlet daia_map_flags = " + flags + "\n"
+    write_file("daia_map.lobster", content, 0)
+
+def write_daia_data_map_tsv(tiles, flags):
+    var content = "tile\twater\tlava\n"
+    for(daia_map_tiles) tile, i:
+        content += string(tile) + "\t" + (
+            if daia_map_flags[i] & daia_map_flag_water: "1"
+            else: ""
+        ) + "\t" + (
+            if daia_map_flags[i] & daia_map_flag_magma: "1"
+            else: ""
+        ) + "\n"
+
+    write_file("../data/Emoji Quest - Map.tsv", content, 0)
