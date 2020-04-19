@@ -14,6 +14,8 @@
   rnd only works in 32-bit currently. could make it use 64-bit, but this will change the
   results for existing code..
 
+- NEWVEC can defeat the STACKMARGIN check if called with sufficient args.
+
 - jg/jcorbin: should allow function values to be other than just variables, any exp.
   currently not even `f()` works if `f` is a member variable.
   _ as function value doesn't even work even though explicit var does for loop.
@@ -1986,6 +1988,7 @@ C++64-MSVC: inlinestr : secs 13.0 inline structs v1
 C++64-MSVC: immediates: secs 12.4 direct immediates in native code VM calls
 C++64-MSVC: dd        : secs 11.9
 VM64-MSVC:            : secs 16.0 (newer VS, better release settings??)
+VM64-MSVC:            : secs 14.5 (newer VS, "for/if/while" compiled slightly differently)
 
 compiletime speed:
 
