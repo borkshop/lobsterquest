@@ -62,7 +62,17 @@ def new_root_mode(face_meshes):
 
     let margin = 7
     let size = margin*4+3
-    let daia_mode = new_daia_mode(72*size, size, 0, 0.35, sprites, face_meshes, face_colors, face_highlight_colors)
+    let daia_mode = new_daia_mode(
+        72*size,
+        size,
+        0,
+        0.35,
+        sprites,
+        face_meshes,
+        face_colors,
+        face_water_colors,
+        face_highlight_colors
+    )
     daia_mode.tiles = daia_map_tiles
     daia_mode.fill_tile = tile_pine_tree
 

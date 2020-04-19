@@ -162,9 +162,11 @@ class daia_mode:
     face_meshes: [resource]
     face_textures: [resource]
     face_colors: [color]
+    face_water_colors: [color]
     face_highlight_colors: [color]
     pov: daia_vantage
     tiles: [tile_entity_id]
+    submersion: [bool]
     sprites: sprite_atlas
     fill_tile: tile_entity_id
 
@@ -180,6 +182,8 @@ class daia_mode:
             tiles[pov.index] = fill_tile
         if gl_button("d") == 1:
             tiles[pov.index] = tile_none
+        if gl_button("s") == 1:
+            submersion[pov.index] = !submersion[pov.index]
         if gl_button("w") == 1:
             write_daia_file(tiles)
 
@@ -188,6 +192,18 @@ class daia_mode:
             render_to_texture(face_textures[face], xy_1i * detail, false, nil, 0):
                 gl_scale(xy_1 * detail)
                 gl_clear(face_colors[face])
+
+                gl_set_shader("color")
+                gl_color(face_water_colors[face])
+                gl_scale(xy_1 / pov.size):
+                    let face_offset = pov.area * face
+                    for(pov.area) index_within_face:
+                        let index = face_offset + index_within_face
+                        let submerged = submersion[index]
+                        if submerged:
+                            let v = float(xy{ index_within_face % pov.size, index_within_face / pov.size })
+                            gl_translate(v):
+                                gl_unit_square()
 
                 gl_set_shader("textured")
                 gl_scale(xy_1 / pov.size):
@@ -230,7 +246,17 @@ class daia_mode:
             gl_set_primitive_texture(0, face_textures[face])
             gl_render_mesh(face_meshes[face])
 
-def new_daia_mode(detail, size, index, elevation, sprites, face_meshes, face_colors, face_highlight_colors):
+def new_daia_mode(
+    detail,
+    size,
+    index,
+    elevation,
+    sprites,
+    face_meshes,
+    face_colors,
+    face_water_colors,
+    face_highlight_colors
+):
     let area = size * size
     let neighbors = new_daia_topology(size)
     let face_textures = map(6):
@@ -240,9 +266,11 @@ def new_daia_mode(detail, size, index, elevation, sprites, face_meshes, face_col
         face_meshes: face_meshes,
         face_textures: face_textures,
         face_colors: face_colors,
+        face_water_colors: face_water_colors,
         face_highlight_colors: face_highlight_colors,
         pov: new_daia_vantage(size, neighbors, index, elevation),
         tiles: map(6*area): tile_none,
+        submersion: map(6*area): false,
         sprites: sprites,
         fill_tile: tile_none,
     }

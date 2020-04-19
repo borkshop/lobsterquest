@@ -59,12 +59,21 @@ let palette = [
 // opposites.
 // Colors on opposite faces are also opposite hues.
 let face_colors = [
-    light_purple,    // M
-    light_orange,    // Y
-    light_blue,      // C
-    color_white*0.8, // R
-    dark_blue,       // B
-    dark_green,      // G
+    light_purple,    // 1: M
+    light_orange,    // 2: Y
+    color_white*0.8, // 3: C (water is primary)
+    color_white*0.8, // 4: R
+    light_orange,    // 5: B (water is primary)
+    dark_green,      // 6: G
+]
+
+let face_water_colors = [
+    dark_blue,
+    dark_blue,
+    light_blue,
+    light_blue,
+    dark_blue,
+    dark_blue,
 ]
 
 let face_highlight_colors = [
