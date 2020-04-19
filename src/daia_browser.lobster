@@ -208,9 +208,15 @@ class daia_mode:
         if gl_button("h") == 1: go(3)
         if gl_button("f") == 1:
             tiles[pov.index] = fill_tile
+        if gl_button("c") == 1:
+            fill_tile = tiles[pov.index]
+        if gl_button("x") == 1:
+            if tiles[pov.index] != tile_none:
+                fill_tile = tiles[pov.index]
+            tiles[pov.index] = tile_none
         if gl_button("d") == 1:
             tiles[pov.index] = tile_none
-        if gl_button("m") == 1:
+        if gl_button("v") == 1:
             flags[pov.index] = flags[pov.index] ^ daia_map_flag_magma
         if gl_button("s") == 1:
             flags[pov.index] = flags[pov.index] ^ daia_map_flag_water

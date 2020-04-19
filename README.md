@@ -55,6 +55,20 @@ Otherwise, the program starts at `src/editor.lobster`.
 lobster/bin/lobster src/editor.lobster
 ```
 
+The editor key bindings are:
+
+* q to quit
+* hjkl to navigate
+* return to toggle tile picker mode
+* f to fill with picked tile
+* d to delete the picked tile
+* c to copy the tile under the cursor
+* x to cut (copy and delete) the tile under the cursor
+* s to toggle sea/water
+* a to flood/drain entire face with/of water
+* v to toggle volcanic magma
+* w to write out map file
+
 To update the lobster version, use `git subtree` and rebuild the executable.
 
 ```sh
