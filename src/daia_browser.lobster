@@ -6,6 +6,9 @@ import daia_topology
 import daia_file
 import sheets
 
+enum_flags daia_map_flags:
+    daia_map_flag_sea
+
 let cube_vertices = map(8) c:
     xyz_v(map(3) i: float(c & (1 << (2 - i)) != 0))
 
@@ -166,7 +169,7 @@ class daia_mode:
     face_highlight_colors: [color]
     pov: daia_vantage
     tiles: [tile_entity_id]
-    submersion: [bool]
+    flags: [int]
     sprites: sprite_atlas
     fill_tile: tile_entity_id
 
@@ -183,9 +186,16 @@ class daia_mode:
         if gl_button("d") == 1:
             tiles[pov.index] = tile_none
         if gl_button("s") == 1:
-            submersion[pov.index] = !submersion[pov.index]
+            flags[pov.index] = flags[pov.index] ^ daia_map_flag_sea
+        if gl_button("a") == 1:
+            let face = pov.index / pov.area
+            let face_offset = pov.area * face
+            let flag = ~flags[pov.index] & daia_map_flag_sea
+            for(pov.area) index_within_face:
+                let index = face_offset + index_within_face
+                flags[index] = flags[pov.index] & ~daia_map_flag_sea | flag
         if gl_button("w") == 1:
-            write_daia_file(tiles)
+            write_daia_file(tiles, flags)
 
     def daia_draw():
         for(6) face:
@@ -199,8 +209,7 @@ class daia_mode:
                     let face_offset = pov.area * face
                     for(pov.area) index_within_face:
                         let index = face_offset + index_within_face
-                        let submerged = submersion[index]
-                        if submerged:
+                        if flags[index] & daia_map_flag_sea:
                             let v = float(xy{ index_within_face % pov.size, index_within_face / pov.size })
                             gl_translate(v):
                                 gl_unit_square()
@@ -270,7 +279,7 @@ def new_daia_mode(
         face_highlight_colors: face_highlight_colors,
         pov: new_daia_vantage(size, neighbors, index, elevation),
         tiles: map(6*area): tile_none,
-        submersion: map(6*area): false,
+        flags: map(6*area): 0,
         sprites: sprites,
         fill_tile: tile_none,
     }

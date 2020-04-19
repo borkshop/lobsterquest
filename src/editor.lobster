@@ -74,6 +74,7 @@ def new_root_mode(face_meshes):
         face_highlight_colors
     )
     daia_mode.tiles = daia_map_tiles
+    daia_mode.flags = daia_map_flags
     daia_mode.fill_tile = tile_pine_tree
 
     return root_mode{
