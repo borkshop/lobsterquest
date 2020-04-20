@@ -20,4 +20,4 @@ class tile_menu_world:
     def set_tile(i, t):
         nil
     def label(i):
-        return string(tile_entity_id(i))
+        return tile_names[i]

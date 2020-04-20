@@ -99,6 +99,13 @@ let {{ $sheet.EntityType }}_sprite_id = [
 ]
 {{- end }}
 
+let {{ $sheet.EntityType }}_names = [
+    "empty tile",
+{{-   range $id, $name := $sheet.OriginalName }}
+    "{{ $name }}",
+{{- end }}
+]
+
 {{- end }}
 `))
 
@@ -218,11 +225,12 @@ func loadSheet(filename string) (sheet Sheet, _ error) {
 // Sheet represents one data sheet of entity information, with reference into
 // the global sprite table, and associated info.
 type Sheet struct {
-	EntityType string
-	Fields     []string
-	Meta       map[string][]string
-	Name       []string
-	Info       []map[string]interface{}
+	EntityType   string
+	Fields       []string
+	Meta         map[string][]string
+	Name         []string
+	OriginalName []string
+	Info         []map[string]interface{}
 }
 
 func (sheet Sheet) HasField(name string) bool {
@@ -274,7 +282,8 @@ func (sheet *Sheet) Read(r io.Reader) error {
 	}
 
 	for sc.Expect(1) {
-		name, _ := sc.Field(0)
+		originalName, _ := sc.Field(0)
+		name := originalName
 
 		if len(sc.Fields) == 1 {
 			sheet.Name = append(sheet.Name, name)
@@ -314,6 +323,7 @@ func (sheet *Sheet) Read(r io.Reader) error {
 		}
 
 		sheet.Name = append(sheet.Name, name)
+		sheet.OriginalName = append(sheet.OriginalName, originalName)
 		sheet.Info = append(sheet.Info, info)
 	}
 	return sc.Err()

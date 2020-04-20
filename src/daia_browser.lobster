@@ -295,7 +295,7 @@ class daia_mode:
         gl_color(color_white)
         check(gl_set_font_name("data/fonts/US101/US101.TTF"), "cannot load font US101")
         gl_set_font_size(int(min(gl_window_size())/20))
-        let message = string(pov.index) + ", " + daia_face_names[pov.index / pov.area] + ", " + tiles[pov.index]
+        let message = string(pov.index) + ", " + daia_face_names[pov.index / pov.area] + ", " + tile_names[tiles[pov.index]]
         let offset = float(gl_window_size()) * xy_y - float(gl_text_size(message)) * xy_y
         gl_translate(offset)
         gl_text(message)
@@ -338,7 +338,7 @@ def write_daia_file(tiles, flags):
 def write_daia_data_map_tsv(tiles, flags):
     var content = "tile\twater\tlava\n"
     for(daia_map_tiles) tile, i:
-        content += string(tile) + "\t" + (
+        content += tile_names[tile] + "\t" + (
             if daia_map_flags[i] & daia_map_flag_water: "1"
             else: ""
         ) + "\t" + (
