@@ -1,103 +1,116 @@
-item name/flags...	moji	use	quantity	persists	tip	notes
-euia						
-apple	🍎	health	1		A delicious red apple.	
-pine apple	🍍	health	2		A delicious pine apple.	
-pear	🍐	stamina	1		The fruit that comes in pears.	
-hardwood	🌳				The lumber of a hardwood tree.	
-softwood	🌲				The lumber of a softwood tree.	
-clover	☘️				Just shy of lucky.	
-mutton	🍖	health			Mutton for dinner. Mutton for breakfast.	
-yarn	🧶				Tell a yarn. Spin a tale.	
-copper	🥉				Copper is a precious medal.	
-silver	🥈				Silver is a precious medal.	
-gold	🥇				Gold is a precious medal.	
-link	🔗					
-bolt	🔩					
-gear	⚙️					
-knife/weapon	🔪	damage	1			
-shovel	🥄					
-wrench/wrench/	🔧					
-pick axe/pick/axe/	⛏					
-bicycle	🚲					
-hook	⚓️					
-hammer/hammer/	🔨					
-shield	🛡					
-chain	⛓					
-scissors	✂️					
-hammer and pick/hammer/pick/	⚒					
-hammer and wrench/hammer/wrench/	🛠					
-sword/weapon	🗡	damage	2			
-zweihander/weapon	⚔️	damage	4			
-basket	🗑					
-cart	🛒	carry	20	1		
-fishing rod	🎣					
-barrel	🛢					
-knitting needles	🥢					
-canoe	🛶	float	1	1		
-coat	🧥	warm	1	1		
-occia						
-fleur	⚜️					
-trident	🔱	weapon	3			
-water	💧	hydration		1		
-coconut	🥥	health	1		I’m underdeveloped.	
-banana	🍌	health	1		I’m underdeveloped.	
-date	📆	health	1		I’m underdeveloped.	
-fish	🐟	health	2		I’m underdeveloped.	
-sand	🏝				I’m underdeveloped.	
-alembic	⚗️				I’m underdeveloped.	
-turtle	🐢				I’m underdeveloped.	
-snail	🐌				I’m underdeveloped.	
-borea						
-wind	💨	wind		1		
-light bulb	💡					No recipe. Needed to restore the Boreal Tree.
-lab coat	🥼					No recipe. Needed to restore the polar bear.
-carrot	🥕					No recipe. Needed to restore the snowman.
-midia						
-						
-						
-infernia						
-rocket	🚀	space flight		1		
-						
-oria						
-fuel	⛽️					
-cactus	🌵					
-dysia						
-key to dysia	🗝	zoning		1		
-loan	💰				Underdeveloped.	
-ethyria						
-fire	🔥	flame		1		
-power	⚡️	charge		1		
-left lune	🌜					
-right lune	🌛					
-lune	🌝					
-mojicka						
-mojick	🌈	mojick		1		
-mushroom	🍄	grow				
-cake	🍰	shrink				
-horn	🎉					Unsure how this can be made.
-return to euia						
-unicorn	🦄					
-return to occia						
-bay leaves	🍃					Bay leaves are instrumental in the quest to turn the restore the whale to a narwhal, the unicorn of the sea.
-return to borea						
-invisibility cloak	🥼					
-return to midia						
-						
-return to infernia						
-						
-return to oria						
-						
-return to dysia						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-unplanned						
-pen	🖋					
-needle	💉					
-broom	🧹					
+item name/flags...	moji	use	quantity	persists	tip	notes	consumed	produced
+# euia								
+apple	🍎	health	1		A delicious red apple.		0	1
+pine apple	🍍	health	2		A delicious pine apple.		0	1
+pear	🍐	stamina	1		The fruit that comes in pears.		0	1
+hardwood	🌳				The lumber of a hardwood tree.		0	1
+softwood	🌲				The lumber of a softwood tree.		5	1
+clover	☘️				Just shy of lucky.		1	1
+mutton	🍖	health			Mutton for dinner. Mutton for breakfast.		0	1
+yarn	🧶				Tell a yarn. Spin a tale.		3	2
+copper	🥉				Copper is a precious medal.		4	4
+silver	🥈				Silver is a precious medal.		3	3
+gold	🥇				Gold is a precious medal.		3	2
+link	🔗				Links pair well with 🔩 *bolts* and ⚙️ *gears*.		6	1
+bolt	🔩				Bolts pair well with ⚙️ *gears* 🔗 *links*.		8	2
+gear	⚙️				Gears pair well with  🔗 *links* and 🔩 *bolts*.		7	1
+knife/weapon	🔪	damage	1		It slices. It dices.		0	0
+shovel	🥄				A spoon will suffice if you can’t find a shovel emoji.		1	2
+wrench/wrench/	🔧				To turn, to twist, to spindle.		0	0
+pick axe/pick/axe/	⛏				Pick your battles wisely.		0	0
+bicycle	🚲				Ridden by cyclists. Not bikers.		1	1
+hook	⚓️				There is no hook emoji. This will have to do.		1	1
+hammer/hammer/	🔨				Smash it with a hammer.		0	0
+axe	🪓	damage	1		Did you know that axe, acid, and oxygen are all related words?		0	1
+shield	🛡				A sheet of metal *can* serve many functions.		1	1
+chain	⛓				Follow the links.		1	1
+scissors	✂️				Cut it out.		0	1
+hammer and pick/hammer/pick/	⚒️				Why pick when you can pick *and* hammer.		0	0
+hammer and wrench/hammer/wrench/	🛠				Smash and grab.		0	0
+sword/weapon	🗡	damage	2		Dagger emoji looks like a sword to me.		0	0
+zweihander/weapon	⚔️	damage	4		Zweihander means two hands in German. You will need both.		0	0
+basket	🗑				Sometimes called the “round file”.		1	1
+cart	🛒	carry	20	1	Adventure with everything *and* the kitchen sink.		0	1
+fishing rod	🎣				Not just a boring side quest.		0	1
+barrel	🛢				Never look down the barrel.		0	0
+knitting needles	🥢				There is no emoji for knitting needles.		5	6
+canoe	🛶	float	1	1	Row row row your boat.		0	1
+coat	🧥	warm	1	1	It’s a coat! It’s a jacket! No, it’s super warm!		1	2
+candy	🍬				Candy, the preferred cure for a sore throat.	This is a throat drop that relieves a sore throat. It must be constructed with mojick since it’s a requirement to resolve the unicorn restoration quest. There is no recipe yet.	0	0
+# occia							1	0
+fleur	⚜️				Gilded lily.		1	1
+trident	🔱	weapon	3		Three gold teeth.		0	1
+water	💧	hydration		1	Drip drop.		0	0
+coconut	🥥	health	1		Nut of the coco.	I’m underdeveloped.	0	1
+banana	🍌	health	1		I am a banana.	I’m underdeveloped.	0	1
+date	📆	health	1		Food time.	I’m underdeveloped.	0	1
+fish	🐟	health	2		There are many ways to spell my name.	I’m underdeveloped.	0	0
+sand	🏝				True grit.	I’m underdeveloped.	1	1
+alembic	⚗️				Bubble bubble, toil and trouble.	I’m underdeveloped.	0	1
+turtle	🐢				Slow and steady wins the race.	I’m underdeveloped.	0	0
+snail	🐌				Slower and steadier wins the race.	I’m underdeveloped.	0	0
+# borea							1	0
+wind	💨	wind		1	Woosh.		0	0
+light bulb	💡				I have an idea.	No recipe. Needed to restore the Boreal Tree.	0	0
+lab coat	🥼				I’m all white.	No recipe. Needed to restore the polar bear.	0	0
+carrot	🥕				Orange but not an orange. The name was taken, and I was purple at the time.	No recipe. Needed to restore the snowman.	0	1
+pill	💊				Side-effects may include wellness.	No recipe. Needed to help the sick emoji.	0	0
+thermometer	🌡				Terry Pratchett would have called this a mojical thaumometer.	Obtained from the sick emoji. Needs a further purpose.	0	0
+bay leavs	🍃				Bay leaves. Get it?	Used to convince the whale to leave the bay.	0	0
+# midia							0	0
+							0	0
+							0	0
+# infernia							1	0
+rocket	🚀	space flight		1	To the sky box…and beyond!		0	0
+							0	0
+# oria							1	0
+fuel	⛽️				Benzene!		0	0
+prickly pear	🌵				Some pears are prickly.		0	1
+# dysia							1	0
+key to dysia	🗝	zoning		1	The keys to the city of Dis.	Underdeveloped.	0	0
+loan	💰				From what might be called a “fallen angel investor”.	Underdeveloped.	0	0
+# ethyria							1	0
+fire	🔥	flame		1	Fire!		0	0
+power	⚡️	charge		1	Power!		0	0
+left lune	🌜				The left side of the Lune.		1	0
+right lune	🌛				Where is my better half?		1	0
+lune	🌝				I am the Lune.		0	1
+# mojicka							1	0
+mojick	🌈	mojick		1	Mojick!		1	1
+mushroom	🍄	grow					0	0
+cake	🍰	shrink					0	0
+horn	🎉					Unsure how this can be made.	0	0
+# mojick of euia							1	0
+unicorn	🦄					Is this really an item?	0	1
+# mojick of occia							1	0
+bay leaves	🍃				What does the bay leave?	Bay leaves are instrumental in the quest to turn the restore the whale to a narwhal, the unicorn of the sea.	0	0
+# mojick of borea							1	0
+# mojick of midia							1	0
+							0	0
+# mojick of infernia							1	0
+							0	0
+# mojick of oria							1	0
+							0	0
+# mojick of dysia							1	0
+							0	0
+							0	0
+							0	0
+							0	0
+							0	0
+							0	0
+							0	0
+							0	0
+							0	0
+# unplanned							2	0
+pen	🖋						0	1
+needle	💉						1	2
+broom	🧹						0	1
+glove	🧤						3	1
+sock	🧦						1	1
+boxing glove	🥊						1	2
+box	📦						1	1
+ribbon	🎗						1	1
+pack	🎒						0	1
+paper	📄						1	0
+reeds	🎍						0	0
+thread	🧵						1	1

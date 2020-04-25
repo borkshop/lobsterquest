@@ -285,6 +285,10 @@ func (sheet *Sheet) Read(r io.Reader) error {
 		originalName, _ := sc.Field(0)
 		name := originalName
 
+		if strings.HasPrefix(name, "#") {
+			continue
+		}
+
 		if len(sc.Fields) == 1 {
 			sheet.Name = append(sheet.Name, name)
 			sheet.Info = append(sheet.Info, map[string]interface{}{

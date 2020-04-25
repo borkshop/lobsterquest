@@ -1,49 +1,50 @@
-				entity	tool	yield	requirement	action
-euia								
-🐑	✂️	🧶		*/sheep	scissors	yarn		dec
-🐑	🔪	🍖		*/sheep	*/weapon	mutton		nix
-🌳		🍎		apple tree/*		apple		dec
-🌳		🍐		pear tree/*		pear		dec
-🌳	⛏	🌳		*/hardwood	*/axe/*	hardwood		nix
-🌲	⛏	🌲		*/softwood	*/axe/*	softwood		nix
-🌲		🍍		pine tree/*		pine apple		dec
-☘️		☘️		clover		clover		nix
-⛰		⛏		boulder		pick axe/*		nix
-⛰	⛏	🥉		mountain	*/axe/*	copper		dec
-🏔	⛏	🥈		high mountain	*/axe/*	silver		dec
-🗻	⛏	🥇		volcano	*/axe/*	gold		dec
-occia								
-🌴		🥥		coconut tree/*		coconut		dec
-🌴		🍌		banana tree/*		banana		dec
-🌴		📆		date palm tree/*		date		dec
-🏝	🥄	🏝		island	shovel	sand		dec
-borea								
+T	T'	I		entity	yield	tool	requirement	action
+				# euia				
+🐑	🧶	✂️		*/sheep	yarn	scissors		dec
+🐑	🍖	🔪		*/sheep	mutton	*/weapon		nix
+🌳	🍎			apple tree/*	apple			dec
+🌳	🍐			pear tree/*	pear			dec
+🌳	🌳	⛏		*/hardwood	hardwood	*/axe/*		nix
+🌲	🌲	⛏		*/softwood	softwood	*/axe/*		nix
+🌲	🍍			pine tree/*	pine apple			dec
+☘️	☘️			clover	clover			nix
+⛰	⛏			boulder	pick axe/*			nix
+⛰	🥉	⛏		mountain	copper	*/axe/*		dec
+🏔	🥈	⛏		high mountain	silver	*/axe/*		dec
+🗻	🥇	⛏		volcano	gold	*/axe/*		dec
+				# occia				
+🌴	🥥			coconut tree/*	coconut			dec
+🌴	🍌			banana tree/*	banana			dec
+🌴	📆			date palm tree/*	date			dec
+🏝	🏝	🥄		island	sand	shovel		dec
+				# borea				
 								
-midia								
+				# midia				
 								
-infernia								
+				# infernia				
 								
-oria								
-🌵	⛏	🌵		cactus	*/axe/*	cactus		
-dysia								
+				# oria				
+🌵	🌵	⛏		cactus	prickly pear	*/axe/*		
+				# dysia				
 								
-sun								
+				# sun				
 								
-moon								
+				# moon				
 								
-return to euia								
-🐴	🎉	🦄		horse	horn	unicorn		
-🌲	🧹	💉		pine tree/*	broom	needle		
-return to occia								
-🐙	💉	🖋		octopus	needle	pen		
-return to borea								
+				# mojick of euia				
+🐴	🦄	🎉		horse	unicorn	horn		
+🌲	💉	🧹		pine tree/*	needle	broom		
+🥕	🥕	🥄		carrot	carrot	shovel		
+				# mojick of occia				
+🐙	🖋	💉		octopus	pen	needle		
+				# mojick of borea				
 								
-return to midia								
+				# mojick of midia				
 								
-return to infernia								
+				# mojick of infernia				
 								
-return to oria								
+				# mojick of oria				
 								
-return to dysia								
+				# mojick of dysia				
 								
-unplanned								
+				# unplanned				
