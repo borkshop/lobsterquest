@@ -18,19 +18,36 @@ import daia_topology
 import util3d
 import brand
 import sheets
+import rounded_corners
 
-fatal(gl_window("Cube Surface Browser", 515, 515))
+def main():
+    fatal(gl_window("Cube Surface Browser", 515, 515))
 
-let face_meshes = new_daia_face_meshes(new_daia_face_vertices())
+    let face_meshes = new_daia_face_meshes(new_daia_face_vertices())
+    let rounded_corner_textures = articulate_rounded_corners()
 
-let detail = 500
-let size = 7
-let sprites = load_sheet_sprites()
-let mode = new_daia_mode(detail, size, 0, 1, sprites, face_meshes, face_colors, face_highlight_colors)
-mode.fill_tile = tile_pine_tree
+    let detail = 500
+    let size = 7
+    let sprites = load_sheet_sprites()
+    let mode = new_daia_mode(
+         detail,
+         size,
+         0,
+         1,
+         sprites,
+         rounded_corner_textures,
+         face_meshes,
+         face_colors,
+         face_water_colors,
+         face_highlight_colors,
+         dark_red
+     )
+    mode.fill_tile = tile_pine_tree
 
-while gl_frame():
-    if gl_button("q") == 0 or gl_button("escape") == 0:
-        return from program
-    mode.daia_input()
-    mode.daia_draw()
+    while gl_frame():
+        if gl_button("q") == 0 or gl_button("escape") == 0:
+            return from program
+        mode.daia_input()
+        mode.daia_draw()
+
+main()

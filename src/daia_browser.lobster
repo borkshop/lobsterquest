@@ -3,6 +3,7 @@ import util3d
 import color
 import game_draw
 import daia_topology
+import daia_map
 import sheets
 
 enum_flags daia_map_flags:
@@ -193,8 +194,10 @@ class daia_mode:
     magma_color: color
     pov: daia_vantage
     tiles: [tile_entity_id]
+    neighbors: [[int]]
     flags: [int]
     sprites: sprite_atlas
+    rounded_corner_textures: [resource]
     fill_tile: tile_entity_id
 
     def daia_input():
@@ -230,25 +233,61 @@ class daia_mode:
             write_daia_file(tiles, flags)
             write_daia_data_map_tsv(tiles, flags)
 
+    // draws water or magma on a face using the rounded corner texture and
+    // whatever color is on the gl_context to give it a hue.
+    def draw_junctions(face, flag):
+        def bit(n): return if n: 1 else: 0
+        def draw_junction(v, nw, ne, sw, se):
+            let junction_flags = (
+                (bit(flags[nw] & flag) << 3) |
+                (bit(flags[ne] & flag) << 2) |
+                (bit(flags[sw] & flag) << 1) |
+                (bit(flags[se] & flag) << 0)
+            )
+            gl_translate(v-xy_1/2):
+                gl_set_primitive_texture(0, rounded_corner_textures[junction_flags])
+                gl_unit_square()
+        gl_scale(xy_1 / pov.size):
+            let face_offset = pov.area * face
+            // the body including the north and west edges
+            for(pov.area) index_within_face:
+                let v = float(xy{
+                    index_within_face % pov.size,
+                    index_within_face / pov.size,
+                })
+                let se = face_offset + index_within_face
+                let ne = neighbors[se][northward]
+                let sw = neighbors[se][westward]
+                let nw = neighbors[ne][westward]
+                draw_junction(v, nw, ne, sw, se)
+            // down the east edge
+            for(pov.size) south_index:
+                let v = float(xy{ pov.size, south_index })
+                let sw = face_offset + pov.size * south_index + pov.size - 1
+                let se = neighbors[sw][eastward]
+                let ne = neighbors[se][northward]
+                let nw = neighbors[ne][westward]
+                draw_junction(v, nw, ne, sw, se)
+            // across the south edge
+            for(pov.size) east_index:
+                let v = float(xy{ east_index, pov.size })
+                let ne = face_offset + pov.area - pov.size + east_index
+                let se = neighbors[ne][southward]
+                let nw = neighbors[ne][westward]
+                let sw = neighbors[nw][southward]
+                draw_junction(v, nw, ne, sw, se)
+
     def daia_draw():
         for(6) face:
             render_to_texture(face_textures[face], xy_1i * detail, false, nil, 0):
                 gl_scale(xy_1 * detail)
                 gl_clear(face_colors[face])
 
-                gl_set_shader("color")
-                gl_scale(xy_1 / pov.size):
-                    let face_offset = pov.area * face
-                    for(pov.area) index_within_face:
-                        let index = face_offset + index_within_face
-                        let v = float(xy{ index_within_face % pov.size, index_within_face / pov.size })
-                        gl_translate(v):
-                            if flags[index] & daia_map_flag_magma:
-                                gl_color(magma_color)
-                                gl_unit_square()
-                            else: if flags[index] & daia_map_flag_water:
-                                gl_color(face_water_colors[face])
-                                gl_unit_square()
+                gl_set_shader("textured")
+                gl_color(face_water_colors[face])
+                draw_junctions(face, daia_map_flag_water)
+                gl_color(magma_color)
+                draw_junctions(face, daia_map_flag_magma)
 
                 gl_set_shader("textured")
                 gl_scale(xy_1 / pov.size):
@@ -306,6 +345,7 @@ def new_daia_mode(
     index,
     elevation,
     sprites,
+    rounded_corner_textures,
     face_meshes,
     face_colors,
     face_water_colors,
@@ -324,10 +364,12 @@ def new_daia_mode(
         face_water_colors: face_water_colors,
         face_highlight_colors: face_highlight_colors,
         magma_color: magma_color,
+        neighbors: neighbors,
         pov: new_daia_vantage(size, neighbors, index, elevation),
         tiles: map(6*area): tile_none,
         flags: map(6*area): 0,
         sprites: sprites,
+        rounded_corner_textures: rounded_corner_textures,
         fill_tile: tile_none,
     }
 

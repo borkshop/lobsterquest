@@ -15,6 +15,7 @@ import brand
 import sheets
 import tile_menu
 import math_anex
+import rounded_corners
 
 class tile_menu_mode : map_mode<tile_menu_world>
 
@@ -49,7 +50,7 @@ class root_mode:
             case mode_selecting_tile:
                 tile_menu_mode.map_draw()
 
-def new_root_mode(face_meshes):
+def new_root_mode(face_meshes, rounded_corner_textures):
     let sprites = load_sheet_sprites()
     let tile_mode = tile_menu_mode{
         pov: map_vantage{ xy_0i, xy_0, xy_0, 100 },
@@ -68,6 +69,7 @@ def new_root_mode(face_meshes):
         0,
         0.35,
         sprites,
+        rounded_corner_textures,
         face_meshes,
         face_colors,
         face_water_colors,
@@ -89,16 +91,19 @@ def new_root_mode(face_meshes):
         tile_menu_mode: tile_mode,
     }
 
-fatal(gl_window("Editor", 1024, 1024))
-gl_window_min_max(1)
-check(gl_set_font_name(pakfile "data/fonts/Droid_Sans/DroidSans.ttf"), "can\'t load font")
+def main():
+    fatal(gl_window("Editor", 1024, 1024))
+    gl_window_min_max(1)
+    check(gl_set_font_name(pakfile "data/fonts/Droid_Sans/DroidSans.ttf"), "can\'t load font")
 
-let face_meshes = new_daia_face_meshes(new_daia_face_vertices())
+    let face_meshes = new_daia_face_meshes(new_daia_face_vertices())
+    let rounded_corner_textures = articulate_rounded_corners()
 
-let mode = new_root_mode(face_meshes)
+    let mode = new_root_mode(face_meshes, rounded_corner_textures)
 
-while gl_frame():
-    mode.root_input():
-        return from program
-    mode.root_draw()
+    while gl_frame():
+        mode.root_input():
+            return from program
+        mode.root_draw()
 
+main()
