@@ -80,20 +80,20 @@ import color
 import brand
 import texture
 
+let rounded_corner_size_i = xy_1i * 72
+let rounded_corner_size = float(rounded_corner_size_i)
+
 def articulate_rounded_corners():
     let vec_cw = xy_y // clockwise
     let vec_af = -xy_x // about face
     let vec_ccw = -xy_y // counter-clockwise
-
-    let res_i = xy_1i * 72
-    let res = float(res_i)
 
     let rc = gl_load_texture(pakfile "../art/png/72x72/rounded-corners.png")
     assert(rc)
 
     let rounded_corner_textures = map(16):
         gl_create_blank_texture(
-            res_i,
+            rounded_corner_size_i,
             color_clear,
             texture_format_clamp|texture_format_nomipmap
         )
@@ -101,38 +101,38 @@ def articulate_rounded_corners():
     // +----+------+------+--------------+-----------+
     // | 15 | 1111 | "██" | fill         |           |
     // +----+------+------+--------------+-----------+
-    render_to_texture(rounded_corner_textures[15], res_i, false, nil, 0):
+    render_to_texture(rounded_corner_textures[15], rounded_corner_size_i, false, nil, 0):
         gl_set_shader("color")
         gl_color(color_white)
-        gl_scale(res)
+        gl_scale(rounded_corner_size)
         gl_rect(xy_1)
 
     // +----+------+------+--------------+-----------+
     // |  8 | 1000 | "▀ " | A            |           |
     // +----+------+------+--------------+-----------+
-    render_to_texture(rounded_corner_textures[8], res_i, false, nil, 0):
+    render_to_texture(rounded_corner_textures[8], rounded_corner_size_i, false, nil, 0):
         gl_set_shader("textured")
         gl_set_primitive_texture(0, rc)
-        gl_scale(res)
+        gl_scale(rounded_corner_size)
         gl_rect(xy{ 3.0, 1.0 })
 
     // +----+------+------+--------------+-----------+
     // | 12 | 1100 | "▀▀" | B            |           |
     // +----+------+------+--------------+-----------+
-    render_to_texture(rounded_corner_textures[12], res_i, false, nil, 0):
+    render_to_texture(rounded_corner_textures[12], rounded_corner_size_i, false, nil, 0):
         gl_set_shader("textured")
         gl_set_primitive_texture(0, rc)
-        gl_scale(res)
+        gl_scale(rounded_corner_size)
         gl_translate(xy{ -1.0, 0.0 })
         gl_rect(xy{ 3.0, 1.0 })
 
     // +----+------+------+--------------+-----------+
     // | 13 | 1101 | "▀█" | C            |           |
     // +----+------+------+--------------+-----------+
-    render_to_texture(rounded_corner_textures[13], res_i, false, nil, 0):
+    render_to_texture(rounded_corner_textures[13], rounded_corner_size_i, false, nil, 0):
         gl_set_shader("textured")
         gl_set_primitive_texture(0, rc)
-        gl_scale(res)
+        gl_scale(rounded_corner_size)
         gl_translate(xy{ -2.0, 0.0 })
         gl_rect(xy{ 3.0, 1.0 })
 
@@ -141,10 +141,10 @@ def articulate_rounded_corners():
     // +----+------+------+--------------+-----------+
 
     def copy_rot(dst, src, rot, dup):
-        render_to_texture(rounded_corner_textures[dst], res_i, false, nil, 0):
+        render_to_texture(rounded_corner_textures[dst], rounded_corner_size_i, false, nil, 0):
             gl_set_shader("textured")
             gl_set_primitive_texture(0, rounded_corner_textures[src])
-            gl_scale(res)
+            gl_scale(rounded_corner_size)
             if dup:
                 gl_rect(xy_1)
             gl_translate(xy_1/2)
