@@ -5,14 +5,12 @@
 
 package main
 
-//go:generate go run gen.go
+//go:generate go run .
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"image"
-	"image/draw"
 	"image/png"
 	"io"
 	"io/ioutil"
@@ -20,10 +18,8 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 	"text/template"
-	"unicode"
 )
 
 var tmplFuncs = template.FuncMap{
@@ -387,51 +383,6 @@ func (sheet *Sheet) FindGlyphs(sprites *Sprites, dir string) (n int) {
 	return n
 }
 
-// Sprites is the global sprite sheet, containing glyph renderings for all entities.
-type Sprites struct {
-	Resolution int
-	Size       image.Point    // grid size
-	Paths      []string       // glyph file path
-	PathID     map[string]int // path to spriteID
-}
-
-func (sprites *Sprites) PathSprite(path string) int {
-	id, ok := sprites.PathID[path]
-	if !ok {
-		id = len(sprites.Paths) + 1
-		if sprites.PathID == nil {
-			sprites.PathID = make(map[string]int)
-		}
-		sprites.PathID[path] = id
-		sprites.Paths = append(sprites.Paths, path)
-	}
-	return id
-}
-
-func (sprites *Sprites) BuildFile(filename string) error {
-	img, err := sprites.Build()
-	if err == nil {
-		err = writePNGFile(filename, img)
-	}
-	return err
-}
-
-func (sprites *Sprites) Build() (image.Image, error) {
-	sprites.Size = gridSize(len(sprites.Paths))
-	tile := image.Rectangle{image.ZP, image.Pt(sprites.Resolution, sprites.Resolution)}
-	stride := sprites.Size.X
-	img := image.NewRGBA(image.Rectangle{image.ZP, sprites.Size.Mul(sprites.Resolution)})
-	for i, path := range sprites.Paths {
-		sprite, err := readPNGFile(path)
-		if err != nil {
-			return nil, err
-		}
-		slot := tile.Add(image.Pt(i%stride, i/stride).Mul(sprites.Resolution))
-		draw.Draw(img, slot, sprite, image.ZP, draw.Src)
-	}
-	return img, nil
-}
-
 //// utilities
 
 func writeTemplateFile(filename string, t *template.Template, data interface{}) error {
@@ -460,166 +411,9 @@ func readPNGFile(filename string) (image.Image, error) {
 	return img, nil
 }
 
-func writePNGFile(filename string, img image.Image) error {
-	f, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	err = png.Encode(f, img)
-	if cerr := f.Close(); err == nil {
-		err = cerr
-	}
-	if err != nil {
-		return fmt.Errorf("failed to write png into %q: %w", filename, err)
-	}
-	return nil
-}
-
-func findGlyph(dir, glyph string) string {
-	codes := []rune(glyph)
-	hexCodes := make([]string, len(codes))
-	for i, code := range codes {
-		hexCodes[i] = strconv.FormatUint(uint64(code), 16)
-	}
-	for i := len(hexCodes); i > 0; i-- {
-		path := filepath.Join(dir, strings.Join(hexCodes[:i], "-")+".png")
-		if _, err := os.Stat(path); err == nil {
-			return path
-		}
-	}
-	return filepath.Join(dir, "25A1.png")
-}
-
 func symbolize(s string) string {
 	s = strings.TrimSpace(s)
 	s = strings.ToLower(s)
 	// TODO coalese any non-alphanumerics?
 	return strings.Join(strings.Split(s, " "), "_")
-}
-
-func gridSize(n int) image.Point {
-	var x, y int
-	for x*x < n {
-		x++
-	}
-	for x*y < n {
-		y++
-	}
-	return image.Pt(x, y)
-}
-
-func wrapLines(n int, name, prefix, s string) string {
-	r := []rune(s)
-
-	var sb strings.Builder
-	i := 0
-	seek := func(j int) int {
-		if j > len(r) {
-			return len(r)
-		}
-		k := j
-		for ; j > i; j-- {
-			if unicode.IsSpace(r[j]) {
-				return j
-			}
-		}
-		for ; k < len(r); k++ {
-			if unicode.IsSpace(r[k]) {
-				return k
-			}
-		}
-		return len(r)
-	}
-	skip := func(j int) int {
-		for ; j < len(r); j++ {
-			if !unicode.IsSpace(r[j]) {
-				return j
-			}
-		}
-		return len(r)
-	}
-
-	first := prefix + name + ": "
-	cont := prefix + strings.Repeat(" ", len(name)+2)
-
-	{
-		j := seek(i + n - len(first))
-		_, _ = sb.WriteString(first)
-		_, _ = sb.WriteString(strings.TrimRightFunc(string(r[i:j]), unicode.IsSpace))
-		i = skip(j)
-	}
-
-	for i < len(r) {
-		_ = sb.WriteByte('\n')
-		j := seek(i + n - len(cont))
-		_, _ = sb.WriteString(cont)
-		_, _ = sb.WriteString(strings.TrimRightFunc(string(r[i:j]), unicode.IsSpace))
-		i = skip(j)
-	}
-
-	return sb.String()
-}
-
-type warning struct{ error }
-
-func isWarning(err error) bool {
-	_, is := err.(warning)
-	return is
-}
-
-func warn(mess string, args ...interface{}) error {
-	return warning{fmt.Errorf(mess, args...)}
-}
-
-func newTSVScanner(r io.Reader) tsvScanner {
-	sc := tsvScanner{
-		Scanner: bufio.NewScanner(r),
-	}
-	for sc.Scan() {
-		if len(sc.Fields) > 1 && sc.Fields[0] == "#meta" {
-			sc.Meta = append(sc.Meta, sc.Fields[1:])
-		} else {
-			sc.Header = sc.Fields
-			break
-		}
-	}
-	return sc
-}
-
-type tsvScanner struct {
-	*bufio.Scanner
-	Meta   [][]string
-	Header []string
-	Fields []string
-}
-
-func (sc tsvScanner) Field(n int) (string, bool) {
-	if n >= len(sc.Fields) {
-		return "", false
-	}
-	return sc.Fields[n], true
-}
-
-func (sc *tsvScanner) Expect(numFields int) bool {
-	for sc.Scan() {
-		if len(sc.Fields) >= numFields {
-			return true
-		}
-	}
-	return false
-}
-
-func (sc *tsvScanner) Scan() bool {
-	if !sc.Scanner.Scan() {
-		sc.Fields = nil
-		return false
-	}
-	fields := strings.Split(sc.Text(), "\t")
-
-	for i := len(fields) - 1; i >= 0 && fields[i] == ""; i-- {
-		fields = fields[:i]
-	}
-
-	sc.Fields = fields
-	return true
 }
