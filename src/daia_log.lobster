@@ -61,11 +61,8 @@ class flow_writer:
     cursor: xy_f
     last_space: xy_f
 
-    def open():
-        cursor = xy{ (size.x - breaks[0]) / 2.0, 0.0 }
-
     def sp():
-        if cursor.x >= breaks[break_index] - 0.5:
+        if cursor.x >= breaks[break_index] - 1:
             // wrap
             cursor = cursor * xy_y + xy_y * line_height
             last_space = cursor
@@ -108,8 +105,6 @@ def flow(max_size, line_height, fun, backdrop):
     fun(meter)
     meter.close()
 
-    backdrop(xy{ max_size.x, length(meter.breaks) * line_height })
-
     // // debug break lines:
     // for(meter.breaks) break, i:
     //     gl_color(color_red):
@@ -124,4 +119,5 @@ def flow(max_size, line_height, fun, backdrop):
         last_space: xy_0,
     }
 
-    fun(writer)
+    backdrop(xy{ max_size.x, length(meter.breaks) * line_height }):
+        fun(writer)

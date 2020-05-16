@@ -10,9 +10,8 @@ import brand
 
 def main():
     fatal(gl_window("Daia Log", 500, 500))
-    let size = xy{ 500.0, 500.0 }
+    let size = xy{ 1000.0, 1000.0 }
     let pad = rounded_corner_size
-    let wrap = 400.0
     let sprites = load_sheet_sprites()
     let rounded_corners = articulate_rounded_corners()
     while gl_frame() and gl_button("escape") != -1 and gl_button("q") != 1:
@@ -20,21 +19,18 @@ def main():
         gl_color(color_black)
         let window_size = float(gl_window_size())
         let scale = xy_1 * min(window_size)
-        gl_translate((window_size - scale)/2)
-        gl_scale(scale / size)
-        gl_translate(pad)
 
         // // debug wrap line:
         // gl_line(xy{ wrap, 0.0 }, xy{ wrap, size.y }, 1.0)
 
         def bold():
             check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
-            gl_set_font_size(20)
+            gl_set_font_size(50)
         def normal():
             check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
-            gl_set_font_size(20)
+            gl_set_font_size(50)
 
-        flow(size - pad * 2, 30) f:
+        def intro(f):
             gl_color(color_black)
 
             // 🌈 Mojick has faded from the world.
@@ -63,8 +59,14 @@ def main():
             // crafting, and, where the cause is just, ⚔️ fighting emojis to
             // restore mojick to all the lands.
 
-        fn backdrop:
+        flow(size - pad * 2, 50) f:
+            intro(f)
+        fn backdrop, draw:
+            gl_translate((window_size - scale)/2)
+            gl_scale(scale / size)
+            gl_translate(max(pad, size - backdrop - pad))
             gl_color(light_blue)
             embox(backdrop, rounded_corner_size, rounded_corners)
+            draw()
 
 main()
