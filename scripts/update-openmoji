@@ -7,5 +7,6 @@ git diff --quiet --cached && git diff --quiet || {
 git fetch --depth 1 --no-tags https://github.com/hfg-gmuend/openmoji "${1:-master}"
 git rm -rf art/openmoji
 git read-tree -u --prefix art/openmoji/color/72x72/ FETCH_HEAD:color/72x72
+git read-tree -u --prefix art/openmoji/data FETCH_HEAD:data
 HASH=$(git rev-parse FETCH_HEAD)
 git commit -m "Updating openmoji to $HASH"
