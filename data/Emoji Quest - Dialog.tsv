@@ -4,18 +4,18 @@ apple tree/hardwood	🌳				🌳	Knock, knock.
 				🙂		Who’s there?
 					🌳	Tree.
 				🙂		Tree who?
-					🌳	Treat me well and I give you 🍎 *apples*.
+					🌳	Treat me well and I give you 🍎*apples*.
 					🌳	Knock, knock.
 				🙂		Who’s there?
 					🌳	Tree.
 				🙂		Tree who?
-					🌳	Treat me poorly and I’ll give you 🌳 *lumber*.
-					🌳	🪓 *Axe* me no more questions.
+					🌳	Treat me poorly and I’ll give you 🌳*lumber*.
+					🌳	🪓*Axe* me no more questions.
 pine tree/softwood	🌲				🌲	Knock, knock.
 				🙂		Who’s there?
 					🌲	Pine.
 				🙂		Pine who?
-					🌲	I pine for peace and quiet.
+					🌲	Pine for peace and quiet.
 					🌲	Knock, knock.
 				🙂		Who’s there?
 					🦉	Hoo.
@@ -28,35 +28,35 @@ pine tree/softwood	🌲				🌲	Knock, knock.
 pear tree/hardwood	🌳	FALSE				/Harrumph/.
 pear tree/hardwood	🌳	TRUE				It’s true. I am the *Tree of Knotty and Nice*…
 pear tree/hardwood	🌳	TRUE				As *knotty* and *nice* are *dual*…
-pear tree/hardwood	🌳	TRUE				So, my fruit must come in 🍐 *pears*.
+pear tree/hardwood	🌳	TRUE				So, my fruit must come in 🍐*pears*.
 castle	🏰				👸	Welcome stranger, I am *Princess Die of Euia*…
 castle	🏰				👸	The power of *mojick*, the transmutation of *emoji*, has faded from the land…
 castle	🏰				👸	With it, all the *mojical creatures* have vanished…
-castle	🏰				👸	The 🦄 *unicorn* has not been seen since *The Fall*…
+castle	🏰				👸	The 🦄*unicorn* has not been seen since *The Fall*…
 castle	🏰					
-castle	🏰				👸	The 🐉 *dragon* is but a myth.
+castle	🏰				👸	The 🐉*dragon* is but a myth.
 captain	💂‍♀️					Hark! I’m the *Captain of the Guard*…
-captain	💂‍♀️		TRUE			In the forest to the west, there is a 🌳 *tree* that is quite unlike the others…
-captain	💂‍♀️					Soldiers use its 🍐 *fruit* to improve their 💛 *stamina*  when they travel in the *Eural Mountains*.
-major	💂‍♂️					Hark! I’m *a sharp Major* in service to her Majesty 👸 *Princess Dice*…
+captain	💂‍♀️		TRUE			In the forest to the west, there is a 🌳*tree* that is quite unlike the others…
+captain	💂‍♀️					Soldiers use its 🍐*fruit* to improve their 💛*stamina*  when they travel in the *Eural Mountains*.
+major	💂‍♂️					Hark! I’m *a sharp Major* in service to her Majesty 👸*Princess Dice*…
 major	💂‍♂️					A *friend of mine* has gone missing in the *Eural Mountains*, to the south…
-major	💂‍♂️					They went searching for 🥉 *precious medals*…
+major	💂‍♂️					They went searching for 🥉*precious medals*…
 major	💂‍♂️					Please help them if you can!
 miner	👨‍🔧					Oy! I’m *a flat miner*…
-miner	👨‍🔧					I came here with my sturdy *pick axe* but I was trapped by this ⛰ *boulder*…
-miner	👨‍🔧					There are 🥉 *precious medals* in these mountains. One can make a fortune!
+miner	👨‍🔧					I came here with my sturdy *pick axe* but I was trapped by this ⛰*boulder*…
+miner	👨‍🔧					There are 🥉*precious medals* in these mountains. One can make a fortune!
 euia bank/bank	🏦				👨‍💼	Greetings, I am *Phil*, a lesser demon of monetary exchange…
 euia bank/bank	🏦				👨‍💼	This is a branch of the *Bank of Dysia*…
-euia bank/bank	🏦				👨‍💼	While you’re here, we can exchange 🥉 *precious medals*…
-euia bank/bank	🏦				👨‍💼	Three 🥉 *copper* for two 🥈 *silver* for one 🥇 *gold*…
+euia bank/bank	🏦				👨‍💼	While you’re here, we can exchange 🥉*precious medals*…
+euia bank/bank	🏦				👨‍💼	Three 🥉*copper* for two 🥈*silver* for one 🥇 *gold*…
 euia bank/bank	🏦				👨‍💼	The Bank of Dysia provides all manner of exchanges.
 euia forge/forge	🏭				👩‍🏭	Hello, I’m *Mrs. Smith*…
 euia forge/forge	🏭				👨‍🏭	And I’m *Mr. Smith*…
 euia forge/forge	🏭				👩‍🏭	This is a *forge* where we do honest *forgery*…
-euia forge/forge	🏭				👨‍🏭	Here you can smelt 🥇🥈🥉 *precious medals*…
+euia forge/forge	🏭				👨‍🏭	Here you can smelt 🥇🥈🥉*precious medals*…
 euia forge/forge	🏭				👩‍🏭	Place a medal in the forge to craft a useful component!
-harriet	🏠				💇‍♀️	Did you know that you can sheer 🐑 *sheep* with ✂️ *scissors*?
-harriet	🏠				💇‍♀️	Scissors are better than 🔪 *two knives*.
+harriet	🏠				💇‍♀️	Did you know that you can sheer 🐑*sheep* with ✂️*scissors*?
+harriet	🏠				💇‍♀️	That’s why scissors are an improvement over just 🔪*two knives*.
 ewe/sheep	🐑					Baa.
 ewe/sheep	🐑					Ram.
 ewe/sheep	🐑					Ewe.
@@ -64,40 +64,44 @@ ram/sheep	🐏					Ram.
 ram/sheep	🐏					Ewe.
 ram/sheep	🐏					Baa.
 jack	🏡				🧓	Hello, I’m *Jack*…
-jack	🏡				🧓	It’s hard to stay warm in the ❄️ *frigid north*…
-jack	🏡				🧓	That’s why I knit myself a 🧥 *jacket*…
-jack	🏡				🧓	To knit, you’ll need 🧶 *yarn* and 🥢 *needles*…
-jack	🏡					I 🔪 *whittled* my needles out of 🌲 *soft wood*.
+jack	🏡				🧓	It’s hard to stay warm in the ❄️*frigid north*…
+jack	🏡				🧓	That’s why I knit myself a 🧥*jacket*…
+jack	🏡				🧓	To knit, you’ll need 🧶*yarn* and 🥢*needles*…
+jack	🏡					I 🔪*whittled* my needles out of 🌲*soft wood*.
 glub	🐟					You are not a fish.
-glub	🐟					Fish do not need 🛶 *canoes*.
+glub	🐟					Fish do not need 🛶*canoes*.
 glub	🐟					Fish can swim over the *edge of the world*…
-glub	🐟					Canoes are made from 🌲 *soft wood*.
-glub	🐟					I have seen *you people* make them with 🥄 *shovels*.
+glub	🐟					Canoes are made from 🌲*soft wood*.
+glub	🐟					I have seen *you people* make them with 🥄*shovels*.
 owl	🦉					If the world were candy 🍭…
 owl	🦉					Hoo many licks would it take to get to the center?
 owl	🦉					I hear there’s a *snak*.
 # occia						
-mermaid	🧜‍♀️					My brother, Herman, became an ordinary 🐟 *fish* when they lost the sacred 🔱 *trident*…
-herman	🏊‍♂️					I was once a 🧜‍♂️ *merman*…
-herman	🏊‍♂️					I lost my 🔱 *trident*…
-herman	🏊‍♂️					A trident is like a ⚜️ *golden fleur* but with the points *twisted* upward…
-herman	🏊‍♂️					I bet you would need a 🔨 *hammer* /and/ a 🔧 *wrench* to do intricate jewler’s work like that… 
-herman	🏊‍♂️					Some sort of 🛠 *hammer wrench*.
-merman	🧜‍♂️					Thank you for restoring our sacred 🔱 *trident*!
-marco	🤽‍♂️					Call me *Marco*. I’m love 🥇 *gold*…
-marco	🤽‍♂️					Have you ever seen a ☘️ *clover*?
+mermaid	🧜‍♀️					My brother, Herman, became an ordinary 🐟*fish* when they lost the sacred 🔱*trident*…
+herman	🏊‍♂️					I was once a 🧜‍♂️*merman*…
+herman	🏊‍♂️					I lost my 🔱*trident*…
+herman	🏊‍♂️					A trident is like a ⚜️*golden fleur* but with the points *twisted* upward…
+herman	🏊‍♂️					I bet you would need a 🔨*hammer* /and/ a 🔧*wrench* to do intricate jewler’s work like that… 
+herman	🏊‍♂️					Some sort of 🛠*hammer wrench*.
+merman	🧜‍♂️					Thank you for restoring our sacred 🔱*trident*!
+marco	🤽‍♂️					Call me *Marco*. I love 🥇*gold*…
+marco	🤽‍♂️					Have you ever seen a ☘️*clover*?
 marco	🤽‍♂️					I saw one once, *west* of here…
-marco	🤽‍♂️					Can you imagine, painting the clover 🥇 *gold*?
-sponge	🧽					Hi, I’m a *sponge*.
+marco	🤽‍♂️					Can you imagine, painting the clover 🥇*gold*?
 sponge	🧽					I’m planted, but not a plant…
 sponge	🧽					I’m inanimate, yet am an animal…
-sponge	🧽					I come back at the turn of the tide.
-bank of occia/bank	🏦				🏦	Before you stands the Bank of the West…
+sponge	🧽					I’m a *sponge*.
+bank of occia/bank	🏦				🏦	Every river has a bank…
+bank of occia/bank	🏦				🏦	This island is Oc, the capital of Occia…
+bank of occia/bank	🏦				🏦	Home to the Occidental Bank…
 bank of occia/bank	🏦				🏦	The lintel reads “MARIA DIEI”…
-bank of occia/bank	🏦				🏦	“Seas the Day”, in the Latin…
-bank of occia/bank	🏦				🏦	Within you encounter 🦈 *the president of the bank*…
+bank of occia/bank	🏦				🏦	Or, in the Latin…
+bank of occia/bank	🏦				🏦	“Seas the Day”…
+bank of occia/bank	🏦				🏦	Within you encounter 🦈*the president of the bank*…
 bank of occia/bank	🏦				🦈	I’m a *loan shark*…
 bank of occia/bank	🏦				🦈	Get it!?
+bank of occia/bank	🏦				🦈	While you’re here, we can exchange 🥉*precious medals*…
+bank of occia/bank	🏦				🦈	Three 🥉*copper* for two 🥈*silver* for one 🥇*gold*…
 						
 						
 # borea						
@@ -116,12 +120,12 @@ fist	👊					Were you expecting a *punch line*?
 abominable snowman	⛄️					
 caribou	🦌					
 # midia						
-sal the snake	🐍					🐍 I am *Sal the Snake* and this is *Midia*, the center of *Daia*…
-						🐍 In this world torn between *knotty* and *nice*, I was *toadally newtral*, the *mojus of moji*…
-						🐍 When *mojick* returns, then will it be possible to restore me to my 🦎 *true form*, for I was once the *Sal the Mander*…
-						🐍 I like 🐢 *turtles*.
-sal the mander	🦎					🦎 Thank you for restoring me to my *true form*. I am *Sal Mander*, The *Toadally Newtral*…
-						🦎 Go forth and restore the *mojick* of *Daia*!
+sal the snake	🐍				🐍	I am *Sal the Snake* and this is *Midia*, the center of *Daia*…
+					🐍	In this world torn between *knotty* and *nice*, I was *toadally newtral*, the *mojus of moji*…
+					🐍	When *mojick* returns, then will it be possible to restore me to my 🦎 *true form*, for I was once the *Sal the Mander*…
+					🐍	I like 🐢 *turtles*.
+sal the mander	🦎				🦎	Thank you for restoring me to my *true form*. I am *Sal Mander*, The *Toadally Newtral*…
+					🦎	Go forth and restore the *mojick* of *Daia*!
 # infernia						
 cheese wizard	🧙‍♂️					
 sand witch	🧙‍♀️					
@@ -153,17 +157,17 @@ lune	🌝
 asteroid	☄️					
 # mojick of euia						
 observatory	🔭				👩‍🚀	Hi, I’m *Astrid*. Welcome to the *Royal Observatory*…
-					👩‍🚀	I’m an *astronomer*. I look to the 🌌 night sky for clues.
+					👩‍🚀	I’m an *astronomer*. I look to the 🌌night sky for clues.
 genome	👨🏼‍🌾					Hello, I’m *Genome Mendel*…
 						That’s like *Gnome* but with a *G*…
-						Did you know that there’s a special tree that produces 🍃 *bay leaves*?
-dumbledore	🐝					They call me *Dumbledore* /
+						Did you know that there’s a special tree that produces 🍃*bay leaves*?
+dumbledore	🐝					They call me *Dumbledore*,
 						I taught them all their *mogick*…
-						In the days of yore /
+						In the days of yore,
 						All bees were *dumbledore*…
-						Watch me *spell* in line /
+						Watch me *spell* in line,
 						With my *cursive* bee-line…
-						A *spelling bee*’s design /
+						A *spelling bee*’s design,
 						Is then to write in *blessive*!
 horse	🐴					/Neigh/.
 horse	🐴					/Whinny/.
@@ -176,21 +180,21 @@ wilted rose	🥀					Please…
 wilted rose	🥀					Water…
 wilted rose	🥀					Only the mojick of *water* can restore me.
 carrot	🥕					I am a carrot…
-carrot	🥕					Though, I’m renown to help 👀 *eyes*…
-carrot	🥕					There is a creature of Borea, far to the *north*, who 👃 *nose* what to do with me…
-carrot	🥕					To the 🐇 *rabbits*, I am wealth itself…
+carrot	🥕					Though, I’m renown to help 👀*eyes*…
+carrot	🥕					There is a creature of Borea, far to the *north*, who 👃 *nose*what to do with me…
+carrot	🥕					To the 🐇*rabbits*, I am wealth itself…
 carrot	🥕					So you may call me *Warren Buffet*…
-carrot	🥕					If you 🥄 *dig* me, I am yours.
+carrot	🥕					If you 🥄*dig* me, I am yours.
 						
 # mojick of occia						
 justin/clock	🕰				🧓	Hello, I’m *Justin*. Welcome to the *Clock Tower*…
 					🧓	At the clock tower, we can craft with *time*…
 					🧓	For example, crafting with *bread* and *water* here will produce *beer*!
-plumber	👨🏻‍🔧					Have you heard about 🍄 *mushrooms*?
+plumber	👨🏻‍🔧					Have you heard about 🍄*mushrooms*?
 						Crafting with mushrooms can make some things *grow*…
 pat	👨🏻‍🦰					Hi, I’m *Pat*…
-						Did you know that the mojical 🍀 *four leaf clover* is lucky?
-						All we have now though are ordinary ☘️ *three leaf clover*.
+						Did you know that the mojical 🍀*four leaf clover* is lucky?
+						All we have now though are ordinary ☘️*three leaf clover*.
 						
 						
 # mojick of borea						
@@ -203,14 +207,14 @@ bear	🐻					I could go all about the frozen north unseen despite my enormity�
 bear	🐻					I lost my 🥼 *cloak of invisibility*.
 polar bear	⸪					/Shhh. You can’t see me./
 abdominal snowman	⚪️					Some call me the *abdominal snowman*…
-abdominal snowman	⚪️					I’m missing a 👃 *nose*…
+abdominal snowman	⚪️					I’m missing a 👃*nose*…
 abdominal snowman	⚪️					I nose nothing but snow.
 abominable snowman	⛄️					I am once again the *abominable snowman*…
-abominable snowman	⛄️					Thank you for restoring my 🥕 *nose*!
+abominable snowman	⛄️					Thank you for restoring my 🥕*nose*!
 sicko	🤒			😷		Is your cough productive?
 sicko	🤒				🤧	It snot.
-sicko	🤒				🤒	I need a 💊 *pill*.
-wello	🙂				🙂	Thank you for helping me through my illness. I hope my 🌡 *thermometer* is useful to you.
+sicko	🤒				🤒	I need a 💊*pill*.
+wello	🙂				🙂	Thank you for helping me through my illness. I hope my 🌡*thermometer* is useful to you.
 						
 # mojick of midia						
 asia	🌏					你好
@@ -230,7 +234,7 @@ infernia warning sign	🚧				🐧	“Goose unpunished.”
 # mojick of oria						
 bakery	🏭				👨‍🍳	Hi, I’m *Lewis*…
 bakery	🏭				👩‍🍳	My name is *Carol*…
-bakery	🏭				👨‍🍳	There is something *mojical* about 🍰 *cake*…
+bakery	🏭				👨‍🍳	There is something *mojical* about 🍰*cake*…
 bakery	🏭				👩‍🍳	*Crafting with cake* makes many things shrink!
 drake	🦆				🦆	Hi, I’m *Drake*…
 drake	🦆				🦆	Did you know that a male duck is a drake?…
@@ -248,12 +252,12 @@ craft guild	🏬				🧶	Welcome to ye olde crochety guild…
 craft guild	🏬				🧶	The guild of knit pickers and sew and sews!
 kris and lydia	🏡				👩🏼‍💼	I’m *Lydia*…
 kris and lydia	🏡				👨🏼‍💻	And I’m *Kris*…
-kris and lydia	🏡				👩🏼‍💼	We like 🐅 *big kitties*…
-kris and lydia	🏡				👨🏼‍💻	I wish there were a way to make our kitty 🐈 *Sam* bigger.
+kris and lydia	🏡				👩🏼‍💼	We like 🐅*big kitties*…
+kris and lydia	🏡				👨🏼‍💻	I wish there were a way to make our kitty 🐈*Sam* bigger.
 prepanda	🐻					Welcome to the city of Dis…
 prepanda	🐻					The land of Infernia…
 prepanda	🐻					The state of Pandamonium…
-prepanda	🐻					For once here were 🐼 *pandas*…
+prepanda	🐻					For once here were 🐼*pandas*…
 						
 kitty	🐈					*meow*
 tiger	🐅					*MEOW*
@@ -262,12 +266,16 @@ tiger	🐅					*MEOW*
 						
 high mountain	🏔					
 volcano	🗻					
-						
-						
+waffle	🧇					Everyone likes waffles…
+waffle	🧇					So there is a certain irony…
+waffle	🧇					That one cannot waffle and also agree…
+waffle	🧇					One might call it a waffle irony.
+waffle	🧇					Wheat, wheat, don’t tell me…
+waffle	🧇					This waffle is gluten free.
 						
 # greeting jokes						
-prepanda	🐻					Hey…
-prepanda	🐻					…buddy!
+rose	🌹					Hey…
+rose	🌹					…buddy!
 hibiscus	🌺					Hi…
 hibiscus	🌺					…biscus!
 cactus	🌵					’Allo…

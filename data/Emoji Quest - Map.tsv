@@ -4097,7 +4097,7 @@ empty tile	1
 empty tile	1	
 empty tile	1	
 empty tile		
-empty tile		
+parrot		
 empty tile		
 empty tile		
 empty tile		
@@ -4263,8 +4263,8 @@ empty tile	1
 empty tile		
 empty tile		
 empty tile		
-empty tile		
-empty tile		
+coconut tree/palm tree/softwood		
+coconut tree/palm tree/softwood		
 empty tile	1	
 empty tile	1	
 empty tile	1	
@@ -4295,8 +4295,8 @@ empty tile	1
 empty tile	1	
 empty tile	1	
 empty tile		
-empty tile		
-empty tile		
+banana tree/palm tree/softwood		
+coconut tree/palm tree/softwood		
 empty tile	1	
 empty tile	1	
 empty tile	1	
@@ -4351,7 +4351,7 @@ empty tile	1
 empty tile	1	
 empty tile	1	
 empty tile	1	
-empty tile		
+date palm tree/palm tree/softwood		
 empty tile	1	
 empty tile	1	
 empty tile	1	
@@ -4388,7 +4388,7 @@ empty tile
 empty tile		
 empty tile		
 empty tile		
-empty tile		
+date palm tree/palm tree/softwood		
 empty tile	1	
 empty tile	1	
 fish	1	
@@ -4415,10 +4415,10 @@ empty tile	1
 empty tile	1	
 empty tile	1	
 empty tile	1	
-empty tile		
-empty tile		
-empty tile		
-empty tile		
+date palm tree/palm tree/softwood		
+banana tree/palm tree/softwood		
+coconut tree/palm tree/softwood		
+date palm tree/palm tree/softwood		
 empty tile	1	
 empty tile	1	
 empty tile	1	
@@ -5113,7 +5113,7 @@ apple tree/hardwood
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
-apple tree/hardwood		
+apple tree/hardwood	1	
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
@@ -5144,7 +5144,7 @@ apple tree/hardwood
 apple tree/hardwood		
 apple tree/hardwood		
 horse		
-empty tile		
+empty tile	1	
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
@@ -5175,7 +5175,7 @@ apple tree/hardwood
 apple tree/hardwood		
 apple tree/hardwood		
 empty tile		
-empty tile		
+empty tile	1	
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
@@ -5206,7 +5206,7 @@ empty tile
 empty tile		
 empty tile		
 empty tile		
-empty tile		
+empty tile	1	
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
@@ -5381,20 +5381,18 @@ euia forge/forge
 empty tile		
 empty tile		
 empty tile		
+clover		
 empty tile		
-empty tile		
-empty tile		
-empty tile		
-empty tile		
-empty tile		
-apple tree/hardwood		
-empty tile		
-empty tile		
-empty tile		
-parrot		
+clover		
+clover		
+clover		
 empty tile		
 apple tree/hardwood		
-apple tree/hardwood		
+clover		
+empty tile		
+empty tile		
+empty tile		
+empty tile	1	
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
@@ -5403,6 +5401,8 @@ apple tree/hardwood
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
+apple tree/hardwood		
+apple tree/hardwood		
 empty tile		
 empty tile		
 empty tile		
@@ -5411,19 +5411,19 @@ apple tree/hardwood
 empty tile		
 empty tile		
 empty tile		
-empty tile		
-empty tile		
-empty tile		
+clover		
+clover		
+dumbledore		
+clover		
+clover		
+apple tree/hardwood		
 empty tile		
 apple tree/hardwood		
 apple tree/hardwood		
-empty tile		
-apple tree/hardwood		
-apple tree/hardwood		
+clover		
 empty tile		
 empty tile		
-empty tile		
-empty tile		
+empty tile	1	
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
@@ -5442,10 +5442,10 @@ apple tree/hardwood
 apple tree/hardwood		
 apple tree/hardwood		
 empty tile		
-empty tile		
-apple tree/hardwood		
-apple tree/hardwood		
-apple tree/hardwood		
+clover		
+clover		
+clover		
+clover		
 apple tree/hardwood		
 apple tree/hardwood		
 justin/clock		
@@ -5454,7 +5454,7 @@ apple tree/hardwood
 apple tree/hardwood		
 empty tile		
 empty tile		
-empty tile		
+empty tile	1	
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
@@ -5485,7 +5485,7 @@ pine tree/softwood
 apple tree/hardwood		
 owl		
 empty tile		
-empty tile		
+empty tile	1	
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
@@ -5516,7 +5516,7 @@ apple tree/hardwood
 apple tree/hardwood		
 apple tree/hardwood		
 apple tree/hardwood		
-apple tree/hardwood		
+apple tree/hardwood	1	
 apple tree/hardwood		
 apple tree/hardwood		
 empty tile		
