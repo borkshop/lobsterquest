@@ -1,11 +1,12 @@
 
 import sprites
 import vec
+import daia_log
 
 def load_sheet_sprites():
     let tex = gl_load_texture(pakfile "../assets/sprites.png")
     assert tex
-    return sprite_new_atlas(tex, xy_1i * 72, xy { 14, 13 })
+    return sprite_new_atlas(tex, xy_1i * 72, xy { 16, 15 })
 
 enum avatar_entity_id:
     avatar_none
@@ -769,8 +770,8 @@ enum tile_entity_id:
     // bumps: 0
     // capacity: 1
     // dialog: 1
-    // introduced: 481
-    // mapped: 481
+    // introduced: 483
+    // mapped: 483
     // morphed: 0
     // morphee: 0
     // notes: Apple trees bear apples, introducing the player to the health
@@ -782,8 +783,8 @@ enum tile_entity_id:
     // bumps: 0
     // capacity: 1
     // dialog: 1
-    // introduced: 371
-    // mapped: 371
+    // introduced: 372
+    // mapped: 372
     // morphed: 0
     // morphee: 0
     // notes: Pine trees exist only in the high mountains. The player must have
@@ -869,8 +870,8 @@ enum tile_entity_id:
     // Flags: [cow coat]
     // bumps: 0
     // dialog: 0
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 1
 
@@ -971,8 +972,8 @@ enum tile_entity_id:
     tile_harriet // 🏠
     // bumps: 0
     // dialog: 2
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
     // notes: Harriet gives the clues that sheep can be shorn with scissors, and
@@ -981,8 +982,8 @@ enum tile_entity_id:
     tile_jack // 🏡
     // bumps: 0
     // dialog: 5
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
     // notes: Jack introduces the knitting mechanic so you can craft a coat.
@@ -1015,8 +1016,8 @@ enum tile_entity_id:
     tile_owl // 🦉
     // bumps: 0
     // dialog: 3
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
     // notes: The owl exists to hint thaat the player should find a way into the
@@ -1050,15 +1051,15 @@ enum tile_entity_id:
     tile_wilted_rose // 🥀
     // bumps: 0
     // dialog: 3
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 1
     // notes: Restoring the wilted rose requires the power of water.
 
     tile_rose // 🌹
     // bumps: 0
-    // dialog: 0
+    // dialog: 2
     // introduced: 1
     // mapped: 0
     // morphed: 1
@@ -1068,8 +1069,8 @@ enum tile_entity_id:
     tile_carrot // 🥕
     // bumps: 1
     // dialog: 6
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
     // notes: There might be a vision pun in here. Also the Warren Buffet pun.
@@ -1125,8 +1126,8 @@ enum tile_entity_id:
     // bumps: 0
     // dialog: 0
     // health: 1
-    // introduced: 0
-    // mapped: 0
+    // introduced: 32
+    // mapped: 32
     // morphed: 0
     // morphee: 1
     // wander: water
@@ -1193,7 +1194,7 @@ enum tile_entity_id:
 
     tile_sponge // 🧽
     // bumps: 0
-    // dialog: 4
+    // dialog: 3
     // introduced: 213
     // mapped: 213
     // morphed: 0
@@ -1210,9 +1211,9 @@ enum tile_entity_id:
     tile_bank_of_occia // 🏦
     // Flags: [bank]
     // bumps: 0
-    // dialog: 6
-    // introduced: 0
-    // mapped: 0
+    // dialog: 11
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
     // notes: Wherein the emoji can exchange precious medals.
@@ -1220,30 +1221,11 @@ enum tile_entity_id:
     tile_hibiscus // 🌺
     // bumps: 0
     // dialog: 2
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
     // notes: Decoration and greeting joke.
-
-    tile_drake // 🦆
-    // bumps: 0
-    // dialog: 3
-    // introduced: 0
-    // mapped: 0
-    // morphed: 0
-    // morphee: 1
-    // notes: There’s male duck pun here. He becomes a fire drake with fire
-    //        mojick.
-
-    tile_fire_drake // 🐉
-    // bumps: 0
-    // dialog: 3
-    // introduced: 1
-    // mapped: 0
-    // morphed: 1
-    // morphee: 0
-    // notes: Dragon is a fire drake. Also a Francis pun.
 
     tile_steamer // 🚂
     // bumps: 0
@@ -1271,17 +1253,26 @@ enum tile_entity_id:
     tile_sicko // 🤒
     // bumps: 0
     // dialog: 3
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
-    // morphee: 0
+    // morphee: 1
     // notes: Needs a pill, gives a thermometer.
+
+    tile_wello // 🙂
+    // bumps: 0
+    // dialog: 1
+    // introduced: 1
+    // mapped: 0
+    // morphed: 1
+    // morphee: 0
+    // notes: Was ill. Now is well.
 
     tile_fist // 👊
     // bumps: 0
     // dialog: 3
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
     // notes: Exists only for the punch line.
@@ -1365,8 +1356,8 @@ enum tile_entity_id:
     tile_leaf // 🍃
     // bumps: 0
     // dialog: 1
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
     // notes: For the leave me alone pun. Also, how you get bay leaves.
@@ -1445,9 +1436,9 @@ enum tile_entity_id:
 
     tile_prepanda // 🐻
     // bumps: 0
-    // dialog: 6
-    // introduced: 0
-    // mapped: 0
+    // dialog: 4
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
     // notes: Becomes a panda. Needs a mogical recipe.
@@ -1460,11 +1451,30 @@ enum tile_entity_id:
     // morphed: 0
     // morphee: 0
 
+    tile_drake // 🦆
+    // bumps: 0
+    // dialog: 3
+    // introduced: 1
+    // mapped: 1
+    // morphed: 0
+    // morphee: 1
+    // notes: There’s male duck pun here. He becomes a fire drake with fire
+    //        mojick.
+
+    tile_fire_drake // 🐉
+    // bumps: 0
+    // dialog: 3
+    // introduced: 1
+    // mapped: 0
+    // morphed: 1
+    // morphee: 0
+    // notes: Dragon is a fire drake. Also a Francis pun.
+
     tile_craft_guild // 🏬
     // bumps: 0
     // dialog: 2
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
     // notes: So far, the craft guild’s sole purpose is to recite puns about
@@ -1473,16 +1483,16 @@ enum tile_entity_id:
     tile_eagle // 🦅
     // bumps: 0
     // dialog: 3
-    // introduced: 0
-    // mapped: 0
+    // introduced: 1
+    // mapped: 1
     // morphed: 0
     // morphee: 0
 
     tile_lettuce // 🥬
     // bumps: 0
     // dialog: 9
-    // introduced: 0
-    // mapped: 0
+    // introduced: 17
+    // mapped: 17
     // morphed: 0
     // morphee: 0
     // notes: Just puns, as yet.
@@ -1680,6 +1690,12 @@ enum tile_entity_id:
     // morphed: 1
     // morphee: 1
 
+    tile_waffle // 🧇
+    // bumps: 0
+    // introduced: 0
+    // morphed: 0
+    // morphee: 0
+
 let tile_sprite_id = [
     -1, // tile_none
     17, // tile_apple_tree
@@ -1723,32 +1739,33 @@ let tile_sprite_id = [
     120, // tile_parrot
     100, // tile_bank_of_occia
     121, // tile_hibiscus
-    122, // tile_drake
-    123, // tile_fire_drake
-    124, // tile_steamer
-    125, // tile_north_pole
+    122, // tile_steamer
+    123, // tile_north_pole
     8, // tile_sicko
-    126, // tile_fist
+    1, // tile_wello
+    124, // tile_fist
     18, // tile_unlit_tree
-    127, // tile_lit_tree
-    128, // tile_bear
-    129, // tile_polar_bear
-    130, // tile_abdominal_snowman
-    131, // tile_abominable_snowman
-    132, // tile_caribou
-    133, // tile_whale
+    125, // tile_lit_tree
+    126, // tile_bear
+    127, // tile_polar_bear
+    128, // tile_abdominal_snowman
+    129, // tile_abominable_snowman
+    130, // tile_caribou
+    131, // tile_whale
     68, // tile_leaf
-    134, // tile_sal_the_snake
-    135, // tile_sal_the_mander
-    136, // tile_cheese_wizard
-    137, // tile_sand_witch
-    138, // tile_south_pole
-    139, // tile_jennie
-    140, // tile_gene
+    132, // tile_sal_the_snake
+    133, // tile_sal_the_mander
+    134, // tile_cheese_wizard
+    135, // tile_sand_witch
+    136, // tile_south_pole
+    137, // tile_jennie
+    138, // tile_gene
     70, // tile_cactus
     93, // tile_bamboo
-    128, // tile_prepanda
-    141, // tile_panda
+    126, // tile_prepanda
+    139, // tile_panda
+    140, // tile_drake
+    141, // tile_fire_drake
     142, // tile_craft_guild
     143, // tile_eagle
     144, // tile_lettuce
@@ -1775,6 +1792,7 @@ let tile_sprite_id = [
     162, // tile_asia
     163, // tile_africa
     164, // tile_america
+    165, // tile_waffle
 ]
 
 let tile_names = [
@@ -1820,11 +1838,10 @@ let tile_names = [
     "parrot",
     "bank of occia/bank",
     "hibiscus",
-    "drake",
-    "fire drake",
     "steamer",
     "north pole",
     "sicko",
+    "wello",
     "fist",
     "unlit tree",
     "lit tree",
@@ -1846,6 +1863,8 @@ let tile_names = [
     "bamboo",
     "prepanda",
     "panda",
+    "drake",
+    "fire drake",
     "craft guild",
     "eagle",
     "lettuce",
@@ -1872,6 +1891,7 @@ let tile_names = [
     "asia",
     "africa",
     "america",
+    "waffle",
 ]
 
 
@@ -1914,23 +1934,23 @@ enum ui_entity_id:
 
 let ui_sprite_id = [
     -1, // ui_none
-    165, // ui_north
-    166, // ui_east
-    167, // ui_south
-    168, // ui_west
-    169, // ui_rest
-    170, // ui_health_heart
-    171, // ui_stamina_heart
-    172, // ui_cure_heart
-    173, // ui_empty_heart
-    174, // ui_discard
-    175, // ui_left_hand
-    176, // ui_right_hand
-    177, // ui_point_north
-    178, // ui_point_east
-    179, // ui_point_south
-    180, // ui_point_west
-    181, // ui_spock_hand
+    166, // ui_north
+    167, // ui_east
+    168, // ui_south
+    169, // ui_west
+    170, // ui_rest
+    171, // ui_health_heart
+    172, // ui_stamina_heart
+    173, // ui_cure_heart
+    174, // ui_empty_heart
+    175, // ui_discard
+    176, // ui_left_hand
+    177, // ui_right_hand
+    178, // ui_point_north
+    179, // ui_point_east
+    180, // ui_point_south
+    181, // ui_point_west
+    182, // ui_spock_hand
 ]
 
 let ui_names = [
@@ -1954,3 +1974,2221 @@ let ui_names = [
     "spock hand",
 ]
 
+
+def draw_emoji_quest_dialog_(entity, turn, flow, sprites):
+    switch entity:
+        case tile_apple_tree: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Knock, knock.")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Who’s there?")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Tree.")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Tree who?")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Treat me well and I give you ")
+                flow_texture(flow, sprites.get_texture(183))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "apples")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+            case 5:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Knock, knock.")
+            case 6:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Who’s there?")
+            case 7:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Tree.")
+            case 8:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Tree who?")
+            case 9:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Treat me poorly and I’ll give you ")
+                flow_texture(flow, sprites.get_texture(184))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "lumber")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+            case 10:
+                flow_texture(flow, sprites.get_texture(185))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Axe")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " me no more questions.")
+
+        case tile_pine_tree: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Knock, knock.")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Who’s there?")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Pine.")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Pine who?")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Pine for peace and quiet.")
+            case 5:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Knock, knock.")
+            case 6:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Who’s there?")
+            case 7:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hoo.")
+            case 8:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hoo who?")
+            case 9:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hoo hoo hoo!")
+            case 10:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hoo hoo hoo who?")
+            case 11:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Who let the dogs out?")
+
+        case tile_pear_tree: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Harrumph")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "It’s true. I am the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Tree of Knotty and Nice")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "As ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "knotty")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " and ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "nice")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " are ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "dual")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "So, my fruit must come in ")
+                flow_texture(flow, sprites.get_texture(186))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "pears")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_castle: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Welcome stranger, I am ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Princess Die of Euia")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "The power of ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "mojick")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", the transmutation of ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "emoji")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", has faded from the land…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "With it, all the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "mojical creatures")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " have vanished…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "The ")
+                flow_texture(flow, sprites.get_texture(187))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "unicorn")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " has not been seen since ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "The Fall")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "The ")
+                flow_texture(flow, sprites.get_texture(188))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "dragon")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " is but a myth.")
+
+        case tile_captain: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hark! I’m the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Captain of the Guard")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "In the forest to the west, there is a ")
+                flow_texture(flow, sprites.get_texture(184))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "tree")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " that is quite unlike the others…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Soldiers use its ")
+                flow_texture(flow, sprites.get_texture(186))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "fruit")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " to improve their ")
+                flow_texture(flow, sprites.get_texture(189))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "stamina")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "  when they travel in the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Eural Mountains")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_major: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hark! I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "a sharp Major")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " in service to her Majesty ")
+                flow_texture(flow, sprites.get_texture(190))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Princess Dice")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "A ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "friend of mine")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " has gone missing in the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Eural Mountains")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", to the south…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "They went searching for ")
+                flow_texture(flow, sprites.get_texture(191))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "precious medals")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Please help them if you can!")
+
+        case tile_miner: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Oy! I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "a flat miner")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I came here with my sturdy ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "pick axe")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " but I was trapped by this ")
+                flow_texture(flow, sprites.get_texture(192))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "boulder")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "There are ")
+                flow_texture(flow, sprites.get_texture(191))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "precious medals")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " in these mountains. One can make a fortune!")
+
+        case tile_euia_bank: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Greetings, I am ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Phil")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", a lesser demon of monetary exchange…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "This is a branch of the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Bank of Dysia")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "While you’re here, we can exchange ")
+                flow_texture(flow, sprites.get_texture(191))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "precious medals")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Three ")
+                flow_texture(flow, sprites.get_texture(191))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "copper")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " for two ")
+                flow_texture(flow, sprites.get_texture(193))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "silver")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " for one ")
+                flow_texture(flow, sprites.get_texture(194))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "gold")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "The Bank of Dysia provides all manner of exchanges.")
+
+        case tile_euia_forge: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hello, I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Mrs. Smith")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "And I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Mr. Smith")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "This is a ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "forge")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " where we do honest ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "forgery")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Here you can smelt ")
+                flow_texture(flow, sprites.get_texture(194))
+                flow_texture(flow, sprites.get_texture(193))
+                flow_texture(flow, sprites.get_texture(191))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "precious medals")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Place a medal in the forge to craft a useful component!")
+
+        case tile_harriet: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Did you know that you can sheer ")
+                flow_texture(flow, sprites.get_texture(195))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "sheep")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " with ")
+                flow_texture(flow, sprites.get_texture(38))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "️")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "scissors")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "?")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "That’s why scissors are an improvement over just ")
+                flow_texture(flow, sprites.get_texture(196))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "two knives")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_ewe: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Baa.")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Ram.")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Ewe.")
+
+        case tile_ram: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Ram.")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Ewe.")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Baa.")
+
+        case tile_jack: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hello, I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Jack")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "It’s hard to stay warm in the ")
+                flow_texture(flow, sprites.get_texture(197))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "️")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "frigid north")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "That’s why I knit myself a ")
+                flow_texture(flow, sprites.get_texture(198))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "jacket")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "To knit, you’ll need ")
+                flow_texture(flow, sprites.get_texture(199))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "yarn")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " and ")
+                flow_texture(flow, sprites.get_texture(200))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "needles")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I ")
+                flow_texture(flow, sprites.get_texture(196))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "whittled")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " my needles out of ")
+                flow_texture(flow, sprites.get_texture(201))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "soft wood")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_glub: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "You are not a fish.")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Fish do not need ")
+                flow_texture(flow, sprites.get_texture(202))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "canoes")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Fish can swim over the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "edge of the world")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Canoes are made from ")
+                flow_texture(flow, sprites.get_texture(201))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "soft wood")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I have seen ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "you people")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " make them with ")
+                flow_texture(flow, sprites.get_texture(203))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "shovels")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_owl: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "If the world were candy ")
+                flow_texture(flow, sprites.get_texture(204))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hoo many licks would it take to get to the center?")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I hear there’s a ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "snak")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_mermaid: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "My brother, Herman, became an ordinary ")
+                flow_texture(flow, sprites.get_texture(205))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "fish")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " when they lost the sacred ")
+                flow_texture(flow, sprites.get_texture(206))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "trident")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+
+        case tile_herman: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I was once a ")
+                flow_texture(flow, sprites.get_texture(207))
+                flow_texture(flow, sprites.get_texture(208))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "merman")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I lost my ")
+                flow_texture(flow, sprites.get_texture(206))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "trident")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "A trident is like a ")
+                flow_texture(flow, sprites.get_texture(209))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "️")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "golden fleur")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " but with the points ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "twisted")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " upward…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I bet you would need a ")
+                flow_texture(flow, sprites.get_texture(210))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "hammer")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "and")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " a ")
+                flow_texture(flow, sprites.get_texture(211))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "wrench")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " to do intricate jewler’s work like that… ")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Some sort of ")
+                flow_texture(flow, sprites.get_texture(212))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "hammer wrench")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_merman: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Thank you for restoring our sacred ")
+                flow_texture(flow, sprites.get_texture(206))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "trident")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "!")
+
+        case tile_marco: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Call me ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Marco")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ". I love ")
+                flow_texture(flow, sprites.get_texture(194))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "gold")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Have you ever seen a ")
+                flow_texture(flow, sprites.get_texture(19))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "️")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "clover")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "?")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I saw one once, ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "west")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " of here…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Can you imagine, painting the clover ")
+                flow_texture(flow, sprites.get_texture(194))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "gold")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "?")
+
+        case tile_sponge: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I’m planted, but not a plant…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I’m inanimate, yet am an animal…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I’m a ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "sponge")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_bank_of_occia: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Every river has a bank…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "This island is Oc, the capital of Occia…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Home to the Occidental Bank…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "The lintel reads “MARIA DIEI”…")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Or, in the Latin…")
+            case 5:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "“Seas the Day”…")
+            case 6:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Within you encounter ")
+                flow_texture(flow, sprites.get_texture(213))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "the president of the bank")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 7:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I’m a ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "loan shark")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 8:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Get it!?")
+            case 9:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "While you’re here, we can exchange ")
+                flow_texture(flow, sprites.get_texture(191))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "precious medals")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 10:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Three ")
+                flow_texture(flow, sprites.get_texture(191))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "copper")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " for two ")
+                flow_texture(flow, sprites.get_texture(193))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "silver")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " for one ")
+                flow_texture(flow, sprites.get_texture(194))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "gold")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+
+        case tile_north_pole: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Ho, ho, ho. I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Magus")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hee, hee. I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Maggie")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "We were once the powerful ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Moji")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " of the north…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "We watched over everything, ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Knotty")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "and")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Nice")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "We were the stewards of the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Essence of Wind")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 5:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "We seek a student to pass on our knowledge…")
+            case 6:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "They must construct for us an ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "umbrella")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 7:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "We swear it’s relevant.")
+
+        case tile_fist: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Here in the far north…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "This must be the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Fist of Men")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Were you expecting a ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "punch line")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "?")
+
+        case tile_sal_the_snake: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I am ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Sal the Snake")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " and this is ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Midia")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", the center of ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Daia")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "In this world torn between ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "knotty")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " and ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "nice")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", I was ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "toadally newtral")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "mojus of moji")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "When ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "mojick")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " returns, then will it be possible to restore me to my ")
+                flow_texture(flow, sprites.get_texture(214))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "true form")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", for I was once the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Sal the Mander")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I like ")
+                flow_texture(flow, sprites.get_texture(215))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "turtles")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_sal_the_mander: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Thank you for restoring me to my ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "true form")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ". I am ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Sal Mander")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", The ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Toadally Newtral")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Go forth and restore the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "mojick")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " of ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Daia")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "!")
+
+        case tile_eagle: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Did you know ravens have 17 pinion feathers?")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Crows only have 16.")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "So, the difference is a matter of a pinion.")
+
+        case tile_lettuce: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I serve no purpose in this game…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I am merely a talking head.")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Caesar Salad is emperor of the Romaines…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Some say the Romaine religion is kale-tholic.")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "So, turn over a new leaf…")
+            case 5:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "And, lettuce pray.")
+            case 6:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Speaking of churches…")
+            case 7:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "The seas of Occia have five islands…")
+            case 8:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Some might call them “petacoastal”.")
+
+        case tile_observatory: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hi, I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Astrid")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ". Welcome to the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Royal Observatory")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I’m an ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "astronomer")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ". I look to the ")
+                flow_texture(flow, sprites.get_texture(216))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "night sky for clues.")
+
+        case tile_genome: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hello, I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Genome Mendel")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "That’s like ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Gnome")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " but with a ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "G")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Did you know that there’s a special tree that produces ")
+                flow_texture(flow, sprites.get_texture(217))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "bay leaves")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "?")
+
+        case tile_dumbledore: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "They call me ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Dumbledore")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ",")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I taught them all their ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "mogick")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "In the days of yore,")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "All bees were ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "dumbledore")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Watch me ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "spell")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " in line,")
+            case 5:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "With my ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "cursive")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " bee-line…")
+            case 6:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "A ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "spelling bee")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "’s design,")
+            case 7:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Is then to write in ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "blessive")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "!")
+
+        case tile_horse: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Neigh")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Whinny")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Neigh")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Willllbur")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "!")
+
+        case tile_unicorn: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Nay.")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Veni, in the Latin.")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Vilbvr!")
+
+        case tile_wilted_rose: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Please…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Water…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Only the mojick of ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "water")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " can restore me.")
+
+        case tile_carrot: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I am a carrot…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Though, I’m renown to help ")
+                flow_texture(flow, sprites.get_texture(218))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "eyes")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "There is a creature of Borea, far to the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "north")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", who ")
+                flow_texture(flow, sprites.get_texture(219))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "nose")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "what to do with me…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "To the ")
+                flow_texture(flow, sprites.get_texture(220))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "rabbits")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ", I am wealth itself…")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "So you may call me ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Warren Buffet")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 5:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "If you ")
+                flow_texture(flow, sprites.get_texture(203))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "dig")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " me, I am yours.")
+
+        case tile_justin: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hello, I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Justin")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ". Welcome to the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Clock Tower")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "At the clock tower, we can craft with ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "time")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "For example, crafting with ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "bread")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " and ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "water")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " here will produce ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "beer")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "!")
+
+        case tile_plumber: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Have you heard about ")
+                flow_texture(flow, sprites.get_texture(221))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "mushrooms")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "?")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Crafting with mushrooms can make some things ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "grow")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+
+        case tile_pat: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hi, I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Pat")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Did you know that the mojical ")
+                flow_texture(flow, sprites.get_texture(222))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "four leaf clover")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " is lucky?")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "All we have now though are ordinary ")
+                flow_texture(flow, sprites.get_texture(19))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "️")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "three leaf clover")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_whale: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Nothing cane make me ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "leave")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " this ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "bay")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I’m the largest mammal ever to have lived…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I would give it all up to be a ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "narwhal")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Narwhals were the unicorns of the sea.")
+
+        case tile_bear: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I was once a ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "mojical bear")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I could go all about the frozen north unseen despite my enormity…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I lost my ")
+                flow_texture(flow, sprites.get_texture(223))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "cloak of invisibility")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_polar_bear: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Shhh. You can’t see me.")
+
+        case tile_abdominal_snowman: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Some call me the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "abdominal snowman")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I’m missing a ")
+                flow_texture(flow, sprites.get_texture(219))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "nose")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I nose nothing but snow.")
+
+        case tile_abominable_snowman: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I am once again the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "abominable snowman")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Thank you for restoring my ")
+                flow_texture(flow, sprites.get_texture(224))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "nose")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "!")
+
+        case tile_sicko: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Is your cough productive?")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "It snot.")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I need a ")
+                flow_texture(flow, sprites.get_texture(225))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "pill")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_wello: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Thank you for helping me through my illness. I hope my ")
+                flow_texture(flow, sprites.get_texture(226))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "thermometer")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " is useful to you.")
+
+        case tile_asia: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "你好")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Привет")
+
+        case tile_africa: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hujambo")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Guten Tag")
+
+        case tile_america: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hola")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hello")
+
+        case tile_infernia_warning_sign: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "“No fowl play…”")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "“Nor egrets…”")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "“Heron out…”")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "“No good tern…”")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "“Goose unpunished.”")
+
+        case tile_bakery: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hi, I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Lewis")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "My name is ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Carol")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "There is something ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "mojical")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " about ")
+                flow_texture(flow, sprites.get_texture(227))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "cake")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Crafting with cake")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " makes many things shrink!")
+
+        case tile_drake: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hi, I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Drake")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Did you know that a male duck is a drake?…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I was once a ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "fire drake")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_fire_drake: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Thank you again…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…for restoing me, the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "fire drake")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "You may call me ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Francis")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, ".")
+
+        case tile_gym: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hi, I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Jim")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Welcome to the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "weighting room")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Ring the ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "dumbell")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+
+        case tile_craft_guild: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Welcome to ye olde crochety guild…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "The guild of knit pickers and sew and sews!")
+
+        case tile_kris_and_lydia: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Lydia")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "And I’m ")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Kris")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "We like ")
+                flow_texture(flow, sprites.get_texture(228))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "big kitties")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "I wish there were a way to make our kitty ")
+                flow_texture(flow, sprites.get_texture(229))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "️")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Sam")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, " bigger.")
+
+        case tile_prepanda: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Welcome to the city of Dis…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "The land of Infernia…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "The state of Pandamonium…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "For once here were ")
+                flow_texture(flow, sprites.get_texture(230))
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "pandas")
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…")
+
+        case tile_kitty: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "meow")
+
+        case tile_tiger: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "MEOW")
+
+        case tile_waffle: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Everyone likes waffles…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "So there is a certain irony…")
+            case 2:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "That one cannot waffle and also agree…")
+            case 3:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "One might call it a waffle irony.")
+            case 4:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Wheat, wheat, don’t tell me…")
+            case 5:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "This waffle is gluten free.")
+
+        case tile_rose: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hey…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…buddy!")
+
+        case tile_hibiscus: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Hi…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "…biscus!")
+
+        case tile_cactus: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "’Allo…")
+            case 1:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "’Alloe?")
+
+        case tile_leaf: switch turn:
+            case 0:
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+                gl_set_font_size(50)
+                flow_text(flow, "Leaf me alone.")
+
+
+def draw_emoji_quest_dialog_next_turn(entity, turn):
+    return switch entity:
+        case tile_apple_tree: turn % 11
+        case tile_pine_tree: turn % 12
+        case tile_pear_tree: turn % 4
+        case tile_castle: turn % 5
+        case tile_captain: turn % 3
+        case tile_major: turn % 4
+        case tile_miner: turn % 3
+        case tile_euia_bank: turn % 5
+        case tile_euia_forge: turn % 5
+        case tile_harriet: turn % 2
+        case tile_ewe: turn % 3
+        case tile_ram: turn % 3
+        case tile_jack: turn % 5
+        case tile_glub: turn % 5
+        case tile_owl: turn % 3
+        case tile_mermaid: turn % 1
+        case tile_herman: turn % 5
+        case tile_merman: turn % 1
+        case tile_marco: turn % 4
+        case tile_sponge: turn % 3
+        case tile_bank_of_occia: turn % 11
+        case tile_north_pole: turn % 8
+        case tile_fist: turn % 3
+        case tile_sal_the_snake: turn % 4
+        case tile_sal_the_mander: turn % 2
+        case tile_eagle: turn % 3
+        case tile_lettuce: turn % 9
+        case tile_observatory: turn % 2
+        case tile_genome: turn % 3
+        case tile_dumbledore: turn % 8
+        case tile_horse: turn % 4
+        case tile_unicorn: turn % 3
+        case tile_wilted_rose: turn % 3
+        case tile_carrot: turn % 6
+        case tile_justin: turn % 3
+        case tile_plumber: turn % 2
+        case tile_pat: turn % 3
+        case tile_whale: turn % 4
+        case tile_bear: turn % 3
+        case tile_polar_bear: turn % 1
+        case tile_abdominal_snowman: turn % 3
+        case tile_abominable_snowman: turn % 2
+        case tile_sicko: turn % 3
+        case tile_wello: turn % 1
+        case tile_asia: turn % 2
+        case tile_africa: turn % 2
+        case tile_america: turn % 2
+        case tile_infernia_warning_sign: turn % 5
+        case tile_bakery: turn % 4
+        case tile_drake: turn % 3
+        case tile_fire_drake: turn % 3
+        case tile_gym: turn % 3
+        case tile_craft_guild: turn % 2
+        case tile_kris_and_lydia: turn % 4
+        case tile_prepanda: turn % 4
+        case tile_kitty: turn % 1
+        case tile_tiger: turn % 1
+        case tile_waffle: turn % 6
+        case tile_rose: turn % 2
+        case tile_hibiscus: turn % 2
+        case tile_cactus: turn % 2
+        case tile_leaf: turn % 1

@@ -18,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 )
@@ -37,6 +38,7 @@ var tmplFuncs = template.FuncMap{
 var sheetsTemplate = template.Must(template.New("sheetsTemplate").Funcs(tmplFuncs).Parse(`
 import sprites
 import vec
+import daia_log
 
 def load_sheet_sprites():
     let tex = gl_load_texture(pakfile "{{ .ImageOut }}")
@@ -45,6 +47,38 @@ def load_sheet_sprites():
 
 {{- range .Sheets }}{{ template "sheet" . }}
 {{ end }}
+
+def draw_emoji_quest_dialog_(entity, turn, flow, sprites):
+    switch entity:
+{{- range $id, $entityDialog := .Dialogs }}
+        case tile_{{ $entityDialog.Entity }}: switch turn:
+{{-   range $ei, $dialog := $entityDialog.Dialogs }}
+            case {{ $ei }}:
+{{-     range $si, $segment := $dialog.Segments }}
+{{-       if $segment.Text }}
+{{-         if (and $segment.Bold $segment.Italic) }}
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_BI_45b.otf"), "could not load font")
+{{-         else if $segment.Bold }}
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
+{{-         else if $segment.Italic }}
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
+{{-         else }}
+                check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
+{{-         end }}
+                gl_set_font_size(50)
+                flow_text(flow, "{{ $segment.Text }}")
+{{-       else }}
+                flow_texture(flow, sprites.get_texture({{ $segment.Sprite }}))
+{{-       end }}
+{{-     end }}
+{{-   end }}
+{{  end }}
+
+def draw_emoji_quest_dialog_next_turn(entity, turn):
+    return switch entity:
+{{- range $id, $entityDialog := .Dialogs }}
+        case tile_{{ $entityDialog.Entity }}: turn % {{ $entityDialog.Dialogs | len }}
+{{- end }}
 
 {{- define "sheet" }}
 {{- $sheet := . -}}
@@ -108,6 +142,7 @@ let {{ $sheet.EntityType }}_names = [
 var (
 	verbose   bool
 	mojiDir   string
+	mojiData  string
 	dataDir   string
 	atlasFile string
 	codeFile  string
@@ -119,11 +154,17 @@ func main() {
 
 	flag.BoolVar(&verbose, "v", false, "enable verbose loggging")
 	flag.StringVar(&mojiDir, "moji", "../art/openmoji/color/72x72", "source glyph directory")
+	flag.StringVar(&mojiData, "mojidata", "../art/openmoji/data/openmoji.csv", "CSV data for available emojis")
 	flag.StringVar(&dataDir, "data", "../data", "source data directory")
 	flag.StringVar(&codeFile, "code", "../src/sheets.lobster", "target code gen file")
 	flag.StringVar(&atlasFile, "atlas", "../assets/sprites.png", "target sprite map file")
 	flag.IntVar(&sprites.Resolution, "res", 72, "sprite resolution")
 	flag.Parse()
+
+	md, err := readMojis(mojiData)
+	if err != nil {
+		log.Fatalf("failed to read openmoji data: %v", err)
+	}
 
 	ents, err := ioutil.ReadDir(dataDir)
 	if err != nil {
@@ -138,7 +179,7 @@ func main() {
 			log.Printf("")
 			log.Printf("INFO: processing %q", filename)
 		}
-		if sheet, err := loadSheet(filename); isWarning(err) {
+		if sheet, err := loadSheet(filename, md); isWarning(err) {
 			log.Printf("WARNING: skipping %q: %v", filename, err)
 			continue
 		} else if err != nil {
@@ -150,6 +191,20 @@ func main() {
 	sort.Slice(sheets, func(i, j int) bool {
 		return sheets[i].EntityType < sheets[j].EntityType
 	})
+
+	var dialogs []EntityDialog
+	{
+		filename := filepath.Join(dataDir, "Emoji Quest - Dialog.tsv")
+		file, err := os.Open(filename)
+		if err != nil {
+			log.Fatalf("failed to read dialog file: %v", err)
+		}
+		defer file.Close()
+		dialogs, err = ReadDialogs(file, md, &sprites)
+		if err != nil {
+			log.Fatalf("failed to read dialogs: %v", err)
+		}
+	}
 
 	{
 		if verbose {
@@ -171,8 +226,9 @@ func main() {
 		if err := writeTemplateFile(codeFile, sheetsTemplate, struct {
 			ImageOut string
 			Sheets   []Sheet
+			Dialogs  []EntityDialog
 			Sprites  Sprites
-		}{atlasFile, sheets, sprites}); err != nil {
+		}{atlasFile, sheets, dialogs, sprites}); err != nil {
 			log.Fatalf("FATAL: failed to compile sheet code: %v", err)
 		}
 		if verbose {
@@ -181,7 +237,7 @@ func main() {
 	}
 }
 
-func loadSheet(filename string) (sheet Sheet, _ error) {
+func loadSheet(filename string, md *openmojiData) (sheet Sheet, _ error) {
 	if strings.ToLower(filepath.Ext(filename)) != ".tsv" {
 		return sheet, warn("non tsv file")
 	}
@@ -191,7 +247,13 @@ func loadSheet(filename string) (sheet Sheet, _ error) {
 		return sheet, fmt.Errorf("unable to parse sheet name from file name")
 	}
 
-	if err := sheet.ReadFile(filename); err != nil {
+	file, err := os.Open(filename)
+	if err != nil {
+		return sheet, err
+	}
+	defer file.Close()
+
+	if err := sheet.ReadFile(file, md, &sprites); err != nil {
 		return sheet, err
 	}
 
@@ -238,22 +300,10 @@ func (sheet Sheet) HasField(name string) bool {
 	return false
 }
 
-func (sheet *Sheet) ReadFile(path string) error {
-	file, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	err = sheet.Read(file)
-	if cerr := file.Close(); err == nil {
-		err = cerr
-	}
-	return err
-}
-
-func (sheet *Sheet) Read(r io.Reader) error {
+func (sheet *Sheet) ReadFile(r io.Reader, md *openmojiData, sprites *Sprites) error {
 	const flagsField = "Flags"
 
-	sc := newTSVScanner(r)
+	sc := newTableScanner(r, "\t")
 
 	entityType, hasFlags, err := parseEntityType(sc.Header[0])
 	if err != nil {
@@ -381,6 +431,21 @@ func (sheet *Sheet) FindGlyphs(sprites *Sprites, dir string) (n int) {
 		}
 	}
 	return n
+}
+
+func findGlyph(dir, glyph string) string {
+	codes := []rune(glyph)
+	hexCodes := make([]string, len(codes))
+	for i, code := range codes {
+		hexCodes[i] = strconv.FormatUint(uint64(code), 16)
+	}
+	for i := len(hexCodes); i > 0; i-- {
+		path := filepath.Join(dir, strings.Join(hexCodes[:i], "-")+".png")
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+	}
+	return filepath.Join(dir, "25A1.png")
 }
 
 //// utilities

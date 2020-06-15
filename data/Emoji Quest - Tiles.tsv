@@ -1,12 +1,12 @@
 tile name/flags...	moji	capacity	renew	indoor	health	wander	aggro	damage	breed	notes	introduced	useful	dialog	mapped	bumps	morphee	morphed	bumpee	bumped
 # euia	⚅									Euia is the nice side of the world. It is forested and has six mountains, in two ranges, along the northern and southern fringes. There is a castle in the middle, forests to the west and a fluvial plain to the east. The player begins their journey in the forest and must find their way to the north and to the west.									
-apple tree/hardwood	🌳	1	1							Apple trees bear apples, introducing the player to the health mechanic. The apples restore one empty health container.	481		1	481	0	0	0		
-pine tree/softwood	🌲	1	1							Pine trees exist only in the high mountains. The player must have one stamina and three hearts to reach them from the outset. They produce *pine apples* (natch), which restore two hearts of health instead of one. If the player only has one heart container, the pine apple gives them their second, extending their range of travel deeper into the mountains.  Pine trees can also be cut for their softwood lumber. This is materially necessary to build a canoe, granting access to Occia and the quest for the Essence of Water.	371		1	371	0	0	0		
+apple tree/hardwood	🌳	1	1							Apple trees bear apples, introducing the player to the health mechanic. The apples restore one empty health container.	483		1	483	0	0	0		
+pine tree/softwood	🌲	1	1							Pine trees exist only in the high mountains. The player must have one stamina and three hearts to reach them from the outset. They produce *pine apples* (natch), which restore two hearts of health instead of one. If the player only has one heart container, the pine apple gives them their second, extending their range of travel deeper into the mountains.  Pine trees can also be cut for their softwood lumber. This is materially necessary to build a canoe, granting access to Occia and the quest for the Essence of Water.	372		1	372	0	0	0		
 pear tree/hardwood	🌳	1	1							The pear tree is unique and exists only in the forest due west of Castle Euia. The pear tree drops pears, which are necessary to extend the player’s stamina so they can travel over mountainous terrain and survive. This allows the player to find *a flat miner* and obtain a *pick axe*.	1		4	1	0	0	0		
 clover	☘️									Clover exist on the plains to the east of Castle Euia. They become useful in the quest for Occia, where it transpires that they can be gilded to make a fleur de lis, and then reshaped to make a trident. This enables the player to restore Herman the Merman and gain the Essence of Water. This in turn is one of the two requirements to be granted access to the naughty side of the world.	1		0	1	1	0	0		
 ewe/sheep	🐑	1	1		2	grass			ram/sheep	Sheep, in general, provide wool which is material necessary for creating coats, which in turn give access to the north face of the world.  Sheep may in turn produce mutton if they are killed with a sword or worse. Meat can extend the health bar to three heart containers.	1		3	1	0	0	0		
 ram/sheep	🐏	1	1		2	grass				Rams, however rare, can drop horns. These do not yet figure into any designed quests but will likely be useful for all kinds of horn related crafting, especially the restoration of mojical creatures that require horns, and the creation of mojical instruments, as well as the post office horn and post offices.	1		3	1	0	0	0		
-cow/cow/coat	🐄										0		0	0	0	1	0		
+cow/cow/coat	🐄										1		0	1	0	1	0		
 ox/cow/nude	🐂										1		0	0	0	0	1		
 castle	🏰			1						Castle Euia is the seat of Princess Dice, who provides the exposition for the broadest quest arc: restoring mojick. Her lieutenants, the guards provide more tangible advice for the early quest arcs to get access to the north and south.	1		6	1	0	0	0		
 euia bank/bank	🏦			1						Once the player has obtained precious medals in the mountains, they need the bank to get the right denominations for various kinds of metal crafts at the forge. The bannk and forge are therefore close together.  The bank also foreshadows the quest of Dysia, where the player will need to get a loan so they can fuel a rocket and seek the Essences of Power and Fire in the heavens.	1		5	1	0	0	0		
@@ -15,16 +15,16 @@ glub	🐟									The player finds Glub along the edge of the Euia River, flowin
 major	💂‍♂️									The major provides a clue that the player must hike into the mountains to get a pick axe. This in turn unlocks the ability to use precious medals and create more tools.	1		4	1	0	0	0		
 captain	💂‍♀️									The captain provides a clue about finding the pear tree so the player can travel in the mountains. This is necessary to craft with precious medals.	1		3	1	0	0	0		
 miner	👨‍🔧									The player finds a miner in the mountains. The miner gives the player a clue that they can bump into an adjacent mountain to find their first pick axe.	1		3	1	0	0	0		
-harriet	🏠									Harriet gives the clues that sheep can be shorn with scissors, and that scissors are made of knives.	0		2	0	0	0	0		
-jack	🏡									Jack introduces the knitting mechanic so you can craft a coat.	0		5	0	0	0	0		
+harriet	🏠									Harriet gives the clues that sheep can be shorn with scissors, and that scissors are made of knives.	1		2	1	0	0	0		
+jack	🏡									Jack introduces the knitting mechanic so you can craft a coat.	1		5	1	0	0	0		
 boulder	⛰									The boulder fell on a flat miner. Bumping into it frees the miner and produces the pick axe for the player’s use. This unlocks the ability to mine for precious medals.	2		0	2	1	0	0		
 mountain	⛰	10								Mountains produce copper. The player may encounter other kinds of mountains for higher denominations of precious medals later in the game, but for now they must trade copper up at the bank to get exact medals necessary for crafting various components at the forge.	77		0	77	1	0	0		
-owl	🦉									The owl exists to hint thaat the player should find a way into the center of the world. Who are we kidding? The owl exists to tell a joke.	0		3	0	0	0	0		
+owl	🦉									The owl exists to hint thaat the player should find a way into the center of the world. Who are we kidding? The owl exists to tell a joke.	1		3	1	0	0	0		
 horse	🐴					1			horse	The horse exists to fulfill a later stage quest, where the player has all the five essences and can transmutate the horse into a unicorn.	1		4	1	1	1	0		
 unicorn	🦄									Restoring the unicorn is one of the many mojical creatures that satisfy the end game condition of restoring all the mojical creatures.	1		3	0	0	0	1		
-wilted rose	🥀									Restoring the wilted rose requires the power of water.	0		3	0	0	1	0		
-rose	🌹									Decoration and greeting joke.	1		0	0	0	0	1		
-carrot	🥕									There might be a vision pun in here. Also the Warren Buffet pun. Also provides a material necessary to restore the abdominal snowman.	0		6	0	1	0	0		
+wilted rose	🥀									Restoring the wilted rose requires the power of water.	1		3	1	0	1	0		
+rose	🌹									Decoration and greeting joke.	1		2	0	0	0	1		
+carrot	🥕									There might be a vision pun in here. Also the Warren Buffet pun. Also provides a material necessary to restore the abdominal snowman.	1		6	1	1	0	0		
 											0					0	0		
 # occia	⚄									Occia is the west face of the world, in the nice hemicube. Occia is an ocean world, ruled by the merfolk. There are five islands.			1	0	1				
 mermaid	🧜‍♀️										1		1	1	0	0	0		
@@ -32,24 +32,23 @@ herman	🏊‍♂️									The Herman quest is to restore this merman (bottom 
 merman	🧜‍♂️										1		1	0	0	0	1		
 marco	🤽‍♂️					water					1		4	1	0	0	0		
 octopus	🐙										1		0	1	1	0	0		
-fish	🐟				1	water			fish		0		0	0	0	1	0		
+fish	🐟				1	water			fish		32		0	32	0	1	0		
 puffer fish	🐡								puffer fish		1		0	0	0	0	1		
 turtle	🐢										1		0	1	0	0	0		
 island	🏝	100	1								1		0	1	1	0	0		
 date palm tree/palm tree/softwood	🌴	1	1								6		0	6	0	0	0		
 banana tree/palm tree/softwood	🌴	1	1								1		0	1	0	0	0		
 coconut tree/palm tree/softwood	🌴	1	1								1		0	1	0	0	0		
-sponge	🧽										213		4	213	0	0	0		
+sponge	🧽										213		3	213	0	0	0		
 parrot	🦜										1		0	1	0	0	0		
-bank of occia/bank	🏦									Wherein the emoji can exchange precious medals.	0		6	0	0	0	0		
-hibiscus	🌺									Decoration and greeting joke.	0		2	0	0	0	0		
-drake	🦆									There’s male duck pun here. He becomes a fire drake with fire mojick.	0		3	0	0	1	0		
-fire drake	🐉									Dragon is a fire drake. Also a Francis pun.	1		3	0	0	0	1		
+bank of occia/bank	🏦									Wherein the emoji can exchange precious medals.	1		11	1	0	0	0		
+hibiscus	🌺									Decoration and greeting joke.	1		2	1	0	0	0		
 # borea	⚃												1	0	1				
 steamer	🚂									The steam train is the vehicle to carry you on the railway through the center of the world, spiraling around the inner loop of The Pole. To bring the train to life, you will need to master the essence of wind and water.	1		0	1	0	0	0		
 north pole	💈									The north pole is the home of Magie and Magus. They will teach you the essence of wind, but you must obtain for them an umbrella. They promise that it’s relevant.	1		8	1	0	0	0		
-sicko	🤒									Needs a pill, gives a thermometer.	0		3	0	0	0	0		
-fist	👊									Exists only for the punch line.	0		3	0	0	0	0		
+sicko	🤒									Needs a pill, gives a thermometer.	1		3	1	0	1	0		
+wello	🙂									Was ill. Now is well.	1		1	0	0	0	1		
+fist	👊									Exists only for the punch line.	1		3	1	0	0	0		
 # mojick of borea													1	0	1				
 unlit tree	🌲									The great pine of Borea was once mojical and glimmered with a thousand shining lights.	1		0	1	0	1	0		
 lit tree	🎄										1		0	0	0	0	1		
@@ -59,7 +58,7 @@ abdominal snowman	⚪️									The abdominal snowman is not much of a snowman.
 abominable snowman	⛄️										2		3	0	0	0	2		
 caribou	🦌									Caribou used to be able to fly. They were the preferred mode of boreal transportation before mojick faded.	7		1	7	0	1	0		
 whale	🐋									The whale was once the unicorn of the sea. Leaving its bay might set him on his journey to mojical restoration. As there is no Narwhal emoji, the creature just disappears in search of mojick, thereby completing the quest.	1		4	1	0	1	0		
-leaf	🍃									For the leave me alone pun. Also, how you get bay leaves.	0		1	0	0	0	0		
+leaf	🍃									For the leave me alone pun. Also, how you get bay leaves.	1		1	1	0	0	0		
 # midia													1	0	1				
 sal the snake	🐍										0		1	0	0	1	0		
 sal the mander	🦎										69		1	68	0	0	1		
@@ -73,12 +72,14 @@ jennie	🧞‍♀️										1		1	1	0	0	0
 gene	🧞‍♂️										1		1	1	0	0	0		
 cactus	🌵										239		3	239	1	0	0		
 bamboo	🎍										0		0	0	0	0	0		
-prepanda	🐻									Becomes a panda. Needs a mogical recipe.	0		6	0	0	0	0		
+prepanda	🐻									Becomes a panda. Needs a mogical recipe.	1		4	1	0	0	0		
 panda	🐼										0		0	0	0	0	0		
+drake	🦆									There’s male duck pun here. He becomes a fire drake with fire mojick.	1		3	1	0	1	0		
+fire drake	🐉									Dragon is a fire drake. Also a Francis pun.	1		3	0	0	0	1		
 # dysia	⚀												1	0	1				
-craft guild	🏬									So far, the craft guild’s sole purpose is to recite puns about crafts.	0		2	0	0	0	0		
-eagle	🦅										0		3	0	0	0	0		
-lettuce	🥬									Just puns, as yet.	0		9	0	0	0	0		
+craft guild	🏬									So far, the craft guild’s sole purpose is to recite puns about crafts.	1		2	1	0	0	0		
+eagle	🦅										1		3	1	0	0	0		
+lettuce	🥬									Just puns, as yet.	17		9	17	0	0	0		
 											0		0	0	0	0	0		
 # ethyria													1	0	0				
 sun	☀️										0		1	0	0	0	0		
@@ -106,7 +107,7 @@ infernia warning sign	🚧										26		5	26	0	0	0
 asia	🌏										1		1	0	0	1	1		
 africa	🌍										1		1	0	0	1	1		
 america	🌎										1		1	0	0	1	1		
-											0				0	0	0		
+waffle	🧇										0				0	0	0		
 											0				0	0	0		
 											0				0	0	0		
 											0				0	0	0		

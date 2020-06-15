@@ -6,12 +6,10 @@ import (
 	"image/draw"
 	"image/png"
 	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
 )
 
-// Sprites is the global sprite sheet, containing glyph renderings for all entities.
+// Sprites is the global sprite sheet, containing glyph renderings for all
+// entities.
 type Sprites struct {
 	Resolution int
 	Size       image.Point    // grid size
@@ -19,6 +17,8 @@ type Sprites struct {
 	PathID     map[string]int // path to spriteID
 }
 
+// Allocates or retrieves a sprite for the given path and returns the
+// corresponding sprite index.
 func (sprites *Sprites) PathSprite(path string) int {
 	id, ok := sprites.PathID[path]
 	if !ok {
@@ -32,6 +32,7 @@ func (sprites *Sprites) PathSprite(path string) int {
 	return id
 }
 
+// BuildFile writes a sprite map.
 func (sprites *Sprites) BuildFile(filename string) error {
 	img, err := sprites.Build()
 	if err == nil {
@@ -40,6 +41,7 @@ func (sprites *Sprites) BuildFile(filename string) error {
 	return err
 }
 
+// Build constructs a sprite map image from the reserved sprites.
 func (sprites *Sprites) Build() (image.Image, error) {
 	sprites.Size = gridSize(len(sprites.Paths))
 	tile := image.Rectangle{image.ZP, image.Pt(sprites.Resolution, sprites.Resolution)}
@@ -71,27 +73,14 @@ func writePNGFile(filename string, img image.Image) error {
 	return nil
 }
 
-func findGlyph(dir, glyph string) string {
-	codes := []rune(glyph)
-	hexCodes := make([]string, len(codes))
-	for i, code := range codes {
-		hexCodes[i] = strconv.FormatUint(uint64(code), 16)
-	}
-	for i := len(hexCodes); i > 0; i-- {
-		path := filepath.Join(dir, strings.Join(hexCodes[:i], "-")+".png")
-		if _, err := os.Stat(path); err == nil {
-			return path
-		}
-	}
-	return filepath.Join(dir, "25A1.png")
-}
-
-func gridSize(n int) image.Point {
+// Returns the dimensions of the most square-like rectangle that fits at least
+// the given area.
+func gridSize(area int) image.Point {
 	var x, y int
-	for x*x < n {
+	for x*x < area {
 		x++
 	}
-	for x*y < n {
+	for x*y < area {
 		y++
 	}
 	return image.Pt(x, y)

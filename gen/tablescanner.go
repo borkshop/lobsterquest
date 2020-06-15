@@ -6,9 +6,10 @@ import (
 	"strings"
 )
 
-func newTSVScanner(r io.Reader) tsvScanner {
-	sc := tsvScanner{
-		Scanner: bufio.NewScanner(r),
+func newTableScanner(r io.Reader, delimiter string) tableScanner {
+	sc := tableScanner{
+		Scanner:   bufio.NewScanner(r),
+		Delimiter: delimiter,
 	}
 	for sc.Scan() {
 		if len(sc.Fields) > 1 && sc.Fields[0] == "#meta" {
@@ -21,21 +22,31 @@ func newTSVScanner(r io.Reader) tsvScanner {
 	return sc
 }
 
-type tsvScanner struct {
+type tableScanner struct {
 	*bufio.Scanner
-	Meta   [][]string
-	Header []string
-	Fields []string
+	Delimiter string
+	Meta      [][]string
+	Header    []string
+	Fields    []string
 }
 
-func (sc tsvScanner) Field(n int) (string, bool) {
+func (sc tableScanner) Field(n int) (string, bool) {
 	if n >= len(sc.Fields) {
 		return "", false
 	}
 	return sc.Fields[n], true
 }
 
-func (sc *tsvScanner) Expect(numFields int) bool {
+func (sc tableScanner) HeaderIndex(name string) int {
+	for i, field := range sc.Header {
+		if field == name {
+			return i
+		}
+	}
+	return -1
+}
+
+func (sc *tableScanner) Expect(numFields int) bool {
 	for sc.Scan() {
 		if len(sc.Fields) >= numFields {
 			return true
@@ -44,12 +55,12 @@ func (sc *tsvScanner) Expect(numFields int) bool {
 	return false
 }
 
-func (sc *tsvScanner) Scan() bool {
+func (sc *tableScanner) Scan() bool {
 	if !sc.Scanner.Scan() {
 		sc.Fields = nil
 		return false
 	}
-	fields := strings.Split(sc.Text(), "\t")
+	fields := strings.Split(sc.Text(), sc.Delimiter)
 
 	for i := len(fields) - 1; i >= 0 && fields[i] == ""; i-- {
 		fields = fields[:i]

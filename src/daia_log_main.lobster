@@ -34,24 +34,24 @@ def main():
             gl_color(color_black)
 
             // 🌈 Mojick has faded from the world.
-            f.texture(sprites.get_texture(item_sprite_id[item_mojick]))
+            f.flow_texture(sprites.get_texture(item_sprite_id[item_mojick]))
             bold()
-            f.text("Mojick")
+            f.flow_text("Mojick")
             normal()
-            f.sp()
-            f.text("has faded from the world.")
-            f.sp()
+            f.flow_sp()
+            f.flow_text("has faded from the world.")
+            f.flow_sp()
 
             // 🐉 Mojical creatures 🦄 have been lost for an age 🕰.
             bold()
-            f.texture(sprites.get_texture(tile_sprite_id[tile_fire_drake]))
-            f.text("Mojical creatures")
-            f.texture(sprites.get_texture(tile_sprite_id[tile_unicorn]))
-            f.sp()
+            f.flow_texture(sprites.get_texture(tile_sprite_id[tile_fire_drake]))
+            f.flow_text("Mojical creatures")
+            f.flow_texture(sprites.get_texture(tile_sprite_id[tile_unicorn]))
+            f.flow_sp()
             normal()
-            f.text("have been lost for an age.")
-            f.texture(sprites.get_texture(tile_sprite_id[tile_justin]))
-            f.sp()
+            f.flow_text("have been lost for an age.")
+            f.flow_texture(sprites.get_texture(tile_sprite_id[tile_justin]))
+            f.flow_sp()
 
             // You, 😬 Adventurer 😲, are charged to
             // wander the 🎲 Faces of Daia 🎲 to find and restore the 💨

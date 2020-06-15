@@ -17,7 +17,7 @@ class flow_meter:
     since_wrap: float
     breaks: [float]
 
-    def sp():
+    def flow_sp():
         if cursor >= max_width:
             // wrap.
             breaks.push(last_space)
@@ -32,23 +32,23 @@ class flow_meter:
             since_wrap = 0.0
             cursor += since_space
 
-    def word(w):
+    def flow_word(w):
         let width = float(gl_text_size(w)).x
         cursor += width
         since_space += width
         since_wrap += width
 
-    def texture(tex):
+    def flow_texture(tex):
         let width = float(gl_get_font_size())
         cursor += width
         since_space += width
         since_wrap += width
 
-    def text(str):
+    def flow_text(str):
         let words = tokenize(str, " ", " ")
         for(words) w, i:
-            if i > 0: sp()
-            word(w)
+            if i > 0: flow_sp()
+            flow_word(w)
 
     def close():
         breaks.push(last_space)
@@ -61,7 +61,7 @@ class flow_writer:
     cursor: xy_f
     last_space: xy_f
 
-    def sp():
+    def flow_sp():
         if cursor.x >= breaks[break_index] - 1:
             // wrap
             cursor = cursor * xy_y + xy_y * line_height
@@ -72,13 +72,13 @@ class flow_writer:
             cursor += float(gl_text_size(" ")) * xy_x
             last_space = cursor
 
-    def word(w):
+    def flow_word(w):
         let s = float(gl_text_size(w))
         gl_translate(cursor):
             gl_text(w)
         cursor += s * xy_x
 
-    def texture(tex):
+    def flow_texture(tex):
         let s= xy_1 * float(gl_get_font_size())
         gl_set_shader("textured")
         gl_set_primitive_texture(0, tex)
@@ -87,11 +87,11 @@ class flow_writer:
                 gl_rect(s)
         cursor += s * xy_x
 
-    def text(str):
+    def flow_text(str):
         let words = tokenize(str, " ", " ")
         for(words) w, i:
-            if i > 0: sp()
-            word(w)
+            if i > 0: flow_sp()
+            flow_word(w)
 
 def flow(max_size, line_height, fun, backdrop):
     let meter = flow_meter{
