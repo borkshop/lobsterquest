@@ -48,7 +48,7 @@ def load_sheet_sprites():
 {{- range .Sheets }}{{ template "sheet" . }}
 {{ end }}
 
-def draw_emoji_quest_dialog_(entity, turn, flow, sprites):
+def draw_emoji_quest_dialog(entity, turn, flow, sprites):
     switch entity:
 {{- range $id, $entityDialog := .Dialogs }}
         case tile_{{ $entityDialog.Entity }}: switch turn:
@@ -73,12 +73,14 @@ def draw_emoji_quest_dialog_(entity, turn, flow, sprites):
 {{-     end }}
 {{-   end }}
 {{  end }}
+        default: nil
 
 def draw_emoji_quest_dialog_next_turn(entity, turn):
     return switch entity:
 {{- range $id, $entityDialog := .Dialogs }}
         case tile_{{ $entityDialog.Entity }}: turn % {{ $entityDialog.Dialogs | len }}
 {{- end }}
+        default: -1
 
 {{- define "sheet" }}
 {{- $sheet := . -}}

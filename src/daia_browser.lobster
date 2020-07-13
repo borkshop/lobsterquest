@@ -4,7 +4,11 @@ import color
 import game_draw
 import daia_topology
 import daia_map
+import daia_log
+import embox
+import rounded_corners
 import sheets
+import brand
 
 enum_flags daia_map_flags:
     daia_map_flag_water
@@ -188,10 +192,6 @@ class daia_mode:
     detail: int
     face_meshes: [resource]
     face_textures: [resource]
-    face_colors: [color]
-    face_water_colors: [color]
-    face_highlight_colors: [color]
-    magma_color: color
     pov: daia_vantage
     tiles: [tile_entity_id]
     neighbors: [[int]]
@@ -336,8 +336,27 @@ class daia_mode:
         gl_set_font_size(int(min(gl_window_size())/20))
         let message = string(pov.index) + ", " + daia_face_names[pov.index / pov.area] + ", " + tile_names[tiles[pov.index]]
         let offset = float(gl_window_size()) * xy_y - float(gl_text_size(message)) * xy_y
-        gl_translate(offset)
-        gl_text(message)
+        gl_translate(offset): gl_text(message)
+
+        let size = xy{ 1000.0, 1000.0 }
+        let pad = rounded_corner_size
+        let scale = xy_1 * min(gl_window_size()) / size
+        gl_scale(scale):
+            flow(size - pad * 2, 60) f:
+                draw_emoji_quest_dialog(tiles[pov.index], 0, f, sprites)
+            fn backdrop, draw:
+                if backdrop != xy_0:
+                    gl_translate(
+                        float(gl_window_size()) / scale / 2 -
+                        backdrop / 2 +
+                        float(gl_window_size()) / scale / 4 * xy_y
+                    )
+                    // gl_translate()
+                    // gl_translate(pad)
+                    gl_color(light_blue)
+                    embox(backdrop - xy_y * 15.0, rounded_corner_size, rounded_corner_textures)
+                    gl_color(color_white)
+                    draw()
 
 def new_daia_mode(
     detail,
@@ -346,11 +365,7 @@ def new_daia_mode(
     elevation,
     sprites,
     rounded_corner_textures,
-    face_meshes,
-    face_colors,
-    face_water_colors,
-    face_highlight_colors,
-    magma_color
+    face_meshes
 ):
     let area = size * size
     let neighbors = new_daia_topology(size)
@@ -360,10 +375,6 @@ def new_daia_mode(
         detail: detail,
         face_meshes: face_meshes,
         face_textures: face_textures,
-        face_colors: face_colors,
-        face_water_colors: face_water_colors,
-        face_highlight_colors: face_highlight_colors,
-        magma_color: magma_color,
         neighbors: neighbors,
         pov: new_daia_vantage(size, neighbors, index, elevation),
         tiles: map(6*area): tile_none,

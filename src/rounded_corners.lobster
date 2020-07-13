@@ -77,7 +77,6 @@
 
 import vec
 import color
-import brand
 import texture
 
 let rounded_corner_size_i = xy_1i * 72

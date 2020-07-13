@@ -1975,7 +1975,7 @@ let ui_names = [
 ]
 
 
-def draw_emoji_quest_dialog_(entity, turn, flow, sprites):
+def draw_emoji_quest_dialog(entity, turn, flow, sprites):
     switch entity:
         case tile_apple_tree: switch turn:
             case 0:
@@ -4127,6 +4127,7 @@ def draw_emoji_quest_dialog_(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "Leaf me alone.")
 
+        default: nil
 
 def draw_emoji_quest_dialog_next_turn(entity, turn):
     return switch entity:
@@ -4192,3 +4193,4 @@ def draw_emoji_quest_dialog_next_turn(entity, turn):
         case tile_hibiscus: turn % 2
         case tile_cactus: turn % 2
         case tile_leaf: turn % 1
+        default: -1

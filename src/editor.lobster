@@ -70,11 +70,7 @@ def new_root_mode(face_meshes, rounded_corner_textures):
         0.35,
         sprites,
         rounded_corner_textures,
-        face_meshes,
-        face_colors,
-        face_water_colors,
-        face_highlight_colors,
-        magma_color
+        face_meshes
     )
     daia_mode.tiles = daia_map_tiles
     daia_mode.flags = daia_map_flags
