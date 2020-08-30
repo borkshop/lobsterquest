@@ -36,11 +36,7 @@ def main():
          1,
          sprites,
          rounded_corner_textures,
-         face_meshes,
-         face_colors,
-         face_water_colors,
-         face_highlight_colors,
-         dark_red
+         face_meshes
      )
     mode.fill_tile = tile_pine_tree
 
