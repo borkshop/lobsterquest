@@ -28,7 +28,7 @@ def new_daia_face_vertices(): return [
 // These are in order from top-right, counter-clockwise.
 // I can offer no explanation why the origin is not the top- or bottom-left.
 let square_corners = [xy_0, xy_x, xy_1, xy_y]
-let square_triange_indices = [0, 1, 2, 2, 3, 0]
+let square_triangle_indices = [0, 1, 2, 2, 3, 0]
 
 def new_daia_face_meshes(vertices):
     return map(vertices) v:
@@ -40,7 +40,7 @@ def new_daia_face_meshes(vertices):
             [], // normals,
             square_corners, // "T" texcoords,
             [], // textcoords2,
-            square_triange_indices
+            square_triangle_indices
         )
 
 def draw_daia(face_meshes, face_colors, face_textures):
