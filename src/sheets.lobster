@@ -6,7 +6,7 @@ import daia_log
 def load_sheet_sprites():
     let tex = gl_load_texture(pakfile "../assets/sprites.png")
     assert tex
-    return sprite_new_atlas(tex, xy_1i * 72, xy { 16, 15 })
+    return sprite_new_atlas(tex, xy_1i * 72, xy { 16, 16 })
 
 enum avatar_entity_id:
     avatar_none
@@ -1979,26 +1979,36 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
     switch entity:
         case tile_apple_tree: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(183))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Knock, knock.")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Who’s there?")
             case 2:
+                flow_texture(flow, sprites.get_texture(183))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Tree.")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Tree who?")
             case 4:
+                flow_texture(flow, sprites.get_texture(183))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Treat me well and I give you ")
-                flow_texture(flow, sprites.get_texture(183))
+                flow_texture(flow, sprites.get_texture(185))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "apples")
@@ -2006,26 +2016,36 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ".")
             case 5:
+                flow_texture(flow, sprites.get_texture(183))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Knock, knock.")
             case 6:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Who’s there?")
             case 7:
+                flow_texture(flow, sprites.get_texture(183))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Tree.")
             case 8:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Tree who?")
             case 9:
+                flow_texture(flow, sprites.get_texture(183))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Treat me poorly and I’ll give you ")
-                flow_texture(flow, sprites.get_texture(184))
+                flow_texture(flow, sprites.get_texture(183))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "lumber")
@@ -2033,7 +2053,9 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ".")
             case 10:
-                flow_texture(flow, sprites.get_texture(185))
+                flow_texture(flow, sprites.get_texture(183))
+                flow_sp(flow)
+                flow_texture(flow, sprites.get_texture(186))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Axe")
@@ -2043,56 +2065,82 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_pine_tree: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(187))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Knock, knock.")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Who’s there?")
             case 2:
+                flow_texture(flow, sprites.get_texture(187))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Pine.")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Pine who?")
             case 4:
+                flow_texture(flow, sprites.get_texture(187))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Pine for peace and quiet.")
             case 5:
+                flow_texture(flow, sprites.get_texture(187))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Knock, knock.")
             case 6:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Who’s there?")
             case 7:
+                flow_texture(flow, sprites.get_texture(188))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hoo.")
             case 8:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hoo who?")
             case 9:
+                flow_texture(flow, sprites.get_texture(188))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hoo hoo hoo!")
             case 10:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hoo hoo hoo who?")
             case 11:
+                flow_texture(flow, sprites.get_texture(188))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Who let the dogs out?")
 
         case tile_pear_tree: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Harrumph")
@@ -2100,6 +2148,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ".")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "It’s true. I am the ")
@@ -2110,6 +2160,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "As ")
@@ -2132,10 +2184,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "So, my fruit must come in ")
-                flow_texture(flow, sprites.get_texture(186))
+                flow_texture(flow, sprites.get_texture(189))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "pears")
@@ -2145,6 +2199,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_castle: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(190))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Welcome stranger, I am ")
@@ -2155,6 +2211,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(190))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "The power of ")
@@ -2171,6 +2229,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ", has faded from the land…")
             case 2:
+                flow_texture(flow, sprites.get_texture(190))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "With it, all the ")
@@ -2181,10 +2241,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, " have vanished…")
             case 3:
+                flow_texture(flow, sprites.get_texture(190))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "The ")
-                flow_texture(flow, sprites.get_texture(187))
+                flow_texture(flow, sprites.get_texture(191))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "unicorn")
@@ -2198,10 +2260,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 4:
+                flow_texture(flow, sprites.get_texture(190))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "The ")
-                flow_texture(flow, sprites.get_texture(188))
+                flow_texture(flow, sprites.get_texture(192))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "dragon")
@@ -2211,6 +2275,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_captain: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hark! I’m the ")
@@ -2221,10 +2287,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "In the forest to the west, there is a ")
-                flow_texture(flow, sprites.get_texture(184))
+                flow_texture(flow, sprites.get_texture(183))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "tree")
@@ -2232,17 +2300,19 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, " that is quite unlike the others…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Soldiers use its ")
-                flow_texture(flow, sprites.get_texture(186))
+                flow_texture(flow, sprites.get_texture(189))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "fruit")
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " to improve their ")
-                flow_texture(flow, sprites.get_texture(189))
+                flow_texture(flow, sprites.get_texture(193))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "stamina")
@@ -2258,6 +2328,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_major: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hark! I’m ")
@@ -2275,6 +2347,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "A ")
@@ -2291,10 +2365,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ", to the south…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "They went searching for ")
-                flow_texture(flow, sprites.get_texture(191))
+                flow_texture(flow, sprites.get_texture(194))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "precious medals")
@@ -2302,12 +2378,16 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Please help them if you can!")
 
         case tile_miner: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Oy! I’m ")
@@ -2318,6 +2398,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I came here with my sturdy ")
@@ -2327,7 +2409,7 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " but I was trapped by this ")
-                flow_texture(flow, sprites.get_texture(192))
+                flow_texture(flow, sprites.get_texture(195))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "boulder")
@@ -2335,10 +2417,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "There are ")
-                flow_texture(flow, sprites.get_texture(191))
+                flow_texture(flow, sprites.get_texture(194))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "precious medals")
@@ -2348,6 +2432,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_euia_bank: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(196))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Greetings, I am ")
@@ -2358,6 +2444,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ", a lesser demon of monetary exchange…")
             case 1:
+                flow_texture(flow, sprites.get_texture(196))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "This is a branch of the ")
@@ -2368,10 +2456,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(196))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "While you’re here, we can exchange ")
-                flow_texture(flow, sprites.get_texture(191))
+                flow_texture(flow, sprites.get_texture(194))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "precious medals")
@@ -2379,24 +2469,26 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 3:
+                flow_texture(flow, sprites.get_texture(196))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Three ")
-                flow_texture(flow, sprites.get_texture(191))
+                flow_texture(flow, sprites.get_texture(194))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "copper")
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " for two ")
-                flow_texture(flow, sprites.get_texture(193))
+                flow_texture(flow, sprites.get_texture(197))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "silver")
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " for one ")
-                flow_texture(flow, sprites.get_texture(194))
+                flow_texture(flow, sprites.get_texture(198))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " ")
@@ -2407,12 +2499,16 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 4:
+                flow_texture(flow, sprites.get_texture(196))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "The Bank of Dysia provides all manner of exchanges.")
 
         case tile_euia_forge: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(199))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hello, I’m ")
@@ -2423,6 +2519,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(200))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "And I’m ")
@@ -2433,6 +2531,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(199))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "This is a ")
@@ -2449,12 +2549,14 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 3:
+                flow_texture(flow, sprites.get_texture(200))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Here you can smelt ")
+                flow_texture(flow, sprites.get_texture(198))
+                flow_texture(flow, sprites.get_texture(197))
                 flow_texture(flow, sprites.get_texture(194))
-                flow_texture(flow, sprites.get_texture(193))
-                flow_texture(flow, sprites.get_texture(191))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "precious medals")
@@ -2462,16 +2564,20 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 4:
+                flow_texture(flow, sprites.get_texture(199))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Place a medal in the forge to craft a useful component!")
 
         case tile_harriet: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(202))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Did you know that you can sheer ")
-                flow_texture(flow, sprites.get_texture(195))
+                flow_texture(flow, sprites.get_texture(201))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "sheep")
@@ -2489,10 +2595,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "?")
             case 1:
+                flow_texture(flow, sprites.get_texture(202))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "That’s why scissors are an improvement over just ")
-                flow_texture(flow, sprites.get_texture(196))
+                flow_texture(flow, sprites.get_texture(203))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "two knives")
@@ -2502,34 +2610,48 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_ewe: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Baa.")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Ram.")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Ewe.")
 
         case tile_ram: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Ram.")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Ewe.")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Baa.")
 
         case tile_jack: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(204))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hello, I’m ")
@@ -2540,10 +2662,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(204))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "It’s hard to stay warm in the ")
-                flow_texture(flow, sprites.get_texture(197))
+                flow_texture(flow, sprites.get_texture(205))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "️")
@@ -2554,10 +2678,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(204))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "That’s why I knit myself a ")
-                flow_texture(flow, sprites.get_texture(198))
+                flow_texture(flow, sprites.get_texture(206))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "jacket")
@@ -2565,17 +2691,19 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 3:
+                flow_texture(flow, sprites.get_texture(204))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "To knit, you’ll need ")
-                flow_texture(flow, sprites.get_texture(199))
+                flow_texture(flow, sprites.get_texture(207))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "yarn")
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " and ")
-                flow_texture(flow, sprites.get_texture(200))
+                flow_texture(flow, sprites.get_texture(208))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "needles")
@@ -2583,17 +2711,19 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 4:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I ")
-                flow_texture(flow, sprites.get_texture(196))
+                flow_texture(flow, sprites.get_texture(203))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "whittled")
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " my needles out of ")
-                flow_texture(flow, sprites.get_texture(201))
+                flow_texture(flow, sprites.get_texture(187))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "soft wood")
@@ -2603,14 +2733,18 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_glub: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "You are not a fish.")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Fish do not need ")
-                flow_texture(flow, sprites.get_texture(202))
+                flow_texture(flow, sprites.get_texture(209))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "canoes")
@@ -2618,6 +2752,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ".")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Fish can swim over the ")
@@ -2628,10 +2764,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Canoes are made from ")
-                flow_texture(flow, sprites.get_texture(201))
+                flow_texture(flow, sprites.get_texture(187))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "soft wood")
@@ -2639,6 +2777,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ".")
             case 4:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I have seen ")
@@ -2648,7 +2788,7 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " make them with ")
-                flow_texture(flow, sprites.get_texture(203))
+                flow_texture(flow, sprites.get_texture(210))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "shovels")
@@ -2658,18 +2798,24 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_owl: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "If the world were candy ")
-                flow_texture(flow, sprites.get_texture(204))
+                flow_texture(flow, sprites.get_texture(211))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hoo many licks would it take to get to the center?")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I hear there’s a ")
@@ -2682,17 +2828,19 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_mermaid: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "My brother, Herman, became an ordinary ")
-                flow_texture(flow, sprites.get_texture(205))
+                flow_texture(flow, sprites.get_texture(212))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "fish")
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " when they lost the sacred ")
-                flow_texture(flow, sprites.get_texture(206))
+                flow_texture(flow, sprites.get_texture(213))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "trident")
@@ -2702,11 +2850,13 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_herman: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I was once a ")
-                flow_texture(flow, sprites.get_texture(207))
-                flow_texture(flow, sprites.get_texture(208))
+                flow_texture(flow, sprites.get_texture(214))
+                flow_texture(flow, sprites.get_texture(215))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "merman")
@@ -2714,10 +2864,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I lost my ")
-                flow_texture(flow, sprites.get_texture(206))
+                flow_texture(flow, sprites.get_texture(213))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "trident")
@@ -2725,10 +2877,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "A trident is like a ")
-                flow_texture(flow, sprites.get_texture(209))
+                flow_texture(flow, sprites.get_texture(216))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "️")
@@ -2745,10 +2899,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, " upward…")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I bet you would need a ")
-                flow_texture(flow, sprites.get_texture(210))
+                flow_texture(flow, sprites.get_texture(217))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "hammer")
@@ -2761,7 +2917,7 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " a ")
-                flow_texture(flow, sprites.get_texture(211))
+                flow_texture(flow, sprites.get_texture(218))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "wrench")
@@ -2769,10 +2925,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, " to do intricate jewler’s work like that… ")
             case 4:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Some sort of ")
-                flow_texture(flow, sprites.get_texture(212))
+                flow_texture(flow, sprites.get_texture(219))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "hammer wrench")
@@ -2782,10 +2940,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_merman: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Thank you for restoring our sacred ")
-                flow_texture(flow, sprites.get_texture(206))
+                flow_texture(flow, sprites.get_texture(213))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "trident")
@@ -2795,6 +2955,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_marco: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Call me ")
@@ -2804,7 +2966,7 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, ". I love ")
-                flow_texture(flow, sprites.get_texture(194))
+                flow_texture(flow, sprites.get_texture(198))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "gold")
@@ -2812,6 +2974,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Have you ever seen a ")
@@ -2826,6 +2990,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "?")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I saw one once, ")
@@ -2836,10 +3002,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, " of here…")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Can you imagine, painting the clover ")
-                flow_texture(flow, sprites.get_texture(194))
+                flow_texture(flow, sprites.get_texture(198))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "gold")
@@ -2849,14 +3017,20 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_sponge: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I’m planted, but not a plant…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I’m inanimate, yet am an animal…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I’m a ")
@@ -2869,34 +3043,48 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_bank_of_occia: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(220))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Every river has a bank…")
             case 1:
+                flow_texture(flow, sprites.get_texture(220))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "This island is Oc, the capital of Occia…")
             case 2:
+                flow_texture(flow, sprites.get_texture(220))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Home to the Occidental Bank…")
             case 3:
+                flow_texture(flow, sprites.get_texture(220))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "The lintel reads “MARIA DIEI”…")
             case 4:
+                flow_texture(flow, sprites.get_texture(220))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Or, in the Latin…")
             case 5:
+                flow_texture(flow, sprites.get_texture(220))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "“Seas the Day”…")
             case 6:
+                flow_texture(flow, sprites.get_texture(220))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Within you encounter ")
-                flow_texture(flow, sprites.get_texture(213))
+                flow_texture(flow, sprites.get_texture(221))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "the president of the bank")
@@ -2904,6 +3092,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 7:
+                flow_texture(flow, sprites.get_texture(221))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I’m a ")
@@ -2914,14 +3104,18 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 8:
+                flow_texture(flow, sprites.get_texture(221))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Get it!?")
             case 9:
+                flow_texture(flow, sprites.get_texture(221))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "While you’re here, we can exchange ")
-                flow_texture(flow, sprites.get_texture(191))
+                flow_texture(flow, sprites.get_texture(194))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "precious medals")
@@ -2929,24 +3123,26 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 10:
+                flow_texture(flow, sprites.get_texture(221))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Three ")
-                flow_texture(flow, sprites.get_texture(191))
+                flow_texture(flow, sprites.get_texture(194))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "copper")
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " for two ")
-                flow_texture(flow, sprites.get_texture(193))
+                flow_texture(flow, sprites.get_texture(197))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "silver")
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " for one ")
-                flow_texture(flow, sprites.get_texture(194))
+                flow_texture(flow, sprites.get_texture(198))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "gold")
@@ -2956,6 +3152,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_north_pole: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(222))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Ho, ho, ho. I’m ")
@@ -2966,6 +3164,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(223))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hee, hee. I’m ")
@@ -2976,6 +3176,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(222))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "We were once the powerful ")
@@ -2986,6 +3188,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, " of the north…")
             case 3:
+                flow_texture(flow, sprites.get_texture(223))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "We watched over everything, ")
@@ -3008,6 +3212,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 4:
+                flow_texture(flow, sprites.get_texture(222))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "We were the stewards of the ")
@@ -3018,10 +3224,14 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 5:
+                flow_texture(flow, sprites.get_texture(223))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "We seek a student to pass on our knowledge…")
             case 6:
+                flow_texture(flow, sprites.get_texture(222))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "They must construct for us an ")
@@ -3032,16 +3242,22 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 7:
+                flow_texture(flow, sprites.get_texture(223))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "We swear it’s relevant.")
 
         case tile_fist: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Here in the far north…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "This must be the ")
@@ -3052,6 +3268,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Were you expecting a ")
@@ -3064,6 +3282,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_sal_the_snake: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(224))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I am ")
@@ -3086,6 +3306,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(224))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "In this world torn between ")
@@ -3114,6 +3336,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(224))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "When ")
@@ -3123,7 +3347,7 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " returns, then will it be possible to restore me to my ")
-                flow_texture(flow, sprites.get_texture(214))
+                flow_texture(flow, sprites.get_texture(225))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " ")
@@ -3140,10 +3364,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 3:
+                flow_texture(flow, sprites.get_texture(224))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I like ")
-                flow_texture(flow, sprites.get_texture(215))
+                flow_texture(flow, sprites.get_texture(226))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " ")
@@ -3156,6 +3382,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_sal_the_mander: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(225))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Thank you for restoring me to my ")
@@ -3178,6 +3406,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(225))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Go forth and restore the ")
@@ -3196,58 +3426,84 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_eagle: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(227))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Did you know ravens have 17 pinion feathers?")
             case 1:
+                flow_texture(flow, sprites.get_texture(227))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Crows only have 16.")
             case 2:
+                flow_texture(flow, sprites.get_texture(227))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "So, the difference is a matter of a pinion.")
 
         case tile_lettuce: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I serve no purpose in this game…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I am merely a talking head.")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Caesar Salad is emperor of the Romaines…")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Some say the Romaine religion is kale-tholic.")
             case 4:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "So, turn over a new leaf…")
             case 5:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "And, lettuce pray.")
             case 6:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Speaking of churches…")
             case 7:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "The seas of Occia have five islands…")
             case 8:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Some might call them “petacoastal”.")
 
         case tile_observatory: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(228))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hi, I’m ")
@@ -3264,6 +3520,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(228))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I’m an ")
@@ -3273,13 +3531,15 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, ". I look to the ")
-                flow_texture(flow, sprites.get_texture(216))
+                flow_texture(flow, sprites.get_texture(229))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "night sky for clues.")
 
         case tile_genome: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hello, I’m ")
@@ -3290,6 +3550,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "That’s like ")
@@ -3306,10 +3568,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Did you know that there’s a special tree that produces ")
-                flow_texture(flow, sprites.get_texture(217))
+                flow_texture(flow, sprites.get_texture(230))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "bay leaves")
@@ -3319,6 +3583,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_dumbledore: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "They call me ")
@@ -3329,6 +3595,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ",")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I taught them all their ")
@@ -3339,10 +3607,14 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "In the days of yore,")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "All bees were ")
@@ -3353,6 +3625,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 4:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Watch me ")
@@ -3363,6 +3637,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, " in line,")
             case 5:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "With my ")
@@ -3373,6 +3649,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, " bee-line…")
             case 6:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "A ")
@@ -3383,6 +3661,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "’s design,")
             case 7:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Is then to write in ")
@@ -3395,6 +3675,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_horse: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Neigh")
@@ -3402,6 +3684,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ".")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Whinny")
@@ -3409,6 +3693,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ".")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Neigh")
@@ -3416,6 +3702,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ".")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Willllbur")
@@ -3425,28 +3713,40 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_unicorn: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Nay.")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Veni, in the Latin.")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Vilbvr!")
 
         case tile_wilted_rose: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Please…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Water…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Only the mojick of ")
@@ -3459,14 +3759,18 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_carrot: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I am a carrot…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Though, I’m renown to help ")
-                flow_texture(flow, sprites.get_texture(218))
+                flow_texture(flow, sprites.get_texture(231))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "eyes")
@@ -3474,6 +3778,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "There is a creature of Borea, far to the ")
@@ -3483,7 +3789,7 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, ", who ")
-                flow_texture(flow, sprites.get_texture(219))
+                flow_texture(flow, sprites.get_texture(232))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " ")
@@ -3494,10 +3800,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "what to do with me…")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "To the ")
-                flow_texture(flow, sprites.get_texture(220))
+                flow_texture(flow, sprites.get_texture(233))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "rabbits")
@@ -3505,6 +3813,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ", I am wealth itself…")
             case 4:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "So you may call me ")
@@ -3515,10 +3825,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 5:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "If you ")
-                flow_texture(flow, sprites.get_texture(203))
+                flow_texture(flow, sprites.get_texture(210))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "dig")
@@ -3528,6 +3840,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_justin: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(204))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hello, I’m ")
@@ -3544,6 +3858,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(204))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "At the clock tower, we can craft with ")
@@ -3554,6 +3870,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(204))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "For example, crafting with ")
@@ -3578,10 +3896,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_plumber: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Have you heard about ")
-                flow_texture(flow, sprites.get_texture(221))
+                flow_texture(flow, sprites.get_texture(234))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "mushrooms")
@@ -3589,6 +3909,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "?")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Crafting with mushrooms can make some things ")
@@ -3601,6 +3923,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_pat: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hi, I’m ")
@@ -3611,10 +3935,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Did you know that the mojical ")
-                flow_texture(flow, sprites.get_texture(222))
+                flow_texture(flow, sprites.get_texture(235))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "four leaf clover")
@@ -3622,6 +3948,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, " is lucky?")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "All we have now though are ordinary ")
@@ -3638,6 +3966,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_whale: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Nothing cane make me ")
@@ -3654,10 +3984,14 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ".")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I’m the largest mammal ever to have lived…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I would give it all up to be a ")
@@ -3668,12 +4002,16 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Narwhals were the unicorns of the sea.")
 
         case tile_bear: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I was once a ")
@@ -3684,14 +4022,18 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, ".")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I could go all about the frozen north unseen despite my enormity…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I lost my ")
-                flow_texture(flow, sprites.get_texture(223))
+                flow_texture(flow, sprites.get_texture(236))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "cloak of invisibility")
@@ -3701,12 +4043,16 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_polar_bear: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_I_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Shhh. You can’t see me.")
 
         case tile_abdominal_snowman: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Some call me the ")
@@ -3717,10 +4063,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I’m missing a ")
-                flow_texture(flow, sprites.get_texture(219))
+                flow_texture(flow, sprites.get_texture(232))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "nose")
@@ -3728,12 +4076,16 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I nose nothing but snow.")
 
         case tile_abominable_snowman: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I am once again the ")
@@ -3744,10 +4096,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Thank you for restoring my ")
-                flow_texture(flow, sprites.get_texture(224))
+                flow_texture(flow, sprites.get_texture(237))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "nose")
@@ -3757,18 +4111,24 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_sicko: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Is your cough productive?")
             case 1:
+                flow_texture(flow, sprites.get_texture(239))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "It snot.")
             case 2:
+                flow_texture(flow, sprites.get_texture(241))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I need a ")
-                flow_texture(flow, sprites.get_texture(225))
+                flow_texture(flow, sprites.get_texture(240))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "pill")
@@ -3778,10 +4138,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_wello: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(184))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Thank you for helping me through my illness. I hope my ")
-                flow_texture(flow, sprites.get_texture(226))
+                flow_texture(flow, sprites.get_texture(242))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "thermometer")
@@ -3791,58 +4153,82 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_asia: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "你好")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Привет")
 
         case tile_africa: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hujambo")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Guten Tag")
 
         case tile_america: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hola")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hello")
 
         case tile_infernia_warning_sign: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(243))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "“No fowl play…”")
             case 1:
+                flow_texture(flow, sprites.get_texture(243))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "“Nor egrets…”")
             case 2:
+                flow_texture(flow, sprites.get_texture(243))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "“Heron out…”")
             case 3:
+                flow_texture(flow, sprites.get_texture(243))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "“No good tern…”")
             case 4:
+                flow_texture(flow, sprites.get_texture(243))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "“Goose unpunished.”")
 
         case tile_bakery: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(244))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hi, I’m ")
@@ -3853,6 +4239,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(245))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "My name is ")
@@ -3863,6 +4251,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(244))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "There is something ")
@@ -3872,7 +4262,7 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, " about ")
-                flow_texture(flow, sprites.get_texture(227))
+                flow_texture(flow, sprites.get_texture(246))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "cake")
@@ -3880,6 +4270,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 3:
+                flow_texture(flow, sprites.get_texture(245))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Crafting with cake")
@@ -3889,6 +4281,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_drake: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(247))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hi, I’m ")
@@ -3899,10 +4293,14 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(247))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Did you know that a male duck is a drake?…")
             case 2:
+                flow_texture(flow, sprites.get_texture(247))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I was once a ")
@@ -3915,10 +4313,14 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_fire_drake: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(248))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Thank you again…")
             case 1:
+                flow_texture(flow, sprites.get_texture(248))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "…for restoing me, the ")
@@ -3929,6 +4331,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(248))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "You may call me ")
@@ -3941,6 +4345,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_gym: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(249))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hi, I’m ")
@@ -3951,6 +4357,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(249))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Welcome to the ")
@@ -3961,6 +4369,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(250))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Ring the ")
@@ -3973,16 +4383,22 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_craft_guild: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(207))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Welcome to ye olde crochety guild…")
             case 1:
+                flow_texture(flow, sprites.get_texture(207))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "The guild of knit pickers and sew and sews!")
 
         case tile_kris_and_lydia: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(251))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I’m ")
@@ -3993,6 +4409,8 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 1:
+                flow_texture(flow, sprites.get_texture(252))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "And I’m ")
@@ -4003,10 +4421,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 2:
+                flow_texture(flow, sprites.get_texture(251))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "We like ")
-                flow_texture(flow, sprites.get_texture(228))
+                flow_texture(flow, sprites.get_texture(253))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "big kitties")
@@ -4014,10 +4434,12 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
                 gl_set_font_size(50)
                 flow_text(flow, "…")
             case 3:
+                flow_texture(flow, sprites.get_texture(252))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "I wish there were a way to make our kitty ")
-                flow_texture(flow, sprites.get_texture(229))
+                flow_texture(flow, sprites.get_texture(254))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "️")
@@ -4030,22 +4452,30 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_prepanda: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Welcome to the city of Dis…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "The land of Infernia…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "The state of Pandamonium…")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "For once here were ")
-                flow_texture(flow, sprites.get_texture(230))
+                flow_texture(flow, sprites.get_texture(255))
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "pandas")
@@ -4055,74 +4485,104 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         case tile_kitty: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "meow")
 
         case tile_tiger: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_B_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "MEOW")
 
         case tile_waffle: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Everyone likes waffles…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "So there is a certain irony…")
             case 2:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "That one cannot waffle and also agree…")
             case 3:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "One might call it a waffle irony.")
             case 4:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Wheat, wheat, don’t tell me…")
             case 5:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "This waffle is gluten free.")
 
         case tile_rose: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hey…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "…buddy!")
 
         case tile_hibiscus: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Hi…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "…biscus!")
 
         case tile_cactus: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "’Allo…")
             case 1:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "’Alloe?")
 
         case tile_leaf: switch turn:
             case 0:
+                flow_texture(flow, sprites.get_texture(0))
+                flow_sp(flow)
                 check(gl_set_font_name("data/fonts/Fontin_Sans/Fontin_Sans_R_45b.otf"), "could not load font")
                 gl_set_font_size(50)
                 flow_text(flow, "Leaf me alone.")

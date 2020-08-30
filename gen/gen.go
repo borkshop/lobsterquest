@@ -54,6 +54,13 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
         case tile_{{ $entityDialog.Entity }}: switch turn:
 {{-   range $ei, $dialog := $entityDialog.Dialogs }}
             case {{ $ei }}:
+{{-     if ge $dialog.First 0 }}
+                flow_texture(flow, sprites.get_texture({{ $dialog.First }}))
+                flow_sp(flow)
+{{-     else if ge $dialog.Second 0 }}
+                flow_texture(flow, sprites.get_texture({{ $dialog.Second }}))
+                flow_sp(flow)
+{{-     end }}
 {{-     range $si, $segment := $dialog.Segments }}
 {{-       if $segment.Text }}
 {{-         if (and $segment.Bold $segment.Italic) }}

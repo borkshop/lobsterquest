@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"strings"
 )
@@ -40,33 +41,54 @@ func ReadDialogs(r io.Reader, md *openmojiData, sprites *Sprites) ([]EntityDialo
 	}
 
 	sc := newTableScanner(r, "\t")
+
+	dialogField := sc.HeaderIndex("dialog")
+	if dialogField < 0 {
+		return nil, fmt.Errorf("Dialogs with no dialog field? Try again.")
+	}
+
+	firstField := sc.HeaderIndex("first person")
+	if firstField < 0 {
+		return nil, fmt.Errorf("Dialogs with no first person field? Try again.")
+	}
+
+	secondField := sc.HeaderIndex("second person")
+	if secondField < 0 {
+		return nil, fmt.Errorf("Dialogs with no second person field? Try again.")
+	}
+
 	for sc.Expect(1) {
-		if dialogField := sc.HeaderIndex("dialog"); dialogField >= 0 {
-			for sc.Expect(1) {
-				if dialogField >= len(sc.Fields) {
-					continue
-				}
-				entity := sc.Fields[0]
-				if strings.HasPrefix(entity, "#") {
-					continue
-				}
-				if entity == "" {
-					entity = previousEntity
-				} else {
-					entity = strings.Split(entity, "/")[0]
-					if previousEntity != entity {
-						flush()
-						previousEntity = entity
-					}
-				}
-				segments := DialogSegments(sc.Fields[dialogField], md, spriteForCode)
-				dialogs = append(dialogs, Dialog{
-					First:    -1,
-					Second:   -1,
-					Segments: segments,
-				})
+		if dialogField >= len(sc.Fields) {
+			continue
+		}
+		entity := sc.Fields[0]
+		if strings.HasPrefix(entity, "#") {
+			continue
+		}
+		if entity == "" {
+			entity = previousEntity
+		} else {
+			entity = strings.Split(entity, "/")[0]
+			if previousEntity != entity {
+				flush()
+				previousEntity = entity
 			}
 		}
+		segments := DialogSegments(sc.Fields[dialogField], md, spriteForCode)
+
+		var first, second int
+		if count, code := md.Match(sc.Fields[firstField]); count > 0 {
+			first = spriteForCode(code)
+		}
+		if count, code := md.Match(sc.Fields[secondField]); count > 0 {
+			second = spriteForCode(code)
+		}
+
+		dialogs = append(dialogs, Dialog{
+			First:    first,
+			Second:   second,
+			Segments: segments,
+		})
 	}
 
 	flush()
