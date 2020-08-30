@@ -75,10 +75,10 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 {{  end }}
         default: nil
 
-def draw_emoji_quest_dialog_next_turn(entity, turn):
+def emoji_quest_dialog_next_turn(entity, turn):
     return switch entity:
 {{- range $id, $entityDialog := .Dialogs }}
-        case tile_{{ $entityDialog.Entity }}: turn % {{ $entityDialog.Dialogs | len }}
+        case tile_{{ $entityDialog.Entity }}: (turn + 1) % {{ $entityDialog.Dialogs | len }}
 {{- end }}
         default: -1
 

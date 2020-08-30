@@ -4129,68 +4129,68 @@ def draw_emoji_quest_dialog(entity, turn, flow, sprites):
 
         default: nil
 
-def draw_emoji_quest_dialog_next_turn(entity, turn):
+def emoji_quest_dialog_next_turn(entity, turn):
     return switch entity:
-        case tile_apple_tree: turn % 11
-        case tile_pine_tree: turn % 12
-        case tile_pear_tree: turn % 4
-        case tile_castle: turn % 5
-        case tile_captain: turn % 3
-        case tile_major: turn % 4
-        case tile_miner: turn % 3
-        case tile_euia_bank: turn % 5
-        case tile_euia_forge: turn % 5
-        case tile_harriet: turn % 2
-        case tile_ewe: turn % 3
-        case tile_ram: turn % 3
-        case tile_jack: turn % 5
-        case tile_glub: turn % 5
-        case tile_owl: turn % 3
-        case tile_mermaid: turn % 1
-        case tile_herman: turn % 5
-        case tile_merman: turn % 1
-        case tile_marco: turn % 4
-        case tile_sponge: turn % 3
-        case tile_bank_of_occia: turn % 11
-        case tile_north_pole: turn % 8
-        case tile_fist: turn % 3
-        case tile_sal_the_snake: turn % 4
-        case tile_sal_the_mander: turn % 2
-        case tile_eagle: turn % 3
-        case tile_lettuce: turn % 9
-        case tile_observatory: turn % 2
-        case tile_genome: turn % 3
-        case tile_dumbledore: turn % 8
-        case tile_horse: turn % 4
-        case tile_unicorn: turn % 3
-        case tile_wilted_rose: turn % 3
-        case tile_carrot: turn % 6
-        case tile_justin: turn % 3
-        case tile_plumber: turn % 2
-        case tile_pat: turn % 3
-        case tile_whale: turn % 4
-        case tile_bear: turn % 3
-        case tile_polar_bear: turn % 1
-        case tile_abdominal_snowman: turn % 3
-        case tile_abominable_snowman: turn % 2
-        case tile_sicko: turn % 3
-        case tile_wello: turn % 1
-        case tile_asia: turn % 2
-        case tile_africa: turn % 2
-        case tile_america: turn % 2
-        case tile_infernia_warning_sign: turn % 5
-        case tile_bakery: turn % 4
-        case tile_drake: turn % 3
-        case tile_fire_drake: turn % 3
-        case tile_gym: turn % 3
-        case tile_craft_guild: turn % 2
-        case tile_kris_and_lydia: turn % 4
-        case tile_prepanda: turn % 4
-        case tile_kitty: turn % 1
-        case tile_tiger: turn % 1
-        case tile_waffle: turn % 6
-        case tile_rose: turn % 2
-        case tile_hibiscus: turn % 2
-        case tile_cactus: turn % 2
-        case tile_leaf: turn % 1
+        case tile_apple_tree: (turn + 1) % 11
+        case tile_pine_tree: (turn + 1) % 12
+        case tile_pear_tree: (turn + 1) % 4
+        case tile_castle: (turn + 1) % 5
+        case tile_captain: (turn + 1) % 3
+        case tile_major: (turn + 1) % 4
+        case tile_miner: (turn + 1) % 3
+        case tile_euia_bank: (turn + 1) % 5
+        case tile_euia_forge: (turn + 1) % 5
+        case tile_harriet: (turn + 1) % 2
+        case tile_ewe: (turn + 1) % 3
+        case tile_ram: (turn + 1) % 3
+        case tile_jack: (turn + 1) % 5
+        case tile_glub: (turn + 1) % 5
+        case tile_owl: (turn + 1) % 3
+        case tile_mermaid: (turn + 1) % 1
+        case tile_herman: (turn + 1) % 5
+        case tile_merman: (turn + 1) % 1
+        case tile_marco: (turn + 1) % 4
+        case tile_sponge: (turn + 1) % 3
+        case tile_bank_of_occia: (turn + 1) % 11
+        case tile_north_pole: (turn + 1) % 8
+        case tile_fist: (turn + 1) % 3
+        case tile_sal_the_snake: (turn + 1) % 4
+        case tile_sal_the_mander: (turn + 1) % 2
+        case tile_eagle: (turn + 1) % 3
+        case tile_lettuce: (turn + 1) % 9
+        case tile_observatory: (turn + 1) % 2
+        case tile_genome: (turn + 1) % 3
+        case tile_dumbledore: (turn + 1) % 8
+        case tile_horse: (turn + 1) % 4
+        case tile_unicorn: (turn + 1) % 3
+        case tile_wilted_rose: (turn + 1) % 3
+        case tile_carrot: (turn + 1) % 6
+        case tile_justin: (turn + 1) % 3
+        case tile_plumber: (turn + 1) % 2
+        case tile_pat: (turn + 1) % 3
+        case tile_whale: (turn + 1) % 4
+        case tile_bear: (turn + 1) % 3
+        case tile_polar_bear: (turn + 1) % 1
+        case tile_abdominal_snowman: (turn + 1) % 3
+        case tile_abominable_snowman: (turn + 1) % 2
+        case tile_sicko: (turn + 1) % 3
+        case tile_wello: (turn + 1) % 1
+        case tile_asia: (turn + 1) % 2
+        case tile_africa: (turn + 1) % 2
+        case tile_america: (turn + 1) % 2
+        case tile_infernia_warning_sign: (turn + 1) % 5
+        case tile_bakery: (turn + 1) % 4
+        case tile_drake: (turn + 1) % 3
+        case tile_fire_drake: (turn + 1) % 3
+        case tile_gym: (turn + 1) % 3
+        case tile_craft_guild: (turn + 1) % 2
+        case tile_kris_and_lydia: (turn + 1) % 4
+        case tile_prepanda: (turn + 1) % 4
+        case tile_kitty: (turn + 1) % 1
+        case tile_tiger: (turn + 1) % 1
+        case tile_waffle: (turn + 1) % 6
+        case tile_rose: (turn + 1) % 2
+        case tile_hibiscus: (turn + 1) % 2
+        case tile_cactus: (turn + 1) % 2
+        case tile_leaf: (turn + 1) % 1
         default: -1

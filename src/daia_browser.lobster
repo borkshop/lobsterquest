@@ -193,6 +193,7 @@ class daia_mode:
     face_meshes: [resource]
     face_textures: [resource]
     pov: daia_vantage
+    dialog_turn: int
     tiles: [tile_entity_id]
     neighbors: [[int]]
     flags: [int]
@@ -202,6 +203,7 @@ class daia_mode:
 
     def daia_input():
         def go(dir):
+            dialog_turn = 0
             pov.camera_go(dir, pov.next.elevation)
 
         if gl_button("k") == 1: go(0)
@@ -229,9 +231,12 @@ class daia_mode:
             for(pov.area) index_within_face:
                 let index = face_offset + index_within_face
                 flags[index] = flags[pov.index] & ~daia_map_flag_water | flag
+        if gl_button("n") == 1:
+            dialog_turn = emoji_quest_dialog_next_turn(tiles[pov.index], dialog_turn)
         if gl_button("w") == 1:
             write_daia_file(tiles, flags)
             write_daia_data_map_tsv(tiles, flags)
+
 
     // draws water or magma on a face using the rounded corner texture and
     // whatever color is on the gl_context to give it a hue.
@@ -343,7 +348,7 @@ class daia_mode:
         let scale = xy_1 * min(gl_window_size()) / size
         gl_scale(scale):
             flow(size - pad * 2, 60) f:
-                draw_emoji_quest_dialog(tiles[pov.index], 0, f, sprites)
+                draw_emoji_quest_dialog(tiles[pov.index], dialog_turn, f, sprites)
             fn backdrop, draw:
                 if backdrop != xy_0:
                     gl_translate(
@@ -377,6 +382,7 @@ def new_daia_mode(
         face_textures: face_textures,
         neighbors: neighbors,
         pov: new_daia_vantage(size, neighbors, index, elevation),
+        dialog_turn: 0,
         tiles: map(6*area): tile_none,
         flags: map(6*area): 0,
         sprites: sprites,
